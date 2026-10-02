@@ -3,426 +3,819 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BurnoutCheck — Диагностика и восстановление</title>
+<title>Balance — Профилактика эмоционального выгорания</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Firebase SDK (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <style>
 :root {
-  --bg-body: #1e293b;
-  --bg-sidebar: #0f172a;
-  --bg-card: #334155;
-  --bg-card-alt: #3b4a63;
-  --bg-input: #475569;
-  --primary: #818cf8;
-  --primary-hover: #6366f1;
-  --primary-light: rgba(129,140,248,0.15);
-  --text-main: #f1f5f9;
-  --text-soft: #94a3b8;
-  --text-dim: #64748b;
-  --success: #34d399;
-  --success-light: rgba(52,211,153,0.15);
-  --warning: #fbbf24;
-  --warning-light: rgba(251,191,36,0.15);
-  --danger: #f87171;
-  --danger-light: rgba(248,113,113,0.15);
-  --border: #475569;
-  --border-light: #334155;
+  --bg: #faf7f2;
+  --bg-alt: #f5efe6;
+  --card: #ffffff;
+  --text: #2b2b2b;
+  --text-soft: #6b6b6b;
+  --text-dim: #999;
+  --primary: #8ba888;
+  --primary-dark: #6d8c6a;
+  --primary-light: #eef3ec;
+  --accent: #e8c4b8;
+  --accent-soft: #f5e8e2;
+  --border: #ebe3d8;
+  --border-soft: #f0eae0;
+  --success: #7fa97c;
+  --warning: #d4a373;
+  --danger: #c97b6a;
+  --shadow-sm: 0 2px 8px rgba(90,70,50,0.04);
+  --shadow: 0 4px 16px rgba(90,70,50,0.06);
+  --shadow-lg: 0 12px 32px rgba(90,70,50,0.10);
   --radius: 16px;
-  --shadow: 0 4px 6px -1px rgba(0,0,0,0.3), 0 2px 4px -1px rgba(0,0,0,0.2);
+}
+
+[data-theme="dark"] {
+  --bg: #1a1815;
+  --bg-alt: #252220;
+  --card: #2b2724;
+  --text: #f0e8dc;
+  --text-soft: #b0a89c;
+  --text-dim: #7a7268;
+  --primary: #a4c19f;
+  --primary-dark: #8ba888;
+  --primary-light: rgba(164, 193, 159, 0.12);
+  --accent: #d4a88f;
+  --accent-soft: rgba(212, 168, 143, 0.15);
+  --border: #3d3733;
+  --border-soft: #332e2a;
+  --success: #a4c19f;
+  --warning: #e0b580;
+  --danger: #d99680;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.25);
+  --shadow: 0 4px 16px rgba(0,0,0,0.3);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.4);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: var(--bg-body);
-  color: var(--text-main);
-  display: flex;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
   min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s, color 0.3s;
 }
 
-aside {
-  width: 260px;
-  background: var(--bg-sidebar);
-  color: #fff;
-  padding: 2rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  flex-shrink: 0;
+h1, h2, h3, h4 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.topnav {
   position: sticky;
   top: 0;
-  height: 100vh;
-  overflow-y: auto;
-}
-.logo {
-  font-size: 1.4rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #818cf8, #c4b5fd);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-.nav-menu { display: flex; flex-direction: column; gap: 0.3rem; }
-.nav-link {
+  z-index: 100;
+  background: var(--bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-soft);
+  padding: 0.9rem 2rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem;
-  color: #94a3b8;
-  text-decoration: none;
-  border-radius: 12px;
-  transition: all 0.2s;
-  font-weight: 500;
+  justify-content: space-between;
+  gap: 2rem;
+}
+[data-theme="light"] .topnav { background: rgba(250, 247, 242, 0.9); }
+[data-theme="dark"] .topnav { background: rgba(26, 24, 21, 0.9); }
+
+.nav-logo {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   cursor: pointer;
+  flex-shrink: 0;
 }
-.nav-link:hover { background: rgba(129,140,248,0.1); color: #a5b4fc; }
-.nav-link.active { background: var(--primary); color: #fff; }
-.nav-icon { font-size: 1.2rem; line-height: 1; }
+.nav-logo-icon {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+}
+.nav-menu { display: flex; gap: 0.3rem; flex: 1; justify-content: center; }
+.nav-menu a {
+  padding: 0.5rem 1rem;
+  color: var(--text-soft);
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.nav-menu a:hover { color: var(--text); background: var(--bg-alt); }
+.nav-menu a.active { color: var(--text); font-weight: 600; }
 
-.sidebar-footer {
-  margin-top: auto;
-  font-size: 0.8rem;
-  color: #475569;
-  line-height: 1.5;
+.nav-actions { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
+.nav-icon-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--bg-alt);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;
+}
+.nav-icon-btn:hover { transform: scale(1.05); background: var(--border-soft); }
+.nav-icon-btn svg {
+  width: 20px; height: 20px;
+  stroke: var(--text-soft);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nav-profile-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;
+}
+.nav-profile-btn:hover { transform: scale(1.05); }
+.nav-profile-btn svg {
+  width: 20px; height: 20px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nav-profile-btn.logged-in { background: var(--primary-dark); }
+
+.mobile-menu-btn {
+  display: none;
+  background: none; border: none; cursor: pointer;
+  padding: 0.5rem; font-size: 1.4rem; color: var(--text);
 }
 
-main { flex: 1; padding: 2.5rem; overflow-y: auto; }
-.page { display: none; animation: fadeIn 0.4s ease; }
+main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
+.page { display: none; animation: fadeIn 0.5s ease; }
 .page.active { display: block; }
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-.page-header { margin-bottom: 2rem; }
-.page-header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text-main); }
-.page-header .subtitle { color: var(--text-soft); max-width: 600px; }
-
-.card {
-  background: var(--bg-card);
-  padding: 2rem;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  margin-bottom: 1.5rem;
-  border: 1px solid var(--border-light);
-}
-.card h2 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-main); }
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.85rem 1.6rem;
-  border-radius: 12px;
-  font-weight: 600;
+  padding: 0.85rem 1.75rem;
+  border-radius: 999px;
+  font-weight: 500;
   cursor: pointer;
   border: none;
   text-decoration: none;
-  transition: all 0.2s;
-  font-size: 0.95rem;
-}
-.btn-primary { background: var(--primary); color: #1e293b; }
-.btn-primary:hover { background: var(--primary-hover); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 14px rgba(129,140,248,0.3); }
-.btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
-.btn-outline:hover { background: var(--primary); color: #1e293b; }
-.btn-ghost { background: var(--bg-input); color: var(--text-main); }
-.btn-ghost:hover { background: var(--border); }
-.btn-success { background: var(--success); color: #0f172a; }
-.btn-success:hover { background: #10b981; color: #fff; transform: translateY(-2px); }
-.btn-danger { background: transparent; border: 2px solid var(--danger); color: var(--danger); }
-.btn-danger:hover { background: var(--danger); color: #fff; }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
-
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 2rem;
-  align-items: center;
-}
-.hero-emoji { font-size: 6rem; text-align: center; }
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3,1fr);
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-.stat-box {
-  text-align: center;
-  padding: 1.5rem 1rem;
-  border-radius: 12px;
-  background: var(--bg-card-alt);
-  border: 1px solid var(--border-light);
-}
-.stat-num { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
-.stat-label { font-size: 0.8rem; color: var(--text-soft); margin-top: 0.25rem; }
-
-.role-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-}
-.role-card {
-  padding: 2rem 1.5rem;
-  border-radius: 16px;
-  background: var(--bg-card-alt);
-  border: 2px solid var(--border);
-  cursor: pointer;
-  text-align: center;
   transition: all 0.25s;
+  font-size: 0.95rem;
+  font-family: inherit;
 }
-.role-card:hover {
-  border-color: var(--primary);
-  background: var(--primary-light);
-  transform: translateY(-4px);
-  box-shadow: 0 10px 24px rgba(129,140,248,0.25);
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(139, 168, 136, 0.3);
 }
-.role-emoji { font-size: 3rem; margin-bottom: 1rem; }
-.role-title { font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem; }
-.role-desc { font-size: 0.9rem; color: var(--text-soft); line-height: 1.6; }
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(139, 168, 136, 0.4);
+}
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text);
+}
+.btn-outline:hover { background: var(--bg-alt); border-color: var(--primary); }
+.btn-ghost { background: var(--bg-alt); color: var(--text); }
+.btn-ghost:hover { background: var(--border-soft); }
+.btn-soft { background: var(--primary-light); color: var(--primary-dark); font-weight: 600; }
+.btn-soft:hover { background: var(--border-soft); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+.btn-sm { padding: 0.6rem 1.25rem; font-size: 0.85rem; }
 
-.quiz-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-.quiz-counter { font-weight: 600; color: var(--text-soft); }
-.progress-bar { width: 100%; height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; margin-bottom: 2rem; }
-.progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #c4b5fd); border-radius: 5px; width: 0%; transition: width 0.4s ease; }
-.quiz-question { font-size: 1.35rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-main); }
+.hero {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+  padding: 3rem 0 4rem;
+}
+.hero-content h1 { font-size: 3.4rem; margin-bottom: 1.5rem; line-height: 1.1; }
+.hero-content p { color: var(--text-soft); font-size: 1.05rem; margin-bottom: 2rem; max-width: 460px; }
+.hero-cta { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+.hero-features { display: flex; gap: 1.5rem; flex-wrap: wrap; color: var(--text-soft); font-size: 0.85rem; }
+.hero-features span { display: flex; align-items: center; gap: 0.4rem; }
+.hero-features .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); display: inline-block; }
+
+.hero-image {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  aspect-ratio: 4/5;
+  background: linear-gradient(135deg, #e8d5c4 0%, #d4c5b0 100%);
+  box-shadow: var(--shadow-lg);
+}
+[data-theme="dark"] .hero-image { background: linear-gradient(135deg, #3d3328 0%, #2e2822 100%); }
+.hero-image-placeholder {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8rem; opacity: 0.3;
+}
+.hero-quote {
+  position: absolute; top: 2rem; right: 2rem;
+  background: rgba(255,255,255,0.9);
+  padding: 1rem 1.25rem;
+  border-radius: 16px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--text);
+  max-width: 200px;
+  box-shadow: var(--shadow);
+  line-height: 1.4;
+}
+[data-theme="dark"] .hero-quote { background: rgba(43, 39, 36, 0.9); }
+
+.section { padding: 3.5rem 0; }
+.section-title { font-size: 2.2rem; margin-bottom: 0.75rem; text-align: center; }
+.section-subtitle { text-align: center; color: var(--text-soft); margin-bottom: 3rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+.steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem; }
+.step { text-align: center; padding: 1.5rem 1rem; }
+.step-icon {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: #f5e8d8;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 1rem;
+}
+[data-theme="dark"] .step-icon { background: rgba(212, 168, 143, 0.15); }
+.step-icon svg { width: 26px; height: 26px; }
+[data-theme="dark"] .step-icon svg { stroke: #d4a88f; }
+.step-num { font-size: 0.75rem; color: var(--primary); font-weight: 700; margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+.step h4 { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
+.step p { font-size: 0.8rem; color: var(--text-soft); line-height: 1.5; }
+
+.audience-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.audience-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.3s, box-shadow 0.3s;
+  border: 1px solid var(--border-soft);
+}
+.audience-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.audience-img {
+  height: 180px;
+  background: linear-gradient(135deg, #e8d5c4, #d4c5b0);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 4rem; opacity: 0.6;
+}
+[data-theme="dark"] .audience-img { background: linear-gradient(135deg, #3d3328, #2e2822); }
+.audience-body { padding: 1.5rem; }
+.audience-body h4 { font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 600; margin-bottom: 0.5rem; }
+.audience-body p { font-size: 0.88rem; color: var(--text-soft); line-height: 1.5; }
+
+.cta-banner {
+  margin-top: 3rem;
+  border-radius: 24px;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, #f0e5d8 0%, #e8d5c4 50%, #d4c5b0 100%);
+}
+[data-theme="dark"] .cta-banner { background: linear-gradient(135deg, #3d3328 0%, #2e2822 50%, #252220 100%); }
+.cta-banner h2 { font-size: 2.4rem; margin-bottom: 1rem; }
+.cta-banner p { color: var(--text-soft); margin-bottom: 1.75rem; }
+
+.quiz-container {
+  max-width: 640px;
+  margin: 3rem auto;
+  background: var(--card);
+  border-radius: 24px;
+  padding: 3rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-soft);
+}
+.quiz-progress {
+  height: 4px; background: var(--border-soft);
+  border-radius: 2px; overflow: hidden; margin-bottom: 2rem;
+}
+.quiz-progress-fill {
+  height: 100%; background: var(--primary);
+  width: 0%; transition: width 0.4s ease; border-radius: 2px;
+}
+.quiz-step-label {
+  display: flex; justify-content: space-between;
+  color: var(--text-soft); font-size: 0.85rem; margin-bottom: 1rem;
+}
+.quiz-question {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; line-height: 1.2;
+}
+.quiz-hint { color: var(--text-soft); font-size: 0.9rem; margin-bottom: 2rem; }
 .quiz-options { display: grid; gap: 0.75rem; }
 .quiz-option {
-  padding: 1.1rem 1.25rem;
-  border: 2px solid var(--border);
+  padding: 1.1rem 1.4rem;
+  border: 1.5px solid var(--border);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s;
   font-size: 1rem;
-  color: var(--text-main);
-  background: var(--bg-card-alt);
+  color: var(--text);
+  background: var(--card);
+  font-family: inherit;
+  text-align: left;
 }
 .quiz-option:hover { border-color: var(--primary); background: var(--primary-light); }
 .quiz-option.selected {
   border-color: var(--primary);
   background: var(--primary-light);
-  color: var(--primary);
+  color: var(--primary-dark);
   font-weight: 600;
-  box-shadow: 0 0 0 4px rgba(129,140,248,0.15);
+  box-shadow: 0 0 0 3px rgba(139, 168, 136, 0.15);
 }
-.quiz-nav { display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.quiz-nav { display: flex; justify-content: space-between; margin-top: 2rem; }
 
-.result-hero { text-align: center; }
-.result-circle {
-  width: 140px; height: 140px;
-  border-radius: 50%;
-  margin: 0 auto 1.5rem;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 3rem; font-weight: 800;
+.result-card {
+  max-width: 720px;
+  margin: 3rem auto;
+  background: var(--card);
+  border-radius: 24px;
+  padding: 3rem;
+  box-shadow: var(--shadow);
+  text-align: center;
+  border: 1px solid var(--border-soft);
 }
-.circle-low { background: var(--success-light); color: var(--success); border: 3px solid var(--success); }
-.circle-mid { background: var(--warning-light); color: var(--warning); border: 3px solid var(--warning); }
-.circle-high { background: var(--danger-light); color: var(--danger); border: 3px solid var(--danger); }
-.result-badge {
-  padding: 0.5rem 1.25rem;
-  border-radius: 999px;
-  font-weight: 700;
+.result-label {
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.result-title { font-size: 2.2rem; margin-bottom: 2rem; }
+.result-donut {
+  width: 180px; height: 180px;
+  margin: 0 auto 1.5rem;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.result-donut svg { transform: rotate(-90deg); }
+.result-donut-percent {
+  position: absolute;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem; font-weight: 700; color: var(--text);
+}
+.result-donut-label { position: absolute; bottom: 35px; font-size: 0.8rem; color: var(--text-soft); }
+.result-causes {
+  text-align: left;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: var(--bg-alt);
+  border-radius: 16px;
+}
+.result-causes h4 {
+  font-family: 'Inter', sans-serif;
   font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  display: inline-block;
+  letter-spacing: 0.08em;
+  color: var(--text-soft);
   margin-bottom: 1rem;
+  font-weight: 600;
 }
-.badge-low { background: var(--success-light); color: var(--success); }
-.badge-moderate { background: var(--warning-light); color: var(--warning); }
-.badge-high { background: var(--danger-light); color: var(--danger); }
-.score-bar-bg { width: 100%; height: 24px; background: var(--border); border-radius: 12px; overflow: hidden; margin: 1.5rem 0; }
-.score-bar-fill { height: 100%; border-radius: 12px; width: 0; transition: width 1.2s cubic-bezier(0.22,1,0.36,1); }
-.fill-low { background: linear-gradient(90deg, #34d399, #6ee7b7); }
-.fill-mid { background: linear-gradient(90deg, #fbbf24, #fcd34d); }
-.fill-high { background: linear-gradient(90deg, #f87171, #fca5a5); }
-
-.reco-list { margin-top: 1.5rem; }
-.reco-item {
-  display: flex; gap: 1rem; padding: 1rem; border-radius: 12px;
-  background: var(--bg-card-alt); margin-bottom: 0.75rem;
-  align-items: start; border: 1px solid var(--border-light); color: var(--text-main);
+.cause-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; font-size: 0.95rem; }
+.cause-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--danger); flex-shrink: 0; }
+.cause-dot.warning { background: var(--warning); }
+.cause-dot.success { background: var(--success); }
+.result-note {
+  background: var(--accent-soft);
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  display: flex; gap: 0.75rem; align-items: flex-start;
+  text-align: left;
+  margin-top: 1.5rem;
 }
-.reco-icon { font-size: 1.5rem; }
 
-.courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+.route-card {
+  max-width: 800px;
+  margin: 3rem auto;
+  background: var(--card);
+  border-radius: 24px;
+  padding: 3rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-soft);
+}
+.route-title { font-size: 2.2rem; margin-bottom: 0.5rem; }
+.route-subtitle { color: var(--text-soft); margin-bottom: 2.5rem; }
+.route-timeline {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 2.5rem; position: relative;
+}
+.route-timeline::before {
+  content: ''; position: absolute;
+  left: 20px; right: 20px; top: 50%;
+  height: 2px; background: var(--border); z-index: 0;
+}
+.route-step {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; color: var(--text-soft);
+  position: relative; z-index: 1; font-size: 0.9rem;
+}
+.route-step.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.route-week-label { color: var(--text-soft); font-size: 0.85rem; margin-bottom: 0.5rem; }
+.route-week-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; margin-bottom: 1.5rem; }
+.route-tasks { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+.route-task {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-alt);
+  border-radius: 12px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.route-task:hover { background: var(--border-soft); }
+.route-task-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: var(--card);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.route-task-info h5 { font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.15rem; }
+.route-task-info p { font-size: 0.78rem; color: var(--text-soft); }
+
+.courses-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; justify-content: center; }
+.courses-tab {
+  padding: 0.6rem 1.25rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--text-soft);
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.courses-tab:hover { border-color: var(--primary); color: var(--text); }
+.courses-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
 .course-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
+  background: var(--card);
   border-radius: var(--radius);
-  padding: 1.75rem;
-  transition: transform 0.25s, box-shadow 0.25s;
-  position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.3s, box-shadow 0.3s;
+  border: 1px solid var(--border-soft);
+  display: flex; flex-direction: column;
 }
-.course-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px; }
-.course-card.cb1::before { background: linear-gradient(90deg, #818cf8, #a5b4fc); }
-.course-card.cb2::before { background: linear-gradient(90deg, #a78bfa, #c4b5fd); }
-.course-card.cb3::before { background: linear-gradient(90deg, #fbbf24, #fcd34d); }
-.course-card:hover { transform: translateY(-6px); box-shadow: 0 12px 20px rgba(0,0,0,0.3); }
-.course-tag { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; margin-bottom: 1rem; }
-.tag-free { background: var(--success-light); color: var(--success); }
-.tag-basic { background: var(--primary-light); color: var(--primary); }
-.tag-pro { background: var(--warning-light); color: var(--warning); }
-.tag-vip { background: rgba(244,114,182,0.15); color: #f472b6; }
-.course-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main); }
-.course-desc { color: var(--text-soft); font-size: 0.9rem; margin-bottom: 1rem; }
-.course-meta { display: flex; gap: 1rem; font-size: 0.8rem; color: var(--text-soft); margin-bottom: 1rem; }
-.course-meta span { display: flex; align-items: center; gap: 0.25rem; }
-.course-price { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; color: var(--text-main); }
+.course-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.course-img {
+  height: 160px;
+  background: linear-gradient(135deg, #e8d5c4, #d4c5b0);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3.5rem; opacity: 0.6;
+  position: relative;
+}
+[data-theme="dark"] .course-img { background: linear-gradient(135deg, #3d3328, #2e2822); }
+.course-badge {
+  position: absolute; top: 1rem; left: 1rem;
+  background: rgba(255,255,255,0.95);
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #2b2b2b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.course-badge.free { color: var(--success); }
+.course-body { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
+.course-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.35rem; font-weight: 600; margin-bottom: 0.5rem;
+}
+.course-desc { color: var(--text-soft); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1rem; flex: 1; }
+.course-meta { display: flex; gap: 1rem; font-size: 0.78rem; color: var(--text-dim); margin-bottom: 1rem; flex-wrap: wrap; }
+.course-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 1rem; border-top: 1px solid var(--border-soft);
+}
+.course-price { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; }
 .course-price.free { color: var(--success); }
 
-.tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-.tab-btn {
-  padding: 0.6rem 1.25rem;
-  border: none;
-  background: var(--bg-input);
+.materials-layout { display: grid; grid-template-columns: 220px 1fr; gap: 2rem; }
+.materials-sidebar { position: sticky; top: 100px; align-self: start; }
+.materials-sidebar h4 {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--text-soft);
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-}
-.tab-btn:hover { background: var(--border); color: var(--text-main); }
-.tab-btn.active { background: var(--primary); color: #1e293b; }
-.tab-content { display: none; }
-.tab-content.active { display: block; animation: fadeIn 0.3s; }
-
-.resource-item {
-  display: flex; gap: 1rem; padding: 1.25rem; border-radius: 12px;
-  background: var(--bg-card-alt); margin-bottom: 0.75rem;
-  border: 1px solid var(--border-light); transition: all 0.2s; align-items: center;
-}
-.resource-item:hover { border-color: var(--primary); background: var(--bg-card); }
-.resource-icon {
-  width: 48px; height: 48px; border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem; flex-shrink: 0;
-}
-.resource-info h4 { font-size: 1rem; margin-bottom: 0.25rem; color: var(--text-main); }
-.resource-info p { font-size: 0.85rem; color: var(--text-soft); }
-
-.video-placeholder {
-  text-align: center;
-  padding: 3rem 2rem;
-  border: 2px dashed var(--border);
-  border-radius: var(--radius);
-  background: linear-gradient(135deg, var(--bg-card-alt), var(--bg-card));
-}
-.video-placeholder .emoji { font-size: 4rem; margin-bottom: 1rem; }
-.video-placeholder h3 { font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--text-main); }
-.video-placeholder p { color: var(--text-soft); margin-bottom: 1.5rem; }
-.coming-soon-badge {
-  display: inline-block;
-  background: linear-gradient(135deg, #8b5cf6, #6366f1);
-  color: #fff;
-  padding: 0.5rem 1.25rem;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 0.85rem;
   margin-bottom: 1rem;
 }
+.materials-sidebar ul { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; }
+.materials-sidebar li {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  transition: all 0.2s;
+}
+.materials-sidebar li:hover { background: var(--bg-alt); color: var(--text); }
+.materials-sidebar li.active { background: var(--primary-light); color: var(--primary-dark); font-weight: 600; }
+.materials-search {
+  width: 100%;
+  padding: 0.9rem 1.25rem;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  font-size: 0.92rem;
+  margin-bottom: 1.5rem;
+  font-family: inherit;
+  color: var(--text);
+}
+.materials-search:focus { outline: none; border-color: var(--primary); }
+.materials-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem; }
+.material-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s;
+  cursor: pointer;
+}
+.material-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.material-img {
+  height: 140px;
+  background: linear-gradient(135deg, #f0e5d8, #e8d5c4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3rem; opacity: 0.6;
+}
+[data-theme="dark"] .material-img { background: linear-gradient(135deg, #3d3328, #2e2822); }
+.material-body { padding: 1.25rem; }
+.material-body h5 { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
+.material-body p { font-size: 0.8rem; color: var(--text-soft); }
+
+.profile-layout { display: grid; grid-template-columns: 320px 1fr; gap: 2rem; margin-top: 2rem; }
+.profile-side {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 2rem;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+.profile-avatar-lg {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem; font-weight: 700;
+  margin: 0 auto 1rem;
+}
+.profile-side h3 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+.profile-side .login { color: var(--text-soft); font-size: 0.9rem; margin-bottom: 1.5rem; }
+.profile-side .sub-status {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+.sub-active { background: var(--primary-light); color: var(--primary-dark); }
+.sub-inactive { background: var(--accent-soft); color: var(--danger); }
+
+.profile-main { display: flex; flex-direction: column; gap: 1.5rem; }
+.profile-card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 2rem;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-sm);
+}
+.profile-card h4 {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-soft);
+  margin-bottom: 1.25rem;
+  font-weight: 600;
+}
+.stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.stat-mini { text-align: center; padding: 1rem; background: var(--bg-alt); border-radius: 12px; }
+.stat-mini .num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem; font-weight: 700;
+  color: var(--primary-dark);
+}
+.stat-mini .lbl { font-size: 0.78rem; color: var(--text-soft); margin-top: 0.25rem; }
+
+.profile-course-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--border-soft);
+}
+.profile-course-row:last-child { border-bottom: none; }
+.profile-course-row .name { font-weight: 500; font-size: 0.95rem; }
+.profile-course-row .status { color: var(--success); font-size: 0.82rem; font-weight: 600; }
+
+.empty-state { color: var(--text-dim); font-size: 0.9rem; font-style: italic; text-align: center; padding: 1rem; }
+
+.about-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 2rem; }
+.about-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 2rem;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-sm);
+}
+.about-card h4 { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }
+.about-card p { color: var(--text-soft); font-size: 0.9rem; line-height: 1.6; }
+
+.phase-timeline { position: relative; padding-left: 2rem; margin-top: 1rem; }
+.phase-timeline::before {
+  content: ''; position: absolute;
+  left: 7px; top: 8px; bottom: 8px;
+  width: 2px; background: var(--border);
+}
+.phase-item { position: relative; padding-bottom: 1.5rem; }
+.phase-item:last-child { padding-bottom: 0; }
+.phase-item::before {
+  content: ''; position: absolute;
+  left: -2rem; top: 6px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--primary);
+  border: 3px solid var(--card);
+  box-shadow: 0 0 0 2px var(--primary);
+}
+.phase-item h5 { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.25rem; }
+.phase-item p { font-size: 0.85rem; color: var(--text-soft); }
+
+.role-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.5rem; }
+.role-card-lg {
+  padding: 2rem 1.5rem;
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  background: var(--card);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.25s;
+}
+.role-card-lg:hover { border-color: var(--primary); background: var(--primary-light); transform: translateY(-3px); }
+.role-emoji-lg { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.role-title-lg { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; margin-bottom: 0.4rem; }
+.role-desc-lg { font-size: 0.85rem; color: var(--text-soft); line-height: 1.5; }
 
 .modal-overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(43, 43, 43, 0.4);
+  backdrop-filter: blur(6px);
   display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
+  justify-content: center; align-items: center;
+  z-index: 1000;
   opacity: 0;
   transition: opacity 0.25s;
+  padding: 1rem;
 }
 .modal-overlay.show { display: flex; opacity: 1; }
 .modal {
-  background: #1e293b;
+  background: var(--card);
+  border-radius: 24px;
   padding: 2.5rem;
-  border-radius: 20px;
-  width: 90%;
-  max-width: 480px;
+  width: 100%;
+  max-width: 460px;
   text-align: center;
-  transform: scale(0.85);
+  transform: scale(0.92);
   transition: transform 0.25s;
   position: relative;
-  border: 1px solid var(--border);
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: var(--shadow-lg);
 }
 .modal-overlay.show .modal { transform: scale(1); }
-.modal.modal-wide { max-width: 600px; }
+.modal.modal-wide { max-width: 640px; }
 .modal-close {
-  position: absolute; top: 1rem; right: 1.25rem;
+  position: absolute;
+  top: 1rem; right: 1.25rem;
   background: none; border: none;
-  font-size: 1.75rem; cursor: pointer;
+  font-size: 1.5rem; cursor: pointer;
   color: var(--text-soft); line-height: 1;
+  padding: 0.25rem;
 }
-.modal h2 { margin-bottom: 1rem; color: var(--text-main); }
-.modal p { color: var(--text-soft); margin-bottom: 1.5rem; }
-.modal .price-big { font-size: 2rem; font-weight: 800; color: var(--primary); margin-bottom: 1rem; }
-
-.about-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 1.5rem; }
-.about-box { padding: 1.5rem; border-radius: 12px; background: var(--bg-card-alt); border: 1px solid var(--border-light); }
-.about-box h3 { margin-bottom: 0.5rem; color: var(--text-main); }
-.about-box p { color: var(--text-soft); font-size: 0.9rem; }
-
-.phase-timeline { position: relative; padding-left: 2.5rem; }
-.phase-timeline::before {
-  content: '';
-  position: absolute; left: 1rem; top: 0; bottom: 0;
-  width: 3px; margin-left: -1.5px;
-  background: linear-gradient(to bottom, var(--primary), rgba(129,140,248,0.2));
-  border-radius: 2px;
+.modal h2 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+.modal p { color: var(--text-soft); margin-bottom: 1.5rem; font-size: 0.92rem; }
+.modal .price-big {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem; font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 1rem;
 }
-.phase-item { position: relative; padding-bottom: 1.5rem; }
-.phase-item::before {
-  content: '';
-  position: absolute; left: -1.5rem; top: 0.35rem;
-  width: 18px; height: 18px;
-  margin-left: -9px;
-  box-sizing: border-box;
-  background: var(--primary);
-  border: 3px solid var(--bg-card);
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--primary);
-}
-.phase-item h4 { margin-bottom: 0.25rem; color: var(--text-main); }
-.phase-item p { font-size: 0.85rem; color: var(--text-soft); }
 
-.topbar {
-  position: fixed;
-  top: 0;
-  right: 0;
-  z-index: 200;
-  padding: 1rem 2.5rem 0 2.5rem;
-  pointer-events: none;
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--border-soft);
 }
-.topbar > * { pointer-events: auto; }
-
-.profile-btn {
-  width: 48px; height: 48px;
-  border-radius: 50%;
-  background: var(--bg-card);
-  border: 2px solid var(--border);
+.settings-row:last-child { border-bottom: none; }
+.settings-row-label h5 { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.2rem; text-align: left; }
+.settings-row-label p { font-size: 0.82rem; color: var(--text-soft); margin: 0; text-align: left; }
+.theme-switch {
+  position: relative;
+  width: 56px; height: 30px;
+  background: var(--border);
+  border-radius: 999px;
   cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s;
+  transition: background 0.3s;
+  flex-shrink: 0;
+  border: none;
   padding: 0;
 }
-.profile-btn:hover {
-  border-color: var(--primary);
-  background: var(--primary-light);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(129,140,248,0.3);
+.theme-switch::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.3s, background 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
-.profile-btn svg { width: 26px; height: 26px; stroke: var(--text-soft); transition: stroke 0.2s; }
-.profile-btn:hover svg { stroke: var(--primary); }
-.profile-btn.logged-in { border-color: var(--success); background: var(--success-light); }
-.profile-btn.logged-in svg { stroke: var(--success); }
+.theme-switch.on { background: var(--primary); }
+.theme-switch.on::after { transform: translateX(26px); }
+.theme-switch-icon {
+  position: absolute; top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.theme-switch-icon.sun { left: 8px; opacity: 1; }
+.theme-switch-icon.moon { right: 8px; opacity: 0.4; }
+.theme-switch.on .theme-switch-icon.sun { opacity: 0.4; }
+.theme-switch.on .theme-switch-icon.moon { opacity: 1; }
 
 .auth-tabs {
   display: flex;
-  background: var(--bg-input);
+  background: var(--bg-alt);
   border-radius: 12px;
   padding: 4px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
 }
 .auth-tab {
   flex: 1;
@@ -432,261 +825,215 @@ main { flex: 1; padding: 2.5rem; overflow-y: auto; }
   color: var(--text-soft);
   border-radius: 9px;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: 500;
+  font-size: 0.92rem;
   transition: all 0.2s;
   font-family: inherit;
 }
-.auth-tab.active { background: var(--primary); color: #1e293b; }
+.auth-tab.active { background: var(--card); color: var(--text); box-shadow: var(--shadow-sm); }
 .auth-form { text-align: left; }
 .auth-form label {
   display: block;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--text-soft);
   margin-bottom: 0.4rem;
-  font-weight: 600;
+  font-weight: 500;
 }
 .auth-form input {
   width: 100%;
-  padding: 0.85rem 1rem;
-  border-radius: 10px;
-  border: 2px solid var(--border);
-  background: var(--bg-input);
-  color: var(--text-main);
+  padding: 0.9rem 1rem;
+  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--text);
   font-size: 0.95rem;
   margin-bottom: 1rem;
   transition: border-color 0.2s;
   font-family: inherit;
 }
-.auth-form input:focus { outline: none; border-color: var(--primary); background: var(--bg-card-alt); }
+.auth-form input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(139, 168, 136, 0.12);
+}
 .password-wrap { position: relative; margin-bottom: 1rem; }
 .password-wrap input { margin-bottom: 0; padding-right: 3rem; }
 .eye-btn {
-  position: absolute; right: 0.75rem; top: 50%;
+  position: absolute;
+  right: 0.75rem; top: 50%;
   transform: translateY(-50%);
-  background: none; border: none; cursor: pointer;
-  padding: 0.25rem;
+  background: none; border: none;
+  cursor: pointer;
+  padding: 0.3rem;
   display: flex; align-items: center; justify-content: center;
-  color: var(--text-soft); transition: color 0.2s;
+  color: var(--text-soft);
+  transition: color 0.2s;
 }
-.eye-btn:hover { color: var(--primary); }
-.eye-btn.visible { color: var(--primary); }
-.eye-btn svg {
-  width: 20px; height: 20px;
-  stroke: currentColor; fill: none;
-  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-}
-.auth-error { color: var(--danger); font-size: 0.85rem; margin-bottom: 1rem; min-height: 1.2em; }
-.auth-success { color: var(--success); font-size: 0.9rem; margin-bottom: 1rem; line-height: 1.5; }
+.eye-btn:hover, .eye-btn.visible { color: var(--primary); }
+.eye-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
 
-.pwd-strength { margin-top: -0.5rem; margin-bottom: 1rem; font-size: 0.8rem; }
-.pwd-strength-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-bottom: 0.4rem; }
+.auth-error { color: var(--danger); font-size: 0.85rem; margin-bottom: 1rem; min-height: 1.2em; }
+.auth-success { color: var(--success); font-size: 0.9rem; margin-bottom: 1rem; }
+
+.pwd-strength { margin-top: -0.5rem; margin-bottom: 1rem; font-size: 0.78rem; }
+.pwd-strength-bar { height: 3px; background: var(--border-soft); border-radius: 2px; overflow: hidden; margin-bottom: 0.5rem; }
 .pwd-strength-fill { height: 100%; width: 0; border-radius: 2px; transition: width 0.3s, background 0.3s; background: var(--danger); }
-.pwd-strength-text { color: var(--text-soft); line-height: 1.4; }
+.pwd-strength-text { color: var(--text-soft); }
 .pwd-strength-text.weak { color: var(--danger); }
 .pwd-strength-text.medium { color: var(--warning); }
 .pwd-strength-text.strong { color: var(--success); }
-.pwd-rules { list-style: none; margin-top: 0.5rem; padding: 0; font-size: 0.78rem; }
-.pwd-rules li { color: var(--text-dim); padding: 0.15rem 0; transition: color 0.2s; }
+.pwd-rules { list-style: none; margin-top: 0.5rem; padding: 0; font-size: 0.75rem; }
+.pwd-rules li { color: var(--text-dim); padding: 0.15rem 0; }
 .pwd-rules li.ok { color: var(--success); }
-.pwd-rules li::before { content: '○ '; font-weight: 700; }
+.pwd-rules li::before { content: '○ '; }
 .pwd-rules li.ok::before { content: '✓ '; }
 
-/* === PROFILE === */
-.profile-header {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  text-align: left;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border);
-}
-.profile-avatar {
-  width: 72px; height: 72px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), #c4b5fd);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 2rem;
-  font-weight: 800;
-  color: #1e293b;
-  flex-shrink: 0;
-}
-.profile-info-block { text-align: left; }
-.profile-info-block h2 { margin: 0 0 0.25rem 0; font-size: 1.35rem; }
-.profile-info-block .login { color: var(--text-soft); font-size: 0.9rem; }
+@media (max-width: 900px) {
+  .nav-menu { display: none; }
+  .nav-menu.open {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0; right: 0;
+    background: var(--card);
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-soft);
+    box-shadow: var(--shadow);
+  }
+  .mobile-menu-btn { display: block; }
+  .topnav { padding: 0.9rem 1rem; }
 
-.profile-section {
-  text-align: left;
-  margin-bottom: 1.25rem;
-  padding: 1.25rem;
-  background: var(--bg-card-alt);
-  border-radius: 12px;
-  border: 1px solid var(--border-light);
-}
-.profile-section h3 {
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-soft);
-  margin-bottom: 0.75rem;
-  font-weight: 700;
-}
-.profile-section .empty {
-  color: var(--text-dim);
-  font-size: 0.9rem;
-  font-style: italic;
-}
-.profile-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-  font-size: 0.95rem;
-  color: var(--text-main);
-}
-.profile-row + .profile-row { border-top: 1px solid var(--border-light); }
+  main { padding: 0 1rem 3rem; }
+  .hero { grid-template-columns: 1fr; padding: 1.5rem 0 2rem; }
+  .hero-content h1 { font-size: 2.3rem; }
+  .hero-image { aspect-ratio: 4/3; }
+  .hero-quote { display: none; }
 
-.sub-badge {
-  display: inline-block;
-  padding: 0.3rem 0.9rem;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-.sub-active { background: var(--success-light); color: var(--success); }
-.sub-inactive { background: var(--danger-light); color: var(--danger); }
-.sub-trial { background: var(--warning-light); color: var(--warning); }
-
-.profile-course {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.7rem 0;
-  border-top: 1px solid var(--border-light);
-  font-size: 0.9rem;
-}
-.profile-course:first-of-type { border-top: none; }
-.profile-course .name { color: var(--text-main); }
-.profile-course .status { color: var(--success); font-size: 0.8rem; font-weight: 700; }
-
-.result-mini {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.result-mini-circle {
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 800;
-  font-size: 1.1rem;
-  flex-shrink: 0;
-}
-.result-mini-info { line-height: 1.5; }
-.result-mini-info .label { font-size: 0.9rem; color: var(--text-main); font-weight: 600; }
-.result-mini-info .date { font-size: 0.8rem; color: var(--text-soft); }
-
-@media (max-width: 768px) {
-  body { flex-direction: column; }
-  aside { width: 100%; height: auto; position: relative; padding: 1.5rem; }
-  .nav-menu { flex-direction: row; flex-wrap: wrap; }
-  .nav-link { font-size: 0.85rem; padding: 0.6rem 0.8rem; }
-  main { padding: 1.5rem; }
-  .hero-grid { grid-template-columns: 1fr; }
-  .hero-emoji { font-size: 4rem; }
-  .stats-grid { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: repeat(2, 1fr); }
+  .audience-grid { grid-template-columns: 1fr; }
   .about-grid { grid-template-columns: 1fr; }
-  .courses-grid { grid-template-columns: 1fr; }
-  .role-grid { grid-template-columns: 1fr; }
-  .topbar { padding: 1rem 1rem 0 1rem; }
+  .role-picker { grid-template-columns: 1fr; }
+  .materials-layout { grid-template-columns: 1fr; }
+  .materials-sidebar { position: static; }
+  .profile-layout { grid-template-columns: 1fr; }
+  .stat-row { grid-template-columns: 1fr; }
+
+  .quiz-container { padding: 2rem 1.5rem; margin: 1.5rem auto; }
+  .quiz-question { font-size: 1.5rem; }
+  .result-card, .route-card { padding: 2rem 1.5rem; margin: 1.5rem auto; }
+
+  .section-title { font-size: 1.7rem; }
+  .cta-banner h2 { font-size: 1.7rem; }
 }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <button class="profile-btn" id="profileBtn" onclick="openAuth()" aria-label="Профиль">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="8" r="4"></circle>
-      <path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"></path>
-    </svg>
-  </button>
-</div>
-
-<aside>
-  <div class="logo">BurnoutCheck</div>
-  <nav class="nav-menu">
-    <a class="nav-link active" onclick="navigate('dashboard')"><span class="nav-icon">🏠</span> Главная</a>
-    <a class="nav-link" onclick="navigate('quiz')"><span class="nav-icon">📋</span> Тест на выгорание</a>
-    <a class="nav-link" onclick="navigate('resources')"><span class="nav-icon">📚</span> Бесплатные ресурсы</a>
-    <a class="nav-link" onclick="navigate('courses')"><span class="nav-icon">🎓</span> Курсы</a>
-    <a class="nav-link" onclick="navigate('video')"><span class="nav-icon">🎥</span> Видео-терапия</a>
-    <a class="nav-link" onclick="navigate('about')"><span class="nav-icon">ℹ️</span> О проекте</a>
-  </nav>
-  <div class="sidebar-footer">
-    Результаты теста носят информационный характер и не являются медицинским диагнозом.<br><br>
-    &copy; 2026 BurnoutCheck. Информационно-просветительский проект. Не заменяет консультацию специалиста.
+<nav class="topnav">
+  <div class="nav-logo" onclick="navigate('dashboard')">
+    <span class="nav-logo-icon">B</span>
+    Balance
   </div>
-</aside>
+
+  <div class="nav-menu" id="navMenu">
+    <a class="active" onclick="navigate('dashboard')">Главная</a>
+    <a onclick="navigate('quiz')">Тест</a>
+    <a onclick="navigate('courses')">Курсы</a>
+    <a onclick="navigate('resources')">Материалы</a>
+    <a onclick="navigate('about')">О нас</a>
+  </div>
+
+  <div class="nav-actions">
+    <button class="nav-icon-btn" onclick="openSettings()" aria-label="Настройки">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+    </button>
+    <button class="nav-profile-btn" id="profileBtn" onclick="openAuth()" aria-label="Профиль">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"></path></svg>
+    </button>
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+  </div>
+</nav>
 
 <main>
 
 <section id="dashboard" class="page active">
-  <div class="page-header">
-    <h1>Профилактика эмоционального выгорания</h1>
-    <p class="subtitle">Диагностико-навигационная система: пройдите тест, получите персональный маршрут восстановления.</p>
-  </div>
-  <div class="card">
-    <div class="hero-grid">
-      <div>
-        <h2 style="margin-bottom: 0.75rem;">С чего начать?</h2>
-        <p style="color: var(--text-soft); margin-bottom: 1.5rem;">Нет универсального способа справиться с выгоранием. То, что помогает одному — бесполезно другому. Поэтому мы не выдаём одинаковый список, а строим маршрут под вас.</p>
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-          <button class="btn btn-primary" onclick="navigate('quiz')">Пройти тест (5 мин)</button>
-          <button class="btn btn-outline" onclick="navigate('resources')">Бесплатные материалы</button>
-        </div>
+  <div class="hero">
+    <div class="hero-content">
+      <h1>Не ищите способ восстановиться. Найдите свой.</h1>
+      <p>Интерактивное методическое пособие по профилактике эмоционального выгорания. Пройдите диагностику, узнайте свой уровень стресса и получите персональный маршрут восстановления.</p>
+      <div class="hero-cta">
+        <button class="btn btn-primary" onclick="navigate('quiz')">Пройти тест →</button>
       </div>
-      <div class="hero-emoji">🧠</div>
+      <div class="hero-features">
+        <span><span class="dot"></span> Бесплатный тест</span>
+        <span><span class="dot"></span> 7–10 минут</span>
+        <span><span class="dot"></span> Без регистрации</span>
+      </div>
     </div>
-    <div class="stats-grid">
-      <div class="stat-box"><div class="stat-num">25</div><div class="stat-label">вопросов в тесте</div></div>
-      <div class="stat-box"><div class="stat-num">15+</div><div class="stat-label">бесплатных методик</div></div>
-      <div class="stat-box"><div class="stat-num">3</div><div class="stat-label">уровня риска</div></div>
+    <div class="hero-image">
+      <div class="hero-image-placeholder">🌿</div>
+      <div class="hero-quote">«Забота о себе — это не роскошь, а необходимость»</div>
     </div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="13" y2="17"></line></svg></div>
+      <div class="step-num">01</div><h4>Пройдите тест</h4><p>Ответьте на несколько вопросов о своём состоянии и жизни</p>
+    </div>
+    <div class="step">
+      <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
+      <div class="step-num">02</div><h4>Узнайте свой профиль</h4><p>Получите анализ уровня стресса и причин выгорания</p>
+    </div>
+    <div class="step">
+      <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 7v13l6-3 6 3 6-3V4l-6 3z"></path><line x1="9" y1="4" x2="9" y2="17"></line><line x1="15" y1="7" x2="15" y2="20"></line></svg></div>
+      <div class="step-num">03</div><h4>Получите маршрут</h4><p>Персональная рекомендация — подходящие методы и материалы</p>
+    </div>
+    <div class="step">
+      <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"></path><path d="M12 12c0-3 2-6 6-6 0 3-2 6-6 6z"></path><path d="M12 14c0-2-2-4-5-4 0 2 2 4 5 4z"></path></svg></div>
+      <div class="step-num">04</div><h4>Действуйте</h4><p>Используйте методические материалы, курсы и практики</p>
+    </div>
+    <div class="step">
+      <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="21" y2="21"></line><rect x="5" y="14" width="3" height="5"></rect><rect x="10.5" y="10" width="3" height="9"></rect><rect x="16" y="6" width="3" height="13"></rect></svg></div>
+      <div class="step-num">05</div><h4>Следите за прогрессом</h4><p>Повторяйте тест каждые 2 недели и наблюдайте за изменениями</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Для кого этот проект?</h2>
+    <p class="section-subtitle">Мы помогаем разным людям — каждому свой подход</p>
+    <div class="audience-grid">
+      <div class="audience-card"><div class="audience-img">💼</div><div class="audience-body"><h4>Работающие</h4><p>Сотрудники, специалисты, руководители. Выгорание связано с работой, нагрузкой и коллективом.</p></div></div>
+      <div class="audience-card"><div class="audience-img">🎓</div><div class="audience-body"><h4>Студенты</h4><p>Учёба, сессии, совмещение с работой. Выгорание связано с нагрузкой в вузе и будущим.</p></div></div>
+      <div class="audience-card"><div class="audience-img">🌿</div><div class="audience-body"><h4>Все, кто устал</h4><p>Чувствуете истощение и потерю энергии? Получите персональный маршрут восстановления.</p></div></div>
+    </div>
+  </div>
+
+  <div class="cta-banner">
+    <h2>Твой ресурс — в твоих руках</h2>
+    <p>Небольшой тест — первый шаг к пониманию того, что происходит именно с тобой</p>
+    <button class="btn btn-primary" onclick="navigate('quiz')">Пройти тест →</button>
   </div>
 </section>
 
 <section id="quiz" class="page">
-  <div class="page-header">
-    <h1>Тест на эмоциональное выгорание</h1>
-    <p class="subtitle">25 вопросов, ~5 минут. Отвечайте честно — это нужно для точного результата.</p>
-  </div>
-
-  <div class="card" id="rolePicker">
-    <h2 style="text-align:center; margin-bottom: 0.5rem;">Кто вы?</h2>
-    <p style="text-align:center; color: var(--text-soft); margin-bottom: 2rem;">Это поможет подобрать вопросы и рекомендации под вашу ситуацию.</p>
-    <div class="role-grid">
-      <div class="role-card" onclick="selectRole('worker')">
-        <div class="role-emoji">💼</div>
-        <div class="role-title">Работающий</div>
-        <div class="role-desc">Сотрудник, специалист, руководитель. Выгорание связано с работой, нагрузкой и коллективом.</div>
-      </div>
-      <div class="role-card" onclick="selectRole('student')">
-        <div class="role-emoji">🎓</div>
-        <div class="role-title">Студент</div>
-        <div class="role-desc">Учёба, сессии, совмещение с работой. Выгорание связано с нагрузкой в вузе и будущим.</div>
-      </div>
+  <div class="quiz-container" id="rolePicker">
+    <div class="quiz-step-label"><span>Шаг 1 из 3</span><span>Выбор роли</span></div>
+    <div class="quiz-progress"><div class="quiz-progress-fill" style="width: 10%;"></div></div>
+    <h2 class="quiz-question">Кто вы?</h2>
+    <p class="quiz-hint">Это поможет подобрать вопросы и рекомендации под вашу ситуацию</p>
+    <div class="role-picker">
+      <div class="role-card-lg" onclick="selectRole('worker')"><div class="role-emoji-lg">💼</div><div class="role-title-lg">Работающий</div><div class="role-desc-lg">Сотрудник, специалист, руководитель</div></div>
+      <div class="role-card-lg" onclick="selectRole('student')"><div class="role-emoji-lg">🎓</div><div class="role-title-lg">Студент</div><div class="role-desc-lg">Учёба, сессии, совмещение с работой</div></div>
     </div>
   </div>
 
-  <div class="card" id="quizCard" style="display:none;">
-    <div class="quiz-top">
-      <span class="quiz-counter">Вопрос <span id="qNum">1</span> из 25</span>
-      <span style="color: var(--text-soft); font-size: 0.85rem;">Выберите один вариант</span>
-    </div>
-    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="quiz-question" id="qText">Загрузка...</div>
+  <div class="quiz-container" id="quizCard" style="display:none;">
+    <div class="quiz-step-label"><span id="stepInfo">Шаг 2 из 3</span><span>Вопрос <span id="qNum">1</span> из 25</span></div>
+    <div class="quiz-progress"><div class="quiz-progress-fill" id="progressFill"></div></div>
+    <h2 class="quiz-question" id="qText">Загрузка...</h2>
+    <p class="quiz-hint">Выберите один вариант ответа</p>
     <div class="quiz-options" id="qOptions"></div>
     <div class="quiz-nav">
       <button class="btn btn-ghost" id="btnPrev" disabled onclick="prevQ()">← Назад</button>
@@ -696,219 +1043,168 @@ main { flex: 1; padding: 2.5rem; overflow-y: auto; }
 </section>
 
 <section id="results" class="page">
-  <div class="page-header">
-    <h1>Ваши результаты</h1>
-    <p class="subtitle">Персональная оценка и рекомендации по восстановлению.</p>
-  </div>
-  <div class="card">
-    <div class="result-hero">
-      <div class="result-circle" id="resCircle">—</div>
-      <div class="result-badge" id="resBadge">—</div>
-      <h2 id="resTitle" style="margin-bottom: 0.5rem;"></h2>
-      <div class="score-bar-bg"><div class="score-bar-fill" id="resBar"></div></div>
-      <p style="color: var(--text-soft); margin-top: 1rem; line-height: 1.7;" id="resDesc"></p>
+  <div class="result-card">
+    <div class="result-label">Ваш профиль выгорания</div>
+    <h2 class="result-title" id="resTitle">—</h2>
+    <div class="result-donut">
+      <svg width="180" height="180" viewBox="0 0 180 180">
+        <circle cx="90" cy="90" r="75" fill="none" stroke="#ebe3d8" stroke-width="14"></circle>
+        <circle id="donutFill" cx="90" cy="90" r="75" fill="none" stroke="#8ba888" stroke-width="14" stroke-dasharray="471" stroke-dashoffset="471" stroke-linecap="round" style="transition: stroke-dashoffset 1s ease;"></circle>
+      </svg>
+      <div class="result-donut-percent" id="resPercent">0%</div>
+      <div class="result-donut-label">Уровень стресса</div>
     </div>
-    <div class="reco-list" id="recoList"></div>
+    <div class="result-causes"><h4>Основные причины</h4><div id="resCauses"></div></div>
+    <p style="color: var(--text-soft); line-height: 1.7; margin-bottom: 1rem;" id="resDesc"></p>
+    <div class="result-note"><span>💡</span><span>Это не диагноз. Это ориентир, который поможет вам выбрать правильные шаги для восстановления.</span></div>
     <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-      <button class="btn btn-primary" onclick="navigate('courses')">Подобрать курс</button>
-      <button class="btn btn-outline" onclick="navigate('resources')">Бесплатные материалы</button>
+      <button class="btn btn-primary" onclick="navigate('route')">Построить маршрут →</button>
+      <button class="btn btn-outline" onclick="navigate('resources')">Материалы</button>
       <button class="btn btn-ghost" onclick="restartQuiz()">Пройти заново</button>
     </div>
   </div>
 </section>
 
-<section id="resources" class="page">
-  <div class="page-header">
-    <h1>Бесплатные ресурсы</h1>
-    <p class="subtitle">Практические инструменты для самостоятельной работы. Всё бесплатно, без регистрации.</p>
-  </div>
-  <div class="card">
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('checklist', this)">Чек-листы</button>
-      <button class="tab-btn" onclick="switchTab('techniques', this)">Техники</button>
-      <button class="tab-btn" onclick="switchTab('audio', this)">Аудио</button>
-      <button class="tab-btn" onclick="switchTab('books', this)">Книги</button>
-      <button class="tab-btn" onclick="switchTab('articles', this)">Статьи</button>
+<section id="route" class="page">
+  <div class="route-card">
+    <h2 class="route-title">Ваш персональный маршрут</h2>
+    <p class="route-subtitle">Мы подобрали для вас индивидуальный план восстановления на 4 недели</p>
+    <div class="route-timeline">
+      <div class="route-step active">1</div><div class="route-step">2</div><div class="route-step">3</div><div class="route-step">4</div>
     </div>
-
-    <div class="tab-content active" id="tab-checklist">
-      <div class="resource-item">
-        <div class="resource-icon" style="background: rgba(129,140,248,0.15);">✅</div>
-        <div class="resource-info"><h4>Чек-лист «День без стресса»</h4><p>10 простых шагов для снижения нагрузки в течение дня. PDF, 2 страницы.</p></div>
-        <button class="btn btn-outline" style="margin-left: auto;" onclick="openModal('Чек-лист «День без стресса»', 'Бесплатно')">Открыть</button>
-      </div>
-      <div class="resource-item">
-        <div class="resource-icon" style="background: var(--success-light);">📝</div>
-        <div class="resource-info"><h4>Дневник эмоций</h4><p>Шаблон для отслеживания эмоционального состояния в течение недели.</p></div>
-        <button class="btn btn-outline" style="margin-left: auto;" onclick="openModal('Дневник эмоций', 'Бесплатно')">Открыть</button>
-      </div>
-      <div class="resource-item">
-        <div class="resource-icon" style="background: var(--warning-light);">🔍</div>
-        <div class="resource-info"><h4>Тест на уровень энергии</h4><p>Мини-тест из 7 вопросов для ежедневного самоконтроля.</p></div>
-        <button class="btn btn-outline" style="margin-left: auto;" onclick="openModal('Тест на уровень энергии', 'Бесплатно')">Открыть</button>
-      </div>
+    <div class="route-week-label">Неделя 1</div>
+    <h3 class="route-week-title">Снизить перегрузку</h3>
+    <div class="route-tasks">
+      <div class="route-task" onclick="openModal('Медитация при тревоге', 'Бесплатно')"><div class="route-task-icon">🧘</div><div class="route-task-info"><h5>Медитация при тревоге</h5><p>Длительность: 5 минут</p></div></div>
+      <div class="route-task" onclick="openModal('Упражнение «Спокойствие»', 'Бесплатно')"><div class="route-task-icon">🫁</div><div class="route-task-info"><h5>Упражнение «Спокойствие»</h5><p>Дыхательная практика, 10 минут</p></div></div>
+      <div class="route-task" onclick="openModal('Как распознать скрытую перегрузку', 'Бесплатно')"><div class="route-task-icon">📖</div><div class="route-task-info"><h5>Как распознать скрытую перегрузку</h5><p>Статья, 7 минут</p></div></div>
     </div>
-
-    <div class="tab-content" id="tab-techniques">
-      <div class="resource-item">
-        <div class="resource-icon" style="background: var(--primary-light);">🫁</div>
-        <div class="resource-info"><h4>Техника дыхания 4-7-8</h4><p>Вдох на 4 счёта, задержка на 7, выдох на 8. Снижает кортизол за 3 цикла.</p></div>
-        <button class="btn btn-outline" style="margin-left: auto;" onclick="openModal('Техника 4-7-8', 'Бесплатно')">Открыть</button>
-      </div>
-      <div class="resource-item">
-        <div class="resource-icon" style="background: rgba(244,114,182,0.15);">⬜</div>
-        <div class="resource-info"><h4>Квадратное дыхание</h4><p>Вдох 4 — пауза 4 — выдох 4 — пауза 4. Помогает при тревожности.</p></div>
-        <button class="btn btn-outline" style="margin-left: auto;" onclick="openModal('Квадратное дыхание', 'Бесплатно')">Открыть</button>
-      </div>
-      <div class="resource-item">
-        <div class="resource-icon" style="background: var(--success-light);">🧘</div>
-        <div class="resource-info"><h4>Прогрессивная мышечная релаксация</h4><p>Поочерёдное напряжение и расслабление мышечных групп. 15 минут.</p></div>
-        <button class="btn btn-outline" style="margin-left: auto;" onclick="openModal('Прогрессивная релаксация', 'Бесплатно')">Открыть</button>
-      </div>
-    </div>
-
-    <div class="tab-content" id="tab-audio">
-      <div class="resource-item">
-        <div class="resource-icon" style="background: var(--warning-light);">🎵</div>
-        <div class="resource-info"><h4>Медитация «5 минут тишины»</h4><p>Короткая управляемая медитация для перерыва в работе. Аудио, 5 мин.</p></div>
-        <button class="btn btn-outline" style="margin-left: auto;" onclick="openModal('Медитация «5 минут тишины»', 'Бесплатно')">Слушать</button>
-      </div>
-      <div class="resource-item">
-        <div class="resource-icon" style="background: var(--primary-light);">🎧</div>
-        <div class="resource-info"><h4>Звуки природы для концентрации</h4><p>Фоновые звуки леса, дождя, океана. 30 минут.</p></div>
-        <button class="btn btn-outline" style="margin-left: auto;" onclick="openModal('Звуки природы', 'Бесплатно')">Слушать</button>
-      </div>
-    </div>
-
-    <div class="tab-content" id="tab-books">
-      <div class="resource-item">
-        <div class="resource-icon" style="background: var(--primary-light);">📖</div>
-        <div class="resource-info"><h4>Кристина Маслач — «Выгорание: цена стресса»</h4><p>Фундаментальный труд создательницы концепции выгорания.</p></div>
-      </div>
-      <div class="resource-item">
-        <div class="resource-icon" style="background: var(--warning-light);">📖</div>
-        <div class="resource-info"><h4>Марк Мэнсон — «Тонкое искусство пофигизма»</h4><p>Нестандартный взгляд на приоритеты и стресс.</p></div>
-      </div>
-      <div class="resource-item">
-        <div class="resource-icon" style="background: var(--success-light);">📖</div>
-        <div class="resource-info"><h4>Дейл Карнеги — «Как перестать беспокоиться»</h4><p>Классика работы со тревогой и перегрузкой.</p></div>
-      </div>
-    </div>
-
-    <div class="tab-content" id="tab-articles">
-      <div class="resource-item">
-        <div class="resource-icon" style="background: rgba(244,114,182,0.15);">📄</div>
-        <div class="resource-info"><h4>Как распознать выгорание на ранней стадии</h4><p>12 минут чтения. Признаки, стадии, чек-лист для самопроверки.</p></div>
-        <button class="btn btn-outline" style="margin-left: auto;" onclick="openModal('Статья: ранние признаки', 'Бесплатно')">Читать</button>
-      </div>
-      <div class="resource-item">
-        <div class="resource-icon" style="background: var(--primary-light);">📄</div>
-        <div class="resource-info"><h4>Границы на работе: как сказать «нет»</h4><p>8 минут. Практические сценарии и формулировки.</p></div>
-        <button class="btn btn-outline" style="margin-left: auto;" onclick="openModal('Статья: границы', 'Бесплатно')">Читать</button>
-      </div>
-      <div class="resource-item">
-        <div class="resource-icon" style="background: var(--success-light);">📄</div>
-        <div class="resource-info"><h4>Восстановление без отпуска: микропрактики</h4><p>10 минут. Что делать, когда отдыха нет, а ресурсы на нуле.</p></div>
-        <button class="btn btn-outline" style="margin-left: auto;" onclick="openModal('Статья: микропрактики', 'Бесплатно')">Читать</button>
-      </div>
-    </div>
+    <div style="text-align: center;"><button class="btn btn-primary" onclick="navigate('courses')">Перейти к материалам →</button></div>
   </div>
 </section>
 
 <section id="courses" class="page">
-  <div class="page-header">
-    <h1>Курсы восстановления</h1>
-    <p class="subtitle">Бесплатные и платные программы. После теста вы получите персональную рекомендацию.</p>
+  <div style="text-align: center; padding: 2rem 0;">
+    <h1 style="font-size: 2.8rem; margin-bottom: 0.75rem;">Курсы для вашего восстановления</h1>
+    <p style="color: var(--text-soft); max-width: 560px; margin: 0 auto;">Мы подобрали курсы, которые помогут под ваш профиль и интересы.</p>
   </div>
-
-  <h3 style="margin-bottom: 1rem; color: var(--text-main);">Бесплатные</h3>
-  <div class="courses-grid" style="margin-bottom: 2rem;">
-    <div class="course-card cb1">
-      <span class="course-tag tag-free">Бесплатно</span>
-      <h3 class="course-title">Мини-курс «Первые шаги»</h3>
-      <p class="course-desc">4 коротких урока для знакомства с темой выгорания. Базовые техники самопомощи.</p>
-      <div class="course-meta"><span>⏱ 40 мин</span><span>📱 Онлайн</span><span>∞ Бессрочно</span></div>
-      <div class="course-price free">0 ₽</div>
-      <button class="btn btn-success" onclick="openModal('Мини-курс «Первые шаги»', '0 ₽', 'course')">Записаться</button>
-    </div>
-    <div class="course-card cb1">
-      <span class="course-tag tag-free">Бесплатно</span>
-      <h3 class="course-title">Email-курс «Неделя баланса»</h3>
-      <p class="course-desc">7 дней — 7 писем с практиками. Каждый день по одной маленькой привычке.</p>
-      <div class="course-meta"><span>⏱ 7 дней</span><span>✉️ Email</span><span>∞ Бессрочно</span></div>
-      <div class="course-price free">0 ₽</div>
-      <button class="btn btn-success" onclick="openModal('Email-курс «Неделя баланса»', '0 ₽', 'course')">Подписаться</button>
-    </div>
+  <div class="courses-tabs">
+    <button class="courses-tab active" onclick="filterCourses('all', this)">Все курсы</button>
+    <button class="courses-tab" onclick="filterCourses('yoga', this)">Йога</button>
+    <button class="courses-tab" onclick="filterCourses('art', this)">Рисование</button>
+    <button class="courses-tab" onclick="filterCourses('psych', this)">Психология</button>
+    <button class="courses-tab" onclick="filterCourses('sport', this)">Спорт</button>
   </div>
-
-  <h3 style="margin-bottom: 1rem; color: var(--text-main);">Платные</h3>
-  <div class="courses-grid">
-    <div class="course-card cb1">
-      <span class="course-tag tag-basic">Базовый</span>
-      <h3 class="course-title">Основы баланса</h3>
-      <p class="course-desc">4 видеоурока, рабочая тетрадь, доступ на 30 дней. Для первого знакомства с темой.</p>
-      <div class="course-meta"><span>⏱ 2 часа</span><span>📋 Тетрадь</span><span>📅 30 дней</span></div>
-      <div class="course-price">2 990 ₽</div>
-      <button class="btn btn-primary" onclick="openModal('Основы баланса', '2 990 ₽', 'course')">Купить</button>
+  <div class="courses-grid" id="coursesGrid">
+    <div class="course-card" data-cat="yoga">
+      <div class="course-img">🧘‍♀️<span class="course-badge free">Бесплатно</span></div>
+      <div class="course-body">
+        <h3 class="course-title">Основы медитации и осознанности</h3>
+        <p class="course-desc">Научитесь управлять своим состоянием и снижать уровень тревожности.</p>
+        <div class="course-meta"><span>📚 8 занятий</span><span>⏱ 3 недели</span></div>
+        <div class="course-footer"><span class="course-price free">Бесплатно</span><button class="btn btn-soft btn-sm" onclick="openModal('Основы медитации и осознанности', 'Бесплатно', 'course')">Записаться</button></div>
+      </div>
     </div>
-    <div class="course-card cb2">
-      <span class="course-tag tag-pro">Продвинутый</span>
-      <h3 class="course-title">Управление стрессом</h3>
-      <p class="course-desc">8 лекций, практические задания, поддержка куратора. Для тех, кто уже знаком с основами.</p>
-      <div class="course-meta"><span>⏱ 6 часов</span><span>👥 Куратор</span><span>📅 90 дней</span></div>
-      <div class="course-price">5 490 ₽</div>
-      <button class="btn btn-primary" onclick="openModal('Управление стрессом', '5 490 ₽', 'course')">Купить</button>
+    <div class="course-card" data-cat="art">
+      <div class="course-img">🎨<span class="course-badge">Базовый</span></div>
+      <div class="course-body">
+        <h3 class="course-title">Арт-терапия: рисуем эмоции</h3>
+        <p class="course-desc">Через творчество вы сможете выразить свои чувства и снизить напряжение.</p>
+        <div class="course-meta"><span>📚 6 занятий</span><span>⏱ 2 недели</span></div>
+        <div class="course-footer"><span class="course-price">1 490 ₽</span><button class="btn btn-primary btn-sm" onclick="openModal('Арт-терапия: рисуем эмоции', '1 490 ₽', 'course')">Подробнее</button></div>
+      </div>
     </div>
-    <div class="course-card cb3">
-      <span class="course-tag tag-vip">VIP</span>
-      <h3 class="course-title">Полное восстановление</h3>
-      <p class="course-desc">12 модулей, личные консультации, закрытый чат поддержки. Максимальное сопровождение.</p>
-      <div class="course-meta"><span>⏱ 20 часов</span><span>🎤 Консультации</span><span>📅 6 мес</span></div>
-      <div class="course-price">12 990 ₽</div>
-      <button class="btn btn-primary" onclick="openModal('Полное восстановление', '12 990 ₽', 'course')">Купить</button>
+    <div class="course-card" data-cat="sport">
+      <div class="course-img">🤸‍♀️<span class="course-badge">Базовый</span></div>
+      <div class="course-body">
+        <h3 class="course-title">Йога для начинающих</h3>
+        <p class="course-desc">Простые практики для тела и ума. Подходит для любого уровня.</p>
+        <div class="course-meta"><span>📚 10 занятий</span><span>⏱ 2 недели</span></div>
+        <div class="course-footer"><span class="course-price">1 990 ₽</span><button class="btn btn-primary btn-sm" onclick="openModal('Йога для начинающих', '1 990 ₽', 'course')">Подробнее</button></div>
+      </div>
+    </div>
+    <div class="course-card" data-cat="psych">
+      <div class="course-img">🧠<span class="course-badge">Продвинутый</span></div>
+      <div class="course-body">
+        <h3 class="course-title">Управление стрессом</h3>
+        <p class="course-desc">8 лекций, практические задания, поддержка куратора.</p>
+        <div class="course-meta"><span>📚 8 занятий</span><span>⏱ 90 дней</span></div>
+        <div class="course-footer"><span class="course-price">5 490 ₽</span><button class="btn btn-primary btn-sm" onclick="openModal('Управление стрессом', '5 490 ₽', 'course')">Подробнее</button></div>
+      </div>
+    </div>
+    <div class="course-card" data-cat="psych">
+      <div class="course-img">🌱<span class="course-badge">VIP</span></div>
+      <div class="course-body">
+        <h3 class="course-title">Полное восстановление</h3>
+        <p class="course-desc">12 модулей, личные консультации, закрытый чат поддержки.</p>
+        <div class="course-meta"><span>📚 12 модулей</span><span>⏱ 6 месяцев</span></div>
+        <div class="course-footer"><span class="course-price">12 990 ₽</span><button class="btn btn-primary btn-sm" onclick="openModal('Полное восстановление', '12 990 ₽', 'course')">Подробнее</button></div>
+      </div>
+    </div>
+    <div class="course-card" data-cat="yoga">
+      <div class="course-img">🌸<span class="course-badge free">Бесплатно</span></div>
+      <div class="course-body">
+        <h3 class="course-title">Email-курс «Неделя баланса»</h3>
+        <p class="course-desc">7 дней — 7 писем с практиками.</p>
+        <div class="course-meta"><span>📧 7 дней</span><span>⏱ 15 мин/день</span></div>
+        <div class="course-footer"><span class="course-price free">Бесплатно</span><button class="btn btn-soft btn-sm" onclick="openModal('Email-курс «Неделя баланса»', 'Бесплатно', 'course')">Подписаться</button></div>
+      </div>
     </div>
   </div>
 </section>
 
-<section id="video" class="page">
-  <div class="page-header">
-    <h1>Видео-терапия</h1>
-    <p class="subtitle">Управляемые видео-сессии с психологами, медитации и практики.</p>
+<section id="resources" class="page">
+  <div style="text-align: center; padding: 2rem 0;">
+    <h1 style="font-size: 2.8rem; margin-bottom: 0.75rem;">Библиотека материалов</h1>
+    <p style="color: var(--text-soft); max-width: 560px; margin: 0 auto;">Полезные статьи, упражнения, чек-листы и другие материалы.</p>
   </div>
-  <div class="card">
-    <div class="video-placeholder">
-      <div class="coming-soon-badge">Скоро</div>
-      <div class="emoji">🎥</div>
-      <h3>Этот раздел ещё в разработке</h3>
-      <p>Мы готовим библиотеку видео-сессий: управляемые медитации, техники снятия тревоги, лекции психологов и интерактивные практики. Раздел будет доступен на этапе 2 проекта.</p>
-      <button class="btn btn-outline" onclick="openModal('Уведомление о видео-терапии', 'Скоро')">Сообщить о запуске</button>
+  <div class="materials-layout">
+    <aside class="materials-sidebar">
+      <h4>Разделы</h4>
+      <ul>
+        <li class="active" onclick="switchMaterial('all', this)">Все материалы</li>
+        <li onclick="switchMaterial('articles', this)">Статьи</li>
+        <li onclick="switchMaterial('checklists', this)">Чек-листы</li>
+        <li onclick="switchMaterial('exercises', this)">Упражнения</li>
+        <li onclick="switchMaterial('audio', this)">Аудио</li>
+        <li onclick="switchMaterial('books', this)">Книги</li>
+      </ul>
+    </aside>
+    <div>
+      <input type="text" class="materials-search" placeholder="🔍 Поиск по материалам..." oninput="searchMaterials(this.value)">
+      <div class="materials-grid" id="materialsGrid">
+        <div class="material-card" data-cat="articles" data-title="Как справиться с тревожностью"><div class="material-img">📄</div><div class="material-body"><h5>Как справиться с тревожностью в учёбе и на работе</h5><p>Тревожность · Работа · Учёба</p></div></div>
+        <div class="material-card" data-cat="checklists" data-title="Дневник благодарности"><div class="material-img">📓</div><div class="material-body"><h5>Дневник благодарности</h5><p>Настроение · Эмоции · Самопознание</p></div></div>
+        <div class="material-card" data-cat="exercises" data-title="Дыхание 4-7-8"><div class="material-img">🫁</div><div class="material-body"><h5>Техника дыхания 4-7-8</h5><p>Дыхание · Релаксация · 5 минут</p></div></div>
+        <div class="material-card" data-cat="audio" data-title="Медитация тишины"><div class="material-img">🎧</div><div class="material-body"><h5>Медитация «5 минут тишины»</h5><p>Аудио · Антистресс · 5 минут</p></div></div>
+        <div class="material-card" data-cat="books" data-title="Выгорание Маслач"><div class="material-img">📖</div><div class="material-body"><h5>Кристина Маслач — «Выгорание»</h5><p>Книга · Фундаментальный труд</p></div></div>
+        <div class="material-card" data-cat="articles" data-title="Границы на работе"><div class="material-img">📄</div><div class="material-body"><h5>Границы на работе: как сказать «нет»</h5><p>Работа · Коммуникация · 8 минут</p></div></div>
+      </div>
     </div>
   </div>
 </section>
 
 <section id="about" class="page">
-  <div class="page-header">
-    <h1>О проекте</h1>
-    <p class="subtitle">Диагностико-навигационная система для профилактики эмоционального выгорания.</p>
+  <div style="text-align: center; padding: 2rem 0;">
+    <h1 style="font-size: 2.8rem; margin-bottom: 0.75rem;">О проекте</h1>
+    <p style="color: var(--text-soft); max-width: 560px; margin: 0 auto;">Balance — диагностико-навигационная система для профилактики эмоционального выгорания.</p>
   </div>
-  <div class="card">
-    <h2>Концепция</h2>
-    <p style="color: var(--text-soft); margin-bottom: 1rem;">Это не «ещё один сайт с медитациями», а диагностико-навигационная система. Пользователь не блуждает в поисках «что мне поможет», а получает конкретный маршрут под свою ситуацию. Нет универсального способа справиться с выгоранием — то, что помогает одному, бесполезно или вредно другому.</p>
+  <div class="about-grid">
+    <div class="about-card"><h4>💡 Концепция</h4><p>Это не «ещё один сайт с медитациями», а диагностико-навигационная система. Пользователь не блуждает в поисках «что мне поможет», а получает конкретный маршрут под свою ситуацию.</p></div>
+    <div class="about-card"><h4>🎯 Ключевое отличие</h4><p>Нет универсального способа справиться с выгоранием. То, что помогает одному — бесполезно другому. Мы строим маршрут под конкретного человека.</p></div>
   </div>
-  <div class="card">
-    <h2>Этапы развития</h2>
+  <div class="about-card" style="margin-top: 1.5rem;">
+    <h4>🗺️ Этапы развития</h4>
     <div class="phase-timeline">
-      <div class="phase-item"><h4>Этап 1 — MVP (1–2 месяца)</h4><p>Лендинг + тест из 25 вопросов, 10–15 бесплатных методик, простая логика рекомендаций. Без регистрации, без оплаты.</p></div>
-      <div class="phase-item"><h4>Этап 2 — Рост (3–6 месяцев)</h4><p>Личный кабинет, прогресс, дневник. 50+ методик, 5–10 мини-курсов. Подключение партнёров, сбор email-базы.</p></div>
-      <div class="phase-item"><h4>Этап 3 — Монетизация (6–12 месяцев)</h4><p>Premium-подписка, партнёрский магазин, B2B-пилоты с компаниями. Мобильное приложение (опционально).</p></div>
-      <div class="phase-item"><h4>Этап 4 — Масштабирование</h4><p>ИИ-ассистент, локализация, партнёрства с крупными брендами, офлайн-мероприятия.</p></div>
+      <div class="phase-item"><h5>Этап 1 — MVP</h5><p>Лендинг + тест, 10–15 бесплатных методик, простая логика рекомендаций</p></div>
+      <div class="phase-item"><h5>Этап 2 — Рост</h5><p>Личный кабинет, прогресс, дневник. 50+ методик, 5–10 мини-курсов</p></div>
+      <div class="phase-item"><h5>Этап 3 — Монетизация</h5><p>Premium-подписка, партнёрский магазин, B2B-пилоты с компаниями</p></div>
+      <div class="phase-item"><h4>Этап 4 — Масштабирование</h4><p>ИИ-ассистент, локализация, партнёрства с крупными брендами</p></div>
     </div>
   </div>
-  <div class="card">
-    <div class="about-grid">
-      <div class="about-box"><h3>⚠️ Важно</h3><p>Результаты теста носят информационный характер и не являются медицинским диагнозом. При серьёзных проблемах обратитесь к специалисту.</p></div>
-      <div class="about-box"><h3>🔒 Конфиденциальность</h3><p>На MVP-стадии мы не собираем личные данные. Результаты теста не сохраняются на сервере и не передаются третьим лицам.</p></div>
-    </div>
+  <div class="about-grid" style="margin-top: 1.5rem;">
+    <div class="about-card"><h4>⚠️ Важно</h4><p>Результаты теста носят информационный характер и не являются медицинским диагнозом. При серьёзных проблемах обратитесь к специалисту.</p></div>
+    <div class="about-card"><h4>🔒 Конфиденциальность</h4><p>Данные аккаунта хранятся в защищённом облаке Firebase. Пароли шифруются и не видны администрации.</p></div>
   </div>
 </section>
 
@@ -916,13 +1212,13 @@ main { flex: 1; padding: 2.5rem; overflow-y: auto; }
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal()">&times;</button>
-    <div id="modalEmoji" style="font-size: 3rem; margin-bottom: 1rem;">🎓</div>
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div id="modalEmoji" style="font-size: 2.5rem; margin-bottom: 1rem;">🎓</div>
     <h2 id="modalTitle">Оформление</h2>
     <div class="price-big" id="modalPrice"></div>
-    <p id="modalText">Функционал оплаты находится в разработке. Мы сохранили ваш запрос.</p>
+    <p id="modalText">Функционал оплаты находится в разработке.</p>
     <div style="display: flex; gap: 1rem; justify-content: center;">
-      <button class="btn btn-outline" onclick="closeModal()">Закрыть</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Закрыть</button>
       <button class="btn btn-primary" onclick="confirmAction()">Подтвердить</button>
     </div>
   </div>
@@ -930,23 +1226,19 @@ main { flex: 1; padding: 2.5rem; overflow-y: auto; }
 
 <div class="modal-overlay" id="authOverlay">
   <div class="modal">
-    <button class="modal-close" onclick="closeAuth()">&times;</button>
-    <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">👤</div>
-
+    <button class="modal-close" onclick="closeAuth()">×</button>
+    <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem;">Добро пожаловать</h2>
     <div class="auth-tabs">
       <button class="auth-tab active" id="tabRegister" onclick="setAuthMode('register')">Регистрация</button>
       <button class="auth-tab" id="tabLogin" onclick="setAuthMode('login')">Вход</button>
     </div>
-
     <div class="auth-form">
       <div id="nameField">
         <label for="authName">Имя</label>
         <input type="text" id="authName" placeholder="Как вас зовут?" autocomplete="name">
       </div>
-
       <label for="authLogin">Логин</label>
-      <input type="text" id="authLogin" placeholder="Придумайте логин" autocomplete="username">
-
+      <input type="text" id="authLogin" placeholder="Введите логин" autocomplete="username">
       <label for="authPassword">Пароль</label>
       <div class="password-wrap">
         <input type="password" id="authPassword" placeholder="Минимум 8 символов" autocomplete="new-password" oninput="updatePwdStrength()">
@@ -959,13 +1251,12 @@ main { flex: 1; padding: 2.5rem; overflow-y: auto; }
         <div class="pwd-strength-text" id="pwdStrengthText"></div>
         <ul class="pwd-rules" id="pwdRules">
           <li data-rule="length">Минимум 8 символов</li>
-          <li data-rule="upper">Заглавная буква (A–Z)</li>
-          <li data-rule="lower">Строчная буква (a–z)</li>
-          <li data-rule="digit">Цифра (0–9)</li>
+          <li data-rule="upper">Заглавная буква</li>
+          <li data-rule="lower">Строчная буква</li>
+          <li data-rule="digit">Цифра</li>
           <li data-rule="special">Спецсимвол (!@#$%^&*/\ и др.)</li>
         </ul>
       </div>
-
       <div id="confirmField" style="margin-top: 1rem;">
         <label for="authPassword2">Повторите пароль</label>
         <div class="password-wrap">
@@ -975,45 +1266,54 @@ main { flex: 1; padding: 2.5rem; overflow-y: auto; }
           </button>
         </div>
       </div>
-
       <div class="auth-error" id="authError"></div>
       <div class="auth-success" id="authSuccess"></div>
-
       <button class="btn btn-primary" style="width:100%; margin-top: 0.5rem;" id="authSubmitBtn" onclick="submitAuth()">Создать аккаунт</button>
     </div>
   </div>
 </div>
 
-<!-- ============ PROFILE MODAL ============ -->
 <div class="modal-overlay" id="profileOverlay">
   <div class="modal modal-wide">
-    <button class="modal-close" onclick="closeProfile()">&times;</button>
-
-    <div class="profile-header">
-      <div class="profile-avatar" id="profileAvatar">?</div>
-      <div class="profile-info-block">
-        <h2 id="profileName">Имя</h2>
+    <button class="modal-close" onclick="closeProfile()">×</button>
+    <div class="profile-layout" style="margin-top: 0;">
+      <div class="profile-side">
+        <div class="profile-avatar-lg" id="profileAvatar">?</div>
+        <h3 id="profileName">Имя</h3>
         <div class="login" id="profileLogin">@login</div>
+        <div class="sub-status" id="profileSubBadge">—</div>
+      </div>
+      <div class="profile-main">
+        <div class="profile-card"><h4>Результат теста</h4><div id="profileTestBlock"></div></div>
+        <div class="profile-card"><h4>Мои курсы</h4><div id="profileCoursesBlock"></div></div>
       </div>
     </div>
-
-    <div class="profile-section">
-      <h3>Подписка</h3>
-      <div id="profileSubBlock"></div>
-    </div>
-
-    <div class="profile-section">
-      <h3>Результат теста</h3>
-      <div id="profileTestBlock"></div>
-    </div>
-
-    <div class="profile-section">
-      <h3>Мои курсы</h3>
-      <div id="profileCoursesBlock"></div>
-    </div>
-
     <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
-      <button class="btn btn-danger" onclick="logoutUser()">Выйти из аккаунта</button>
+      <button class="btn btn-outline" onclick="logoutUser()">Выйти из аккаунта</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settingsOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeSettings()">×</button>
+    <h2 style="font-size: 1.6rem; margin-bottom: 1.5rem;">Настройки</h2>
+    <div class="settings-row">
+      <div class="settings-row-label"><h5>Тёмная тема</h5><p>Сменить оформление сайта</p></div>
+      <button class="theme-switch" id="themeSwitch" onclick="toggleTheme()" aria-label="Переключить тему">
+        <span class="theme-switch-icon sun">☀</span>
+        <span class="theme-switch-icon moon">🌙</span>
+      </button>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-label"><h5>Уведомления</h5><p>Напоминания о практике</p></div>
+      <button class="theme-switch" id="notifySwitch" onclick="toggleNotify()" aria-label="Уведомления">
+        <span class="theme-switch-icon sun">🔕</span>
+        <span class="theme-switch-icon moon">🔔</span>
+      </button>
+    </div>
+    <div style="margin-top: 1.5rem;">
+      <button class="btn btn-ghost" style="width:100%;" onclick="closeSettings()">Закрыть</button>
     </div>
   </div>
 </div>
@@ -1021,25 +1321,79 @@ main { flex: 1; padding: 2.5rem; overflow-y: auto; }
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
+  // === FIREBASE INIT ===
+  var firebaseConfig = {
+    apiKey: "AIzaSyAsGZ661cK8obTVlQvfyzKdqY9ppOC5hlE",
+    authDomain: "balance-ap.firebaseapp.com",
+    projectId: "balance-ap",
+    storageBucket: "balance-ap.firebasestorage.app",
+    messagingSenderId: "36002433553",
+    appId: "1:36002433553:web:71896fe22a7a8aeaf1ffb0"
+  };
+  firebase.initializeApp(firebaseConfig);
+  var auth = firebase.auth();
+  var db = firebase.firestore();
+
+  // Домен-обёртка для логина (Firebase требует email)
+  var LOGIN_DOMAIN = '@balance-app.local';
+  function loginToEmail(login) {
+    return login.toLowerCase().replace(/[^a-z0-9._-]/g, '') + LOGIN_DOMAIN;
+  }
+
+  var currentUser = null; // { uid, name, login, courses, subscription, lastTest }
+
+  // === ТЕМА ===
+  (function initTheme() {
+    var saved = localStorage.getItem('bc_theme');
+    if (saved === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else if (saved === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+  })();
+
   // === НАВИГАЦИЯ ===
   window.navigate = function(pageId) {
     document.querySelectorAll('.page').forEach(function(el){ el.classList.remove('active'); });
-    document.querySelectorAll('.nav-link').forEach(function(el){ el.classList.remove('active'); });
+    document.querySelectorAll('.nav-menu a').forEach(function(el){ el.classList.remove('active'); });
     var page = document.getElementById(pageId);
     if (page) page.classList.add('active');
-    document.querySelectorAll('.nav-link').forEach(function(link) {
+    document.querySelectorAll('.nav-menu a').forEach(function(link) {
       var oc = link.getAttribute('onclick') || '';
       if (oc.indexOf("'" + pageId + "'") !== -1) link.classList.add('active');
     });
+    document.getElementById('navMenu').classList.remove('open');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  window.switchTab = function(tabName, btn) {
-    document.querySelectorAll('.tab-content').forEach(function(el){ el.classList.remove('active'); });
-    document.querySelectorAll('.tab-btn').forEach(function(el){ el.classList.remove('active'); });
-    var content = document.getElementById('tab-' + tabName);
-    if (content) content.classList.add('active');
-    if (btn) btn.classList.add('active');
+  window.toggleMobileMenu = function() {
+    document.getElementById('navMenu').classList.toggle('open');
+  };
+
+  window.filterCourses = function(cat, btn) {
+    document.querySelectorAll('.courses-tab').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('#coursesGrid .course-card').forEach(function(card) {
+      card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+    });
+  };
+
+  window.switchMaterial = function(cat, btn) {
+    document.querySelectorAll('.materials-sidebar li').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('#materialsGrid .material-card').forEach(function(card) {
+      card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+    });
+  };
+
+  window.searchMaterials = function(query) {
+    var q = query.toLowerCase().trim();
+    document.querySelectorAll('#materialsGrid .material-card').forEach(function(card) {
+      var title = (card.dataset.title || '').toLowerCase();
+      card.style.display = (q === '' || title.indexOf(q) !== -1) ? '' : 'none';
+    });
   };
 
   // === МОДАЛКА КУРСОВ ===
@@ -1054,10 +1408,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var text = 'Функционал оплаты находится в разработке. Мы сохранили ваш запрос.';
     if (price === 'Бесплатно' || price === '0 ₽') {
       emoji = '✅';
-      text = 'Регистрация на бесплатный курс. Ссылка на материалы будет отправлена на email (функция в разработке).';
-    } else if (price === 'Скоро') {
-      emoji = '🔔';
-      text = 'Мы сообщим вам, когда раздел видео-терапии будет запущен. Оставьте email — пришлём уведомление.';
+      text = 'Регистрация на бесплатный материал.';
     }
     document.getElementById('modalEmoji').textContent = emoji;
     document.getElementById('modalText').textContent = text;
@@ -1069,8 +1420,13 @@ document.addEventListener('DOMContentLoaded', function() {
   window.closeModal = function() { modalOverlay.classList.remove('show'); };
 
   window.confirmAction = function() {
-    // Если это курс и пользователь вошёл — сохраняем в его профиль
-    if (modalCurrentCourse && localStorage.getItem('bc_user')) {
+    if (modalCurrentCourse) {
+      if (!currentUser) {
+        alert('Сначала войдите в аккаунт, чтобы сохранить курс в профиле.');
+        closeModal();
+        openAuth();
+        return;
+      }
       saveCourseToUser(modalCurrentCourse.title, modalCurrentCourse.price);
     }
     closeModal();
@@ -1081,88 +1437,48 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.target === modalOverlay) closeModal();
   });
 
-  // === СОХРАНЕНИЕ КУРСА В ПРОФИЛЬ ===
   function saveCourseToUser(title, price) {
-    var user = JSON.parse(localStorage.getItem('bc_user'));
-    if (!user.courses) user.courses = [];
-    // Проверяем, нет ли уже такого курса
-    var exists = user.courses.some(function(c) { return c.title === title; });
-    if (!exists) {
-      user.courses.push({
-        title: title,
-        price: price,
-        date: new Date().toISOString()
-      });
-      // Если купил платный курс — активируем подписку
-      if (price !== '0 ₽' && price !== 'Бесплатно') {
-        user.subscription = 'active';
-      }
-      localStorage.setItem('bc_user', JSON.stringify(user));
+    if (!currentUser) return;
+    var courses = currentUser.courses || [];
+    var exists = courses.some(function(c) { return c.title === title; });
+    if (exists) return;
+    courses.push({ title: title, price: price, date: new Date().toISOString() });
+    var update = { courses: courses };
+    if (price !== '0 ₽' && price !== 'Бесплатно') {
+      update.subscription = 'active';
     }
+    db.collection('users').doc(currentUser.uid).update(update).catch(function(err) {
+      console.error('Ошибка сохранения курса:', err);
+    });
   }
 
   // === ВОПРОСЫ ===
   var questions = [
-    { q: "Как часто вы чувствуете, что у вас «не хватает сил» на обычные дела?",
-      opts: ["Почти никогда","Иногда","Часто","Очень часто"] },
-    { q: "Бывает ли, что вы раздражаетесь по мелочам?",
-      opts: ["Редко","Периодически","Часто","Постоянно"] },
-    { qWorker: "Насколько сложно вам отключиться от рабочих мыслей вечером?",
-      qStudent: "Насколько сложно вам отключиться от учебных мыслей вечером?",
-      opts: ["Легко","Иногда сложно","Часто сложно","Почти невозможно"] },
-    { q: "Как вы оцениваете качество своего сна в последнее время?",
-      opts: ["Отличное","Хорошее","Удовлетворительное","Плохое"] },
-    { qWorker: "Чувствуете ли вы, что ваши усилия на работе не ценятся?",
-      qStudent: "Чувствуете ли вы, что ваши усилия в учёбе не ценятся?",
-      opts: ["Никогда","Редко","Часто","Всегда"] },
-    { q: "Как часто вы пропускаете приёмы пищи из-за занятости?",
-      opts: ["Никогда","Редко","Часто","Постоянно"] },
-    { q: "Испытываете ли вы чувство вины, когда отдыхаете?",
-      opts: ["Нет","Иногда","Часто","Постоянно"] },
-    { qWorker: "Насколько вы удовлетворены своей работой сейчас?",
-      qStudent: "Насколько вы удовлетворены своей учёбой сейчас?",
-      opts: ["Полностью","В основном","Частично","Совсем не удовлетворён"] },
-    { qWorker: "Как часто вы думаете о том, чтобы сменить работу?",
-      qStudent: "Как часто вы думаете о том, чтобы бросить учёбу?",
-      opts: ["Никогда","Редко","Часто","Постоянно"] },
-    { qWorker: "Чувствуете ли вы, что стали более циничными по отношению к работе?",
-      qStudent: "Чувствуете ли вы, что стали более циничными по отношению к учёбе?",
-      opts: ["Нет","Немного","Значительно","Очень сильно"] },
-    { q: "Как часто вы чувствуете себя эмоционально опустошённым?",
-      opts: ["Никогда","Редко","Часто","Постоянно"] },
-    { q: "Удаётся ли вам находить радость в вещах, которые раньше нравились?",
-      opts: ["Да, всегда","Чаще да","Реже","Почти никогда"], reverse: true },
-    { q: "Как часто вы чувствуете, что не справляетесь с обязанностями?",
-      opts: ["Никогда","Редко","Часто","Постоянно"] },
-    { q: "Насколько сильно вы переживаете из-за ошибок?",
-      opts: ["Не переживаю","Немного","Сильно","Очень сильно"] },
-    { qWorker: "Как часто вы чувствуете, что вас перегружают задачи на работе?",
-      qStudent: "Как часто вы чувствуете, что вас перегружают заданиями в учёбе?",
-      opts: ["Никогда","Редко","Часто","Постоянно"] },
-    { q: "Считаете ли вы, что у вас нет времени на себя?",
-      opts: ["Нет, время есть","Иногда не хватает","Часто не хватает","Никогда не хватает"] },
-    { q: "Как часто вы чувствуете, что вам нужна поддержка?",
-      opts: ["Никогда","Иногда","Часто","Постоянно"] },
-    { qWorker: "Насколько вы уверены в своих профессиональных навыках?",
-      qStudent: "Насколько вы уверены в своих учебных навыках?",
-      opts: ["Полностью уверен","В основном уверен","Сомневаюсь","Совсем не уверен"], reverse: true },
-    { qWorker: "Как часто вы чувствуете, что работа забирает все ваши ресурсы?",
-      qStudent: "Как часто вы чувствуете, что учёба забирает все ваши ресурсы?",
-      opts: ["Никогда","Редко","Часто","Постоянно"] },
-    { q: "Испытываете ли вы физические симптомы стресса (головная боль, напряжение)?",
-      opts: ["Никогда","Редко","Часто","Постоянно"] },
-    { q: "Как часто вы чувствуете, что не можете сказать «нет» новым задачам?",
-      opts: ["Всегда могу отказать","Чаще могу","Чаще не могу","Никогда не могу"] },
-    { qWorker: "Насколько вы чувствуете себя вовлечённым в работу?",
-      qStudent: "Насколько вы чувствуете себя вовлечённым в учёбу?",
-      opts: ["Полностью вовлечён","В основном вовлечён","Частично вовлечён","Совсем не вовлечён"], reverse: true },
-    { q: "Как часто вы чувствуете, что ваши границы нарушаются?",
-      opts: ["Никогда","Редко","Часто","Постоянно"] },
-    { qWorker: "Считаете ли вы, что ваша работа имеет смысл?",
-      qStudent: "Считаете ли вы, что ваша учёба имеет смысл?",
-      opts: ["Полностью согласен","Скорее согласен","Скорее не согласен","Совсем не согласен"], reverse: true },
-    { q: "Как вы оцениваете свой общий уровень стресса за последний месяц?",
-      opts: ["Низкий","Умеренный","Высокий","Очень высокий"] }
+    { q: "Как часто вы чувствуете, что у вас «не хватает сил» на обычные дела?", opts: ["Почти никогда","Иногда","Часто","Очень часто"] },
+    { q: "Бывает ли, что вы раздражаетесь по мелочам?", opts: ["Редко","Периодически","Часто","Постоянно"] },
+    { qWorker: "Насколько сложно вам отключиться от рабочих мыслей вечером?", qStudent: "Насколько сложно вам отключиться от учебных мыслей вечером?", opts: ["Легко","Иногда сложно","Часто сложно","Почти невозможно"] },
+    { q: "Как вы оцениваете качество своего сна в последнее время?", opts: ["Отличное","Хорошее","Удовлетворительное","Плохое"] },
+    { qWorker: "Чувствуете ли вы, что ваши усилия на работе не ценятся?", qStudent: "Чувствуете ли вы, что ваши усилия в учёбе не ценятся?", opts: ["Никогда","Редко","Часто","Всегда"] },
+    { q: "Как часто вы пропускаете приёмы пищи из-за занятости?", opts: ["Никогда","Редко","Часто","Постоянно"] },
+    { q: "Испытываете ли вы чувство вины, когда отдыхаете?", opts: ["Нет","Иногда","Часто","Постоянно"] },
+    { qWorker: "Насколько вы удовлетворены своей работой сейчас?", qStudent: "Насколько вы удовлетворены своей учёбой сейчас?", opts: ["Полностью","В основном","Частично","Совсем не удовлетворён"] },
+    { qWorker: "Как часто вы думаете о том, чтобы сменить работу?", qStudent: "Как часто вы думаете о том, чтобы бросить учёбу?", opts: ["Никогда","Редко","Часто","Постоянно"] },
+    { qWorker: "Чувствуете ли вы, что стали более циничными по отношению к работе?", qStudent: "Чувствуете ли вы, что стали более циничными по отношению к учёбе?", opts: ["Нет","Немного","Значительно","Очень сильно"] },
+    { q: "Как часто вы чувствуете себя эмоционально опустошённым?", opts: ["Никогда","Редко","Часто","Постоянно"] },
+    { q: "Удаётся ли вам находить радость в вещах, которые раньше нравились?", opts: ["Да, всегда","Чаще да","Реже","Почти никогда"], reverse: true },
+    { q: "Как часто вы чувствуете, что не справляетесь с обязанностями?", opts: ["Никогда","Редко","Часто","Постоянно"] },
+    { q: "Насколько сильно вы переживаете из-за ошибок?", opts: ["Не переживаю","Немного","Сильно","Очень сильно"] },
+    { qWorker: "Как часто вы чувствуете, что вас перегружают задачи на работе?", qStudent: "Как часто вы чувствуете, что вас перегружают заданиями в учёбе?", opts: ["Никогда","Редко","Часто","Постоянно"] },
+    { q: "Считаете ли вы, что у вас нет времени на себя?", opts: ["Нет, время есть","Иногда не хватает","Часто не хватает","Никогда не хватает"] },
+    { q: "Как часто вы чувствуете, что вам нужна поддержка?", opts: ["Никогда","Иногда","Часто","Постоянно"] },
+    { qWorker: "Насколько вы уверены в своих профессиональных навыках?", qStudent: "Насколько вы уверены в своих учебных навыках?", opts: ["Полностью уверен","В основном уверен","Сомневаюсь","Совсем не уверен"], reverse: true },
+    { qWorker: "Как часто вы чувствуете, что работа забирает все ваши ресурсы?", qStudent: "Как часто вы чувствуете, что учёба забирает все ваши ресурсы?", opts: ["Никогда","Редко","Часто","Постоянно"] },
+    { q: "Испытываете ли вы физические симптомы стресса?", opts: ["Никогда","Редко","Часто","Постоянно"] },
+    { q: "Как часто вы чувствуете, что не можете сказать «нет» новым задачам?", opts: ["Всегда могу отказать","Чаще могу","Чаще не могу","Никогда не могу"] },
+    { qWorker: "Насколько вы чувствуете себя вовлечённым в работу?", qStudent: "Насколько вы чувствуете себя вовлечённым в учёбу?", opts: ["Полностью вовлечён","В основном вовлечён","Частично вовлечён","Совсем не вовлечён"], reverse: true },
+    { q: "Как часто вы чувствуете, что ваши границы нарушаются?", opts: ["Никогда","Редко","Часто","Постоянно"] },
+    { qWorker: "Считаете ли вы, что ваша работа имеет смысл?", qStudent: "Считаете ли вы, что ваша учёба имеет смысл?", opts: ["Полностью согласен","Скорее согласен","Скорее не согласен","Совсем не согласен"], reverse: true },
+    { q: "Как вы оцениваете свой общий уровень стресса за последний месяц?", opts: ["Низкий","Умеренный","Высокий","Очень высокий"] }
   ];
 
   var currentQ = 0;
@@ -1189,23 +1505,20 @@ document.addEventListener('DOMContentLoaded', function() {
     currentQ = 0;
     answers = new Array(questions.length).fill(null);
     renderQ();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   function renderQ() {
     var item = questions[currentQ];
     qNumEl.textContent = currentQ + 1;
     qTextEl.textContent = getQuestionText(item);
-    var percent = (currentQ / questions.length) * 100;
-    progressEl.style.width = percent + '%';
+    progressEl.style.width = ((currentQ + 1) / questions.length) * 100 + '%';
 
     var html = '';
     for (var i = 0; i < item.opts.length; i++) {
       var cls = (answers[currentQ] === i) ? ' selected' : '';
-      html += '<div class="quiz-option' + cls + '" data-idx="' + i + '">' + item.opts[i] + '</div>';
+      html += '<button class="quiz-option' + cls + '" data-idx="' + i + '">' + item.opts[i] + '</button>';
     }
     qOptsEl.innerHTML = html;
-
     qOptsEl.querySelectorAll('.quiz-option').forEach(function(el) {
       el.addEventListener('click', function() {
         selectAns(parseInt(this.getAttribute('data-idx'), 10));
@@ -1226,10 +1539,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   window.nextQ = function() {
-    if (answers[currentQ] === null) {
-      alert('Пожалуйста, выберите вариант ответа');
-      return;
-    }
+    if (answers[currentQ] === null) return;
     if (currentQ < questions.length - 1) {
       currentQ++;
       renderQ();
@@ -1239,10 +1549,7 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   window.prevQ = function() {
-    if (currentQ > 0) {
-      currentQ--;
-      renderQ();
-    }
+    if (currentQ > 0) { currentQ--; renderQ(); }
   };
 
   window.restartQuiz = function() {
@@ -1255,8 +1562,6 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   function calcResults() {
-    progressEl.style.width = '100%';
-
     var score = 0;
     var maxScore = questions.length * 3;
     for (var i = 0; i < questions.length; i++) {
@@ -1267,110 +1572,128 @@ document.addEventListener('DOMContentLoaded', function() {
     var pct = Math.round((score / maxScore) * 100);
 
     var isWorker = (userRole === 'worker');
-    var circleClass, badgeText, badgeClass, title, desc, barClass, recos;
+    var title, desc, causes, color;
 
     if (pct < 33) {
-      circleClass = 'circle-low'; badgeText = 'Низкий риск'; badgeClass = 'badge-low';
       title = 'Низкий уровень выгорания';
       desc = isWorker
-        ? 'Вы хорошо справляетесь с рабочей нагрузкой и умеете восстанавливаться. Баланс работы и отдыха на хорошем уровне. Продолжайте следить за собой и используйте бесплатные материалы для профилактики.'
-        : 'Вы хорошо справляетесь с учёбой и умеете восстанавливаться. Баланс нагрузки и отдыха на хорошем уровне. Продолжайте следить за собой и используйте бесплатные материалы для профилактики.';
-      barClass = 'fill-low';
-      recos = [
-        { icon: '🧘', text: 'Продолжайте практики саморегуляции — они работают.' },
-        { icon: '📚', text: 'Изучите бесплатные материалы для профилактики.' },
-        { icon: '✅', text: 'Вы можете пройти бесплатный мини-курс «Первые шаги».' }
+        ? 'Вы хорошо справляетесь с рабочей нагрузкой и умеете восстанавливаться. Продолжайте следить за собой.'
+        : 'Вы хорошо справляетесь с учёбой и умеете восстанавливаться. Продолжайте следить за собой.';
+      causes = [
+        { text: 'Стабильное эмоциональное состояние', type: 'success' },
+        { text: 'Хороший баланс работы и отдыха', type: 'success' },
+        { text: 'Развитые навыки саморегуляции', type: 'success' }
       ];
+      color = '#7fa97c';
     } else if (pct < 66) {
-      circleClass = 'circle-mid'; badgeText = 'Умеренный риск'; badgeClass = 'badge-moderate';
       title = 'Умеренный уровень выгорания';
       desc = isWorker
-        ? 'Вы периодически испытываете напряжение из-за работы. Это сигнальный этап — самое время добавить восстановление и освоить техники управления стрессом. Начните с бесплатных материалов, затем рассмотрите платные курсы.'
-        : 'Вы периодически испытываете напряжение из-за учёбы. Это сигнальный этап — самое время добавить восстановление и освоить техники управления стрессом. Начните с бесплатных материалов, затем рассмотрите платные курсы.';
-      barClass = 'fill-mid';
-      recos = isWorker
-        ? [
-            { icon: '🫁', text: 'Освойте дыхательные техники — они снижают кортизол.' },
-            { icon: '📝', text: 'Заведите дневник эмоций для отслеживания состояния.' },
-            { icon: '🎓', text: 'Рекомендуем курс «Основы баланса» (2 990 ₽).' },
-            { icon: '📚', text: 'Изучите раздел бесплатных ресурсов.' }
-          ]
-        : [
-            { icon: '🫁', text: 'Освойте дыхательные техники перед сессией.' },
-            { icon: '📝', text: 'Ведите дневник эмоций в период нагрузки.' },
-            { icon: '🎓', text: 'Рекомендуем курс «Основы баланса» (2 990 ₽).' },
-            { icon: '📚', text: 'Изучите раздел бесплатных ресурсов.' }
-          ];
+        ? 'Вы периодически испытываете напряжение из-за работы. Сигнальный этап — самое время добавить восстановление.'
+        : 'Вы периодически испытываете напряжение из-за учёбы. Сигнальный этап — самое время добавить восстановление.';
+      causes = [
+        { text: 'Высокая нагрузка', type: 'warning' },
+        { text: 'Недостаток отдыха', type: 'warning' },
+        { text: 'Эмоциональное напряжение', type: 'warning' }
+      ];
+      color = '#d4a373';
     } else {
-      circleClass = 'circle-high'; badgeText = 'Высокий риск'; badgeClass = 'badge-high';
       title = 'Высокий уровень выгорания';
       desc = isWorker
-        ? 'Вы в зоне сильного стресса, связанного с работой. Важно срочно уделить внимание отдыху и восстановлению. Рекомендуем обратиться за поддержкой к специалисту. Начните с бесплатных материалов, а для глубокого восстановления — VIP-программа «Полное восстановление».'
-        : 'Вы в зоне сильного стресса, связанного с учёбой. Важно срочно уделить внимание отдыху и восстановлению. Рекомендуем обратиться за поддержкой к специалисту. Начните с бесплатных материалов, а для глубокого восстановления — VIP-программа «Полное восстановление».';
-      barClass = 'fill-high';
-      recos = isWorker
-        ? [
-            { icon: '🚨', text: 'Срочно: обратитесь к психологу или терапевту.' },
-            { icon: '⏸', text: 'Снизьте рабочую нагрузку, установите границы.' },
-            { icon: '🧘', text: 'Начните с бесплатных практик и чек-листов.' },
-            { icon: '🎓', text: 'Рекомендуем VIP-программу «Полное восстановление» (12 990 ₽).' }
-          ]
-        : [
-            { icon: '🚨', text: 'Срочно: обратитесь к психологу или в деканат.' },
-            { icon: '⏸', text: 'Снизьте учебную нагрузку, при необходимости — академ. пауза.' },
-            { icon: '🧘', text: 'Начните с бесплатных практик и чек-листов.' },
-            { icon: '🎓', text: 'Рекомендуем VIP-программу «Полное восстановление» (12 990 ₽).' }
-          ];
+        ? 'Вы в зоне сильного стресса, связанного с работой. Важно срочно уделить внимание отдыху. Рекомендуем обратиться к специалисту.'
+        : 'Вы в зоне сильного стресса, связанного с учёбой. Важно срочно уделить внимание отдыху. Рекомендуем обратиться к специалисту.';
+      causes = [
+        { text: 'Высокая нагрузка', type: 'danger' },
+        { text: 'Недостаток отдыха', type: 'danger' },
+        { text: 'Сложности с границами', type: 'danger' },
+        { text: 'Тревожность', type: 'danger' }
+      ];
+      color = '#c97b6a';
     }
 
-    var circleEl = document.getElementById('resCircle');
-    circleEl.className = 'result-circle ' + circleClass;
-    circleEl.textContent = pct + '%';
-    document.getElementById('resBadge').className = 'result-badge ' + badgeClass;
-    document.getElementById('resBadge').textContent = badgeText;
     document.getElementById('resTitle').textContent = title;
     document.getElementById('resDesc').textContent = desc;
+    document.getElementById('resPercent').textContent = pct + '%';
 
-    var barEl = document.getElementById('resBar');
-    barEl.className = 'score-bar-fill ' + barClass;
-    barEl.style.width = '0%';
+    var donut = document.getElementById('donutFill');
+    var circumference = 2 * Math.PI * 75;
+    donut.setAttribute('stroke-dasharray', circumference);
+    donut.setAttribute('stroke', color);
+    var offset = circumference - (pct / 100) * circumference;
+    donut.style.strokeDashoffset = circumference;
+    setTimeout(function() { donut.style.strokeDashoffset = offset; }, 100);
 
-    var recoHtml = '';
-    for (var j = 0; j < recos.length; j++) {
-      recoHtml += '<div class="reco-item"><span class="reco-icon">' + recos[j].icon + '</span><span>' + recos[j].text + '</span></div>';
-    }
-    document.getElementById('recoList').innerHTML = recoHtml;
+    var causesHtml = '';
+    causes.forEach(function(c) {
+      causesHtml += '<div class="cause-item"><span class="cause-dot ' + c.type + '"></span><span>' + c.text + '</span></div>';
+    });
+    document.getElementById('resCauses').innerHTML = causesHtml;
 
-    // === СОХРАНЕНИЕ РЕЗУЛЬТАТА В ПРОФИЛЬ ===
-    if (localStorage.getItem('bc_user')) {
-      var user = JSON.parse(localStorage.getItem('bc_user'));
-      user.lastTest = {
-        percent: pct,
-        level: badgeText,
-        role: userRole,
-        date: new Date().toISOString()
-      };
-      localStorage.setItem('bc_user', JSON.stringify(user));
+    // Сохраняем результат в Firebase
+    if (currentUser) {
+      db.collection('users').doc(currentUser.uid).update({
+        lastTest: {
+          percent: pct,
+          level: title,
+          role: userRole,
+          date: new Date().toISOString()
+        }
+      }).catch(function(err) { console.error('Ошибка сохранения теста:', err); });
     }
 
     navigate('results');
-
-    setTimeout(function() {
-      barEl.style.width = pct + '%';
-    }, 300);
   }
 
-  // === АВТОРИЗАЦИЯ ===
+  // === НАСТРОЙКИ ===
+  var settingsOverlay = document.getElementById('settingsOverlay');
+
+  window.openSettings = function() {
+    settingsOverlay.classList.add('show');
+    syncThemeSwitch();
+    syncNotifySwitch();
+  };
+
+  window.closeSettings = function() { settingsOverlay.classList.remove('show'); };
+
+  settingsOverlay.addEventListener('click', function(e) {
+    if (e.target === settingsOverlay) closeSettings();
+  });
+
+  window.toggleTheme = function() {
+    var current = document.documentElement.getAttribute('data-theme') || 'light';
+    var next = current === 'dark' ? 'light' : 'dark';
+    if (next === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+    }
+    localStorage.setItem('bc_theme', next);
+    syncThemeSwitch();
+  };
+
+  function syncThemeSwitch() {
+    var sw = document.getElementById('themeSwitch');
+    var current = document.documentElement.getAttribute('data-theme') || 'light';
+    sw.classList.toggle('on', current === 'dark');
+  }
+
+  window.toggleNotify = function() {
+    var current = localStorage.getItem('bc_notify') === 'on';
+    localStorage.setItem('bc_notify', current ? 'off' : 'on');
+    syncNotifySwitch();
+  };
+
+  function syncNotifySwitch() {
+    var sw = document.getElementById('notifySwitch');
+    sw.classList.toggle('on', localStorage.getItem('bc_notify') === 'on');
+  }
+
+  // === АУТЕНТИФИКАЦИЯ (FIREBASE) ===
   var authOverlay = document.getElementById('authOverlay');
   var profileOverlay = document.getElementById('profileOverlay');
   var authMode = 'register';
 
   window.openAuth = function() {
-    var saved = localStorage.getItem('bc_user');
-    if (saved) {
-      openProfile();
-      return;
-    }
+    if (currentUser) { openProfile(); return; }
     authOverlay.classList.add('show');
     setAuthMode('register');
   };
@@ -1391,67 +1714,52 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.target === authOverlay) closeAuth();
   });
 
-  window.closeProfile = function() {
-    profileOverlay.classList.remove('show');
-  };
-
+  window.closeProfile = function() { profileOverlay.classList.remove('show'); };
   profileOverlay.addEventListener('click', function(e) {
     if (e.target === profileOverlay) closeProfile();
   });
 
   window.openProfile = function() {
-    var saved = localStorage.getItem('bc_user');
-    if (!saved) return;
-    var user = JSON.parse(saved);
+    if (!currentUser) return;
 
-    // Аватар и имя
-    var initial = user.name ? user.name.charAt(0).toUpperCase() : '?';
+    var initial = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : '?';
     document.getElementById('profileAvatar').textContent = initial;
-    document.getElementById('profileName').textContent = user.name;
-    document.getElementById('profileLogin').textContent = '@' + user.login;
+    document.getElementById('profileName').textContent = currentUser.name;
+    document.getElementById('profileLogin').textContent = '@' + currentUser.login;
 
-    // Подписка
-    var subBlock = document.getElementById('profileSubBlock');
-    if (user.subscription === 'active') {
-      subBlock.innerHTML = '<div class="profile-row"><span>Статус</span><span class="sub-badge sub-active">Активна</span></div>' +
-        '<div class="profile-row"><span>Тариф</span><span>Premium — 499 ₽/мес</span></div>';
+    var subBadge = document.getElementById('profileSubBadge');
+    if (currentUser.subscription === 'active') {
+      subBadge.textContent = 'Premium активна';
+      subBadge.className = 'sub-status sub-active';
     } else {
-      subBlock.innerHTML = '<div class="profile-row"><span>Статус</span><span class="sub-badge sub-inactive">Не активна</span></div>' +
-        '<div style="color: var(--text-soft); font-size: 0.85rem; margin-top: 0.5rem;">Оформите подписку или купите курс, чтобы получить доступ ко всем материалам.</div>';
+      subBadge.textContent = 'Подписка не активна';
+      subBadge.className = 'sub-status sub-inactive';
     }
 
-    // Результат теста
     var testBlock = document.getElementById('profileTestBlock');
-    if (user.lastTest) {
-      var t = user.lastTest;
-      var circleClass = t.percent < 33 ? 'circle-low' : (t.percent < 66 ? 'circle-mid' : 'circle-high');
+    if (currentUser.lastTest) {
+      var t = currentUser.lastTest;
       var d = new Date(t.date);
-      var dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+      var dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
       testBlock.innerHTML =
-        '<div class="result-mini">' +
-          '<div class="result-mini-circle ' + circleClass + '">' + t.percent + '%</div>' +
-          '<div class="result-mini-info">' +
-            '<div class="label">' + t.level + '</div>' +
-            '<div class="date">Пройден ' + dateStr + '</div>' +
-          '</div>' +
+        '<div class="stat-row">' +
+          '<div class="stat-mini"><div class="num">' + t.percent + '%</div><div class="lbl">Уровень стресса</div></div>' +
+          '<div class="stat-mini"><div class="num" style="font-size: 1.1rem;">' + t.level.replace(' уровень выгорания','') + '</div><div class="lbl">Профиль</div></div>' +
+          '<div class="stat-mini"><div class="num" style="font-size: 1rem;">' + dateStr + '</div><div class="lbl">Дата теста</div></div>' +
         '</div>';
     } else {
-      testBlock.innerHTML = '<div class="empty">Вы ещё не проходили тест.</div>';
+      testBlock.innerHTML = '<div class="empty-state">Вы ещё не проходили тест</div>';
     }
 
-    // Курсы
     var coursesBlock = document.getElementById('profileCoursesBlock');
-    if (user.courses && user.courses.length > 0) {
+    if (currentUser.courses && currentUser.courses.length > 0) {
       var html = '';
-      user.courses.forEach(function(c) {
-        html += '<div class="profile-course">' +
-          '<span class="name">' + c.title + '</span>' +
-          '<span class="status">' + c.price + '</span>' +
-        '</div>';
+      currentUser.courses.forEach(function(c) {
+        html += '<div class="profile-course-row"><span class="name">' + c.title + '</span><span class="status">' + c.price + '</span></div>';
       });
       coursesBlock.innerHTML = html;
     } else {
-      coursesBlock.innerHTML = '<div class="empty">Вы ещё не записались ни на один курс.</div>';
+      coursesBlock.innerHTML = '<div class="empty-state">Вы ещё не записались ни на один курс</div>';
     }
 
     profileOverlay.classList.add('show');
@@ -1459,9 +1767,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   window.logoutUser = function() {
     if (confirm('Выйти из аккаунта?')) {
-      localStorage.removeItem('bc_user');
-      updateProfileIcon();
-      closeProfile();
+      auth.signOut().then(function() {
+        closeProfile();
+      });
     }
   };
 
@@ -1506,10 +1814,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var rulesEl = document.getElementById('pwdRules');
     var pwd = document.getElementById('authPassword').value;
 
-    if (pwd.length === 0) {
-      box.style.display = 'none';
-      return;
-    }
+    if (pwd.length === 0) { box.style.display = 'none'; return; }
     box.style.display = 'block';
 
     var rules = checkPasswordRules(pwd);
@@ -1520,20 +1825,17 @@ document.addEventListener('DOMContentLoaded', function() {
       if (rules[key]) passed++;
     });
 
-    var total = 5;
-    var percent = (passed / total) * 100;
-    fill.style.width = percent + '%';
-
+    fill.style.width = (passed / 5) * 100 + '%';
     text.classList.remove('weak', 'medium', 'strong');
 
     if (passed <= 2) {
       fill.style.background = 'var(--danger)';
       text.classList.add('weak');
-      text.textContent = 'Слабый пароль — регистрация недоступна';
-    } else if (passed === 3 || passed === 4) {
+      text.textContent = 'Слабый пароль';
+    } else if (passed <= 4) {
       fill.style.background = 'var(--warning)';
       text.classList.add('medium');
-      text.textContent = 'Средний пароль — можно регистрироваться';
+      text.textContent = 'Средний пароль';
     } else {
       fill.style.background = 'var(--success)';
       text.classList.add('strong');
@@ -1543,19 +1845,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function updateProfileIcon() {
     var btn = document.getElementById('profileBtn');
-    var saved = localStorage.getItem('bc_user');
-    if (saved) {
+    if (currentUser) {
       btn.classList.add('logged-in');
-      try {
-        var user = JSON.parse(saved);
-        btn.setAttribute('aria-label', 'Профиль: ' + user.name);
-      } catch (e) {
-        btn.setAttribute('aria-label', 'Профиль');
-      }
     } else {
       btn.classList.remove('logged-in');
-      btn.setAttribute('aria-label', 'Профиль');
     }
+  }
+
+  // Перевод ошибок Firebase на русский
+  function translateAuthError(code) {
+    var map = {
+      'auth/email-already-in-use': 'Этот логин уже занят. Попробуйте другой.',
+      'auth/invalid-email': 'Неверный формат логина.',
+      'auth/weak-password': 'Слишком слабый пароль.',
+      'auth/user-not-found': 'Логин не найден. Проверьте написание.',
+      'auth/wrong-password': 'Неверный пароль.',
+      'auth/invalid-credential': 'Неверный логин или пароль.',
+      'auth/too-many-requests': 'Слишком много попыток. Подождите немного.',
+      'auth/network-request-failed': 'Проблема с интернетом. Проверьте соединение.'
+    };
+    return map[code] || 'Ошибка: ' + code;
   }
 
   window.submitAuth = function() {
@@ -1572,19 +1881,30 @@ document.addEventListener('DOMContentLoaded', function() {
       errEl.textContent = 'Логин должен быть не короче 3 символов.';
       return;
     }
+    if (!/^[a-zA-Z0-9._-]+$/.test(login)) {
+      errEl.textContent = 'Логин может содержать только английские буквы, цифры, точку, дефис и подчёркивание.';
+      return;
+    }
+
+    var email = loginToEmail(login);
+    var btn = document.getElementById('authSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Подождите...';
 
     if (isReg) {
       if (password.length < 8) {
         errEl.textContent = 'Пароль должен быть не короче 8 символов.';
+        btn.disabled = false;
+        btn.textContent = 'Создать аккаунт';
         return;
       }
       var pwdRules = checkPasswordRules(password);
       var passed = 0;
       Object.keys(pwdRules).forEach(function(k) { if (pwdRules[k]) passed++; });
-
-      // Минимум 3 из 5 правил (средний уровень)
       if (passed < 3) {
-        errEl.textContent = 'Пароль слишком слабый. Нужно минимум 3 условия из 5 (см. список под полем).';
+        errEl.textContent = 'Пароль слишком слабый. Нужно минимум 3 условия из 5.';
+        btn.disabled = false;
+        btn.textContent = 'Создать аккаунт';
         return;
       }
 
@@ -1593,42 +1913,77 @@ document.addEventListener('DOMContentLoaded', function() {
 
       if (name.length < 2) {
         errEl.textContent = 'Введите имя (минимум 2 символа).';
-        return;
+        btn.disabled = false; btn.textContent = 'Создать аккаунт'; return;
       }
       if (password !== password2) {
         errEl.textContent = 'Пароли не совпадают.';
-        return;
+        btn.disabled = false; btn.textContent = 'Создать аккаунт'; return;
       }
 
-      var user = { name: name, login: login, courses: [], subscription: 'inactive' };
-      localStorage.setItem('bc_user', JSON.stringify(user));
-      updateProfileIcon();
-      okEl.textContent = 'Аккаунт создан! Добро пожаловать, ' + name + '!';
-
-      setTimeout(function() {
-        closeAuth();
-      }, 1500);
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(function(cred) {
+          return db.collection('users').doc(cred.user.uid).set({
+            name: name,
+            login: login.toLowerCase(),
+            courses: [],
+            subscription: 'inactive',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        })
+        .then(function() {
+          okEl.textContent = 'Аккаунт создан! Добро пожаловать, ' + name + '!';
+          btn.disabled = false; btn.textContent = 'Создать аккаунт';
+          setTimeout(closeAuth, 1500);
+        })
+        .catch(function(err) {
+          console.error('Ошибка регистрации:', err);
+          errEl.textContent = translateAuthError(err.code);
+          btn.disabled = false; btn.textContent = 'Создать аккаунт';
+        });
 
     } else {
-      var saved = localStorage.getItem('bc_user');
-      if (!saved) {
-        errEl.textContent = 'Аккаунт не найден. Сначала зарегистрируйтесь.';
-        return;
-      }
-      var savedUser = JSON.parse(saved);
-      if (savedUser.login !== login) {
-        errEl.textContent = 'Логин не найден.';
-        return;
-      }
-      okEl.textContent = 'С возвращением, ' + savedUser.name + '!';
-
-      setTimeout(function() {
-        closeAuth();
-      }, 1200);
+      auth.signInWithEmailAndPassword(email, password)
+        .then(function() {
+          okEl.textContent = 'С возвращением!';
+          btn.disabled = false; btn.textContent = 'Войти';
+          setTimeout(closeAuth, 1000);
+        })
+        .catch(function(err) {
+          console.error('Ошибка входа:', err);
+          errEl.textContent = translateAuthError(err.code);
+          btn.disabled = false; btn.textContent = 'Войти';
+        });
     }
   };
 
+  // === СЛЕЖЕНИЕ ЗА СОСТОЯНИЕМ АВТОРИЗАЦИИ ===
+  auth.onAuthStateChanged(function(user) {
+    if (user) {
+      // Подтягиваем профиль из Firestore в реальном времени
+      db.collection('users').doc(user.uid).onSnapshot(function(doc) {
+        if (doc.exists) {
+          currentUser = doc.data();
+          currentUser.uid = user.uid;
+          updateProfileIcon();
+          // Если открыт профиль — обновим
+          if (profileOverlay.classList.contains('show')) {
+            openProfile();
+          }
+        }
+      }, function(err) {
+        console.error('Ошибка чтения профиля:', err);
+      });
+    } else {
+      currentUser = null;
+      updateProfileIcon();
+    }
+  });
+
+  // === ИНИЦИАЛИЗАЦИЯ ===
   updateProfileIcon();
+  syncThemeSwitch();
+  syncNotifySwitch();
+
 });
 </script>
 </body>
