@@ -10,27 +10,19 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 :root {
-  --bg: #faf7f2; --bg-alt: #f5efe6; --card: #fff;
-  --text: #2b2b2b; --text-soft: #6b6b6b; --text-dim: #999;
-  --primary: #8ba888; --primary-dark: #6d8c6a; --primary-light: #eef3ec;
-  --accent: #e8c4b8; --accent-soft: #f5e8e2;
-  --border: #ebe3d8; --border-soft: #f0eae0;
-  --success: #7fa97c; --warning: #d4a373; --danger: #c97b6a;
-  --shadow-sm: 0 2px 8px rgba(90,70,50,0.04);
-  --shadow: 0 4px 16px rgba(90,70,50,0.06);
-  --shadow-lg: 0 12px 32px rgba(90,70,50,0.10);
-  --radius: 16px;
+  --bg:#faf7f2;--bg-alt:#f5efe6;--card:#fff;--text:#2b2b2b;--text-soft:#6b6b6b;--text-dim:#999;
+  --primary:#8ba888;--primary-dark:#6d8c6a;--primary-light:#eef3ec;
+  --accent:#e8c4b8;--accent-soft:#f5e8e2;--border:#ebe3d8;--border-soft:#f0eae0;
+  --success:#7fa97c;--warning:#d4a373;--danger:#c97b6a;
+  --shadow-sm:0 2px 8px rgba(90,70,50,0.04);--shadow:0 4px 16px rgba(90,70,50,0.06);
+  --shadow-lg:0 12px 32px rgba(90,70,50,0.10);--radius:16px;
 }
 [data-theme="dark"] {
-  --bg: #1a1815; --bg-alt: #252220; --card: #2b2724;
-  --text: #f0e8dc; --text-soft: #b0a89c; --text-dim: #7a7268;
-  --primary: #a4c19f; --primary-dark: #8ba888; --primary-light: rgba(164,193,159,0.12);
-  --accent: #d4a88f; --accent-soft: rgba(212,168,143,0.15);
-  --border: #3d3733; --border-soft: #332e2a;
-  --success: #a4c19f; --warning: #e0b580; --danger: #d99680;
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.25);
-  --shadow: 0 4px 16px rgba(0,0,0,0.3);
-  --shadow-lg: 0 12px 32px rgba(0,0,0,0.4);
+  --bg:#1a1815;--bg-alt:#252220;--card:#2b2724;--text:#f0e8dc;--text-soft:#b0a89c;--text-dim:#7a7268;
+  --primary:#a4c19f;--primary-dark:#8ba888;--primary-light:rgba(164,193,159,0.12);
+  --accent:#d4a88f;--accent-soft:rgba(212,168,143,0.15);
+  --border:#3d3733;--border-soft:#332e2a;--success:#a4c19f;--warning:#e0b580;--danger:#d99680;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.25);--shadow:0 4px 16px rgba(0,0,0,0.3);--shadow-lg:0 12px 32px rgba(0,0,0,0.4);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -251,8 +243,10 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
 .eye-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
 .auth-error { color: var(--danger); font-size: 0.85rem; margin-bottom: 1rem; min-height: 1.2em; }
 .auth-success { color: var(--success); font-size: 0.9rem; margin-bottom: 1rem; }
-.auth-info-box { background: var(--primary-light); padding: 1rem; border-radius: 12px; color: var(--primary-dark); font-size: 0.88rem; text-align: left; margin-bottom: 1rem; display: none; }
+.auth-info-box { background: var(--primary-light); padding: 1rem; border-radius: 12px; color: var(--primary-dark); font-size: 0.88rem; text-align: left; margin-bottom: 1rem; display: none; line-height: 1.5; }
 .auth-info-box.show { display: block; }
+.auth-forgot { text-align: center; font-size: 0.85rem; color: var(--primary); cursor: pointer; margin-top: 0.75rem; text-decoration: underline; }
+.auth-forgot:hover { color: var(--primary-dark); }
 .pwd-strength { margin-top: -0.5rem; margin-bottom: 1rem; font-size: 0.78rem; }
 .pwd-strength-bar { height: 3px; background: var(--border-soft); border-radius: 2px; overflow: hidden; margin-bottom: 0.5rem; }
 .pwd-strength-fill { height: 100%; width: 0; background: var(--danger); transition: width 0.3s, background 0.3s; }
@@ -511,22 +505,25 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
 <div class="modal-overlay" id="authOverlay">
   <div class="modal">
     <button class="modal-close" onclick="closeAuth()">×</button>
-    <h2 style="font-size: 1.8rem; margin-bottom: 1.5rem;">Добро пожаловать</h2>
-    <div class="auth-tabs">
+    <h2 id="authTitle" style="font-size: 1.8rem; margin-bottom: 1.5rem;">Добро пожаловать</h2>
+
+    <div class="auth-tabs" id="authTabs">
       <button class="auth-tab active" id="tabRegister" onclick="setAuthMode('register')">Регистрация</button>
       <button class="auth-tab" id="tabLogin" onclick="setAuthMode('login')">Вход</button>
     </div>
-    <div class="auth-form">
-      <div id="nameField">
-        <label for="authName">Имя</label>
-        <input type="text" id="authName" placeholder="Как вас зовут?" autocomplete="name">
-      </div>
-      <label for="authEmail">Email</label>
-      <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email">
-      <label for="authPassword">Пароль</label>
+
+    <!-- РЕГИСТРАЦИЯ -->
+    <div class="auth-form" id="registerForm">
+      <label for="regLogin">Логин</label>
+      <input type="text" id="regLogin" placeholder="Придумайте логин" autocomplete="username">
+
+      <label for="regEmail">Почта</label>
+      <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email">
+
+      <label for="regPassword">Пароль</label>
       <div class="password-wrap">
-        <input type="password" id="authPassword" placeholder="Минимум 8 символов" autocomplete="new-password" oninput="updatePwdStrength()">
-        <button type="button" class="eye-btn" onclick="togglePassword('authPassword', this)" aria-label="Показать пароль">
+        <input type="password" id="regPassword" placeholder="Минимум 8 символов" autocomplete="new-password" oninput="updatePwdStrength()">
+        <button type="button" class="eye-btn" onclick="togglePassword('regPassword', this)" aria-label="Показать пароль">
           <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
         </button>
       </div>
@@ -541,20 +538,61 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
           <li data-rule="special">Спецсимвол (!@#$%^&*/\ и др.)</li>
         </ul>
       </div>
-      <div id="confirmField" style="margin-top: 1rem;">
-        <label for="authPassword2">Повторите пароль</label>
-        <div class="password-wrap">
-          <input type="password" id="authPassword2" placeholder="Ещё раз" autocomplete="new-password">
-          <button type="button" class="eye-btn" onclick="togglePassword('authPassword2', this)" aria-label="Показать пароль">
-            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-          </button>
-        </div>
+
+      <label for="regPassword2">Повторите пароль</label>
+      <div class="password-wrap">
+        <input type="password" id="regPassword2" placeholder="Ещё раз" autocomplete="new-password">
+        <button type="button" class="eye-btn" onclick="togglePassword('regPassword2', this)" aria-label="Показать пароль">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
       </div>
+
       <div class="auth-error" id="authError"></div>
       <div class="auth-success" id="authSuccess"></div>
       <div class="auth-info-box" id="authInfoBox"></div>
-      <button class="btn btn-primary" style="width:100%; margin-top: 0.5rem;" id="authSubmitBtn" onclick="submitAuth()">Создать аккаунт</button>
+
+      <button class="btn btn-primary" style="width:100%; margin-top: 0.5rem;" id="authSubmitBtn" onclick="submitRegister()">Создать аккаунт</button>
       <button class="btn btn-outline" style="width:100%; margin-top: 0.5rem; display:none;" id="resendBtn" onclick="resendVerification()">Отправить письмо повторно</button>
+    </div>
+
+    <!-- ВХОД -->
+    <div class="auth-form" id="loginForm" style="display:none;">
+      <label for="loginLogin">Логин</label>
+      <input type="text" id="loginLogin" placeholder="Ваш логин" autocomplete="username">
+
+      <label for="loginPassword">Пароль</label>
+      <div class="password-wrap">
+        <input type="password" id="loginPassword" placeholder="Ваш пароль" autocomplete="current-password">
+        <button type="button" class="eye-btn" onclick="togglePassword('loginPassword', this)" aria-label="Показать пароль">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
+      </div>
+
+      <div class="auth-error" id="loginError"></div>
+      <div class="auth-success" id="loginSuccess"></div>
+      <div class="auth-info-box" id="loginInfoBox"></div>
+
+      <button class="btn btn-primary" style="width:100%; margin-top: 0.5rem;" id="loginSubmitBtn" onclick="submitLogin()">Войти</button>
+      <button class="btn btn-outline" style="width:100%; margin-top: 0.5rem; display:none;" id="loginResendBtn" onclick="resendFromLogin()">Отправить письмо повторно</button>
+
+      <div class="auth-forgot" onclick="setAuthMode('forgot')">Забыли пароль?</div>
+    </div>
+
+    <!-- ЗАБЫЛИ ПАРОЛЬ -->
+    <div class="auth-form" id="forgotForm" style="display:none;">
+      <p style="color: var(--text-soft); font-size: 0.9rem; margin-bottom: 1rem; text-align: left;">Введите логин и почту, к которой привязан аккаунт — мы отправим ссылку для сброса пароля.</p>
+
+      <label for="forgotLogin">Логин</label>
+      <input type="text" id="forgotLogin" placeholder="Ваш логин" autocomplete="username">
+
+      <label for="forgotEmail">Почта</label>
+      <input type="email" id="forgotEmail" placeholder="you@example.com" autocomplete="email">
+
+      <div class="auth-error" id="forgotError"></div>
+      <div class="auth-success" id="forgotSuccess"></div>
+
+      <button class="btn btn-primary" style="width:100%; margin-top: 0.5rem;" id="forgotSubmitBtn" onclick="submitForgot()">Отправить письмо</button>
+      <div class="auth-forgot" onclick="setAuthMode('login')">← Назад ко входу</div>
     </div>
   </div>
 </div>
@@ -565,8 +603,8 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
     <div class="profile-layout" style="margin-top: 0;">
       <div class="profile-side">
         <div class="profile-avatar-lg" id="profileAvatar">?</div>
-        <h3 id="profileName">Имя</h3>
-        <div class="login" id="profileLogin">@login</div>
+        <h3 id="profileName">Логин</h3>
+        <div class="login" id="profileLogin">@email</div>
         <div class="sub-status" id="profileSubBadge">—</div>
       </div>
       <div class="profile-main">
@@ -621,7 +659,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var db = firebase.firestore();
 
   var currentUser = null;
-  var pendingEmail = null; // email, ожидающий подтверждения
+  var pendingEmail = null;
 
   // === ТЕМА ===
   (function initTheme() {
@@ -827,8 +865,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (pct < 33) {
       title = 'Низкий уровень выгорания';
-      desc = isWorker ? 'Вы хорошо справляетесь с рабочей нагрузкой и умеете восстанавливаться.' : 'Вы хорошо справляетесь с учёбой и умеете восстанавливаться.';
-      causes = [{text:'Стабильное эмоциональное состояние',type:'success'},{text:'Хороший баланс работы и отдыха',type:'success'},{text:'Развитые навыки саморегуляции',type:'success'}];
+      desc = isWorker ? 'Вы хорошо справляетесь с рабочей нагрузкой.' : 'Вы хорошо справляетесь с учёбой.';
+      causes = [{text:'Стабильное состояние',type:'success'},{text:'Баланс работы и отдыха',type:'success'},{text:'Развитая саморегуляция',type:'success'}];
       color = '#7fa97c';
     } else if (pct < 66) {
       title = 'Умеренный уровень выгорания';
@@ -896,7 +934,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // === АВТОРИЗАЦИЯ ===
   var authOverlay = document.getElementById('authOverlay');
   var profileOverlay = document.getElementById('profileOverlay');
-  var authMode = 'register';
 
   window.openAuth = function() {
     if (currentUser) { openProfile(); return; }
@@ -906,16 +943,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
   window.closeAuth = function() {
     authOverlay.classList.remove('show');
-    document.getElementById('authError').textContent = '';
-    document.getElementById('authSuccess').textContent = '';
-    document.getElementById('authInfoBox').classList.remove('show');
-    document.getElementById('authName').value = '';
-    document.getElementById('authEmail').value = '';
-    document.getElementById('authPassword').value = '';
-    document.getElementById('authPassword2').value = '';
+    ['authError','authSuccess','loginError','loginSuccess','forgotError','forgotSuccess'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = '';
+    });
+    ['authInfoBox','loginInfoBox'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.remove('show');
+    });
+    document.getElementById('regLogin').value = '';
+    document.getElementById('regEmail').value = '';
+    document.getElementById('regPassword').value = '';
+    document.getElementById('regPassword2').value = '';
+    document.getElementById('loginLogin').value = '';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('forgotLogin').value = '';
+    document.getElementById('forgotEmail').value = '';
     document.getElementById('pwdStrengthBox').style.display = 'none';
     document.getElementById('pwdStrengthFill').style.width = '0%';
     document.getElementById('resendBtn').style.display = 'none';
+    document.getElementById('loginResendBtn').style.display = 'none';
+    document.getElementById('authSubmitBtn').style.display = 'block';
   };
 
   authOverlay.addEventListener('click', function(e) { if (e.target === authOverlay) closeAuth(); });
@@ -925,9 +973,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   window.openProfile = function() {
     if (!currentUser) return;
-    var initial = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : '?';
+    var initial = currentUser.login ? currentUser.login.charAt(0).toUpperCase() : '?';
     document.getElementById('profileAvatar').textContent = initial;
-    document.getElementById('profileName').textContent = currentUser.name;
+    document.getElementById('profileName').textContent = currentUser.login;
     document.getElementById('profileLogin').textContent = currentUser.email || '';
     var subBadge = document.getElementById('profileSubBadge');
     if (currentUser.subscription === 'active') { subBadge.textContent = 'Premium активна'; subBadge.className = 'sub-status sub-active'; }
@@ -958,19 +1006,35 @@ document.addEventListener('DOMContentLoaded', function() {
     if (confirm('Выйти из аккаунта?')) auth.signOut().then(function() { closeProfile(); });
   };
 
+  // Переключение между регистрацией, входом и забытым паролем
   window.setAuthMode = function(mode) {
-    authMode = mode;
-    var isReg = (mode === 'register');
-    document.getElementById('tabRegister').classList.toggle('active', isReg);
-    document.getElementById('tabLogin').classList.toggle('active', !isReg);
-    document.getElementById('nameField').style.display = isReg ? 'block' : 'none';
-    document.getElementById('confirmField').style.display = isReg ? 'block' : 'none';
-    document.getElementById('pwdStrengthBox').style.display = 'none';
-    document.getElementById('authSubmitBtn').textContent = isReg ? 'Создать аккаунт' : 'Войти';
-    document.getElementById('authError').textContent = '';
-    document.getElementById('authSuccess').textContent = '';
-    document.getElementById('authInfoBox').classList.remove('show');
-    document.getElementById('resendBtn').style.display = 'none';
+    var regForm = document.getElementById('registerForm');
+    var loginForm = document.getElementById('loginForm');
+    var forgotForm = document.getElementById('forgotForm');
+    var tabs = document.getElementById('authTabs');
+    var title = document.getElementById('authTitle');
+
+    regForm.style.display = 'none';
+    loginForm.style.display = 'none';
+    forgotForm.style.display = 'none';
+
+    if (mode === 'register') {
+      regForm.style.display = 'block';
+      tabs.style.display = 'flex';
+      title.textContent = 'Регистрация';
+      document.getElementById('tabRegister').classList.add('active');
+      document.getElementById('tabLogin').classList.remove('active');
+    } else if (mode === 'login') {
+      loginForm.style.display = 'block';
+      tabs.style.display = 'flex';
+      title.textContent = 'Вход';
+      document.getElementById('tabRegister').classList.remove('active');
+      document.getElementById('tabLogin').classList.add('active');
+    } else if (mode === 'forgot') {
+      forgotForm.style.display = 'block';
+      tabs.style.display = 'none';
+      title.textContent = 'Восстановление пароля';
+    }
   };
 
   window.togglePassword = function(inputId, btn) {
@@ -988,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var fill = document.getElementById('pwdStrengthFill');
     var text = document.getElementById('pwdStrengthText');
     var rulesEl = document.getElementById('pwdRules');
-    var pwd = document.getElementById('authPassword').value;
+    var pwd = document.getElementById('regPassword').value;
     if (pwd.length === 0) { box.style.display = 'none'; return; }
     box.style.display = 'block';
     var rules = checkPasswordRules(pwd);
@@ -1009,154 +1073,225 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('profileBtn').classList.toggle('logged-in', !!currentUser);
   }
 
+  function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+
   function translateAuthError(code) {
     var map = {
-      'auth/email-already-in-use': 'Этот email уже зарегистрирован. Попробуйте войти или использовать другой.',
-      'auth/invalid-email': 'Неверный формат email.',
+      'auth/email-already-in-use': 'Эта почта уже зарегистрирована.',
+      'auth/invalid-email': 'Неверный формат почты.',
       'auth/weak-password': 'Слишком слабый пароль.',
-      'auth/user-not-found': 'Аккаунт с таким email не найден.',
+      'auth/user-not-found': 'Пользователь не найден.',
       'auth/wrong-password': 'Неверный пароль.',
-      'auth/invalid-credential': 'Неверный email или пароль.',
+      'auth/invalid-credential': 'Неверный логин или пароль.',
       'auth/too-many-requests': 'Слишком много попыток. Подождите немного.',
       'auth/network-request-failed': 'Проблема с интернетом.',
-      'auth/email-not-verified': 'Email не подтверждён. Проверьте почту.'
+      'auth/email-not-verified': 'Почта не подтверждена. Проверьте письмо.',
+      'auth/missing-email': 'Введите почту.',
+      'custom/login-taken': 'Этот логин уже занят. Придумайте другой.',
+      'custom/user-not-found': 'Логин не найден. Проверьте написание.',
+      'custom/email-mismatch': 'Указанная почта не совпадает с почтой аккаунта.'
     };
     return map[code] || 'Ошибка: ' + code;
   }
 
-  function isValidEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
-
-  window.submitAuth = function() {
+  // === РЕГИСТРАЦИЯ ===
+  window.submitRegister = function() {
     var errEl = document.getElementById('authError');
     var okEl = document.getElementById('authSuccess');
     var infoEl = document.getElementById('authInfoBox');
-    errEl.textContent = ''; okEl.textContent = '';
-    infoEl.classList.remove('show');
+    errEl.textContent = ''; okEl.textContent = ''; infoEl.classList.remove('show');
 
-    var email = document.getElementById('authEmail').value.trim().toLowerCase();
-    var password = document.getElementById('authPassword').value;
-    var isReg = (authMode === 'register');
+    var login = document.getElementById('regLogin').value.trim();
+    var email = document.getElementById('regEmail').value.trim().toLowerCase();
+    var password = document.getElementById('regPassword').value;
+    var password2 = document.getElementById('regPassword2').value;
     var btn = document.getElementById('authSubmitBtn');
 
-    if (!isValidEmail(email)) { errEl.textContent = 'Введите корректный email.'; return; }
+    if (login.length < 2) { errEl.textContent = 'Логин не короче 2 символов.'; return; }
+    if (!/^[a-zA-Z0-9._-]+$/.test(login)) { errEl.textContent = 'Логин: только английские буквы, цифры, точка, дефис, подчёркивание.'; return; }
+    if (!isValidEmail(email)) { errEl.textContent = 'Введите корректную почту.'; return; }
+    if (password.length < 8) { errEl.textContent = 'Пароль не короче 8 символов.'; return; }
+    var pwdRules = checkPasswordRules(password);
+    var passed = 0;
+    Object.keys(pwdRules).forEach(function(k) { if (pwdRules[k]) passed++; });
+    if (passed < 3) { errEl.textContent = 'Пароль слишком слабый. Нужно минимум 3 условия из 5.'; return; }
+    if (password !== password2) { errEl.textContent = 'Пароли не совпадают.'; return; }
+
+    pendingEmail = email;
+    btn.disabled = true;
+    btn.textContent = 'Подождите...';
+
+    // Проверяем уникальность логина
+    db.collection('users').where('login', '==', login.toLowerCase()).limit(1).get()
+      .then(function(snapshot) {
+        if (!snapshot.empty) throw { code: 'custom/login-taken' };
+        return auth.createUserWithEmailAndPassword(email, password);
+      })
+      .then(function(cred) {
+        return cred.user.sendEmailVerification({
+          url: window.location.origin + window.location.pathname
+        }).then(function() { return cred.user; });
+      })
+      .then(function(user) {
+        return db.collection('users').doc(user.uid).set({
+          login: login,
+          email: email,
+          courses: [],
+          subscription: 'inactive',
+          emailVerified: false,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      })
+      .then(function() { return auth.signOut(); })
+      .then(function() {
+        btn.disabled = false;
+        btn.style.display = 'none';
+        document.getElementById('resendBtn').style.display = 'block';
+        infoEl.innerHTML = '<strong>📧 Письмо отправлено!</strong><br>Мы отправили ссылку для подтверждения на <b>' + email + '</b>. Перейдите по ссылке в письме — и сможете войти. Проверьте папку «Спам».';
+        infoEl.classList.add('show');
+      })
+      .catch(function(err) {
+        console.error(err);
+        errEl.textContent = translateAuthError(err.code);
+        btn.disabled = false;
+        btn.textContent = 'Создать аккаунт';
+      });
+  };
+
+  // === ВХОД ===
+  window.submitLogin = function() {
+    var errEl = document.getElementById('loginError');
+    var okEl = document.getElementById('loginSuccess');
+    var infoEl = document.getElementById('loginInfoBox');
+    errEl.textContent = ''; okEl.textContent = ''; infoEl.classList.remove('show');
+
+    var login = document.getElementById('loginLogin').value.trim();
+    var password = document.getElementById('loginPassword').value;
+    var btn = document.getElementById('loginSubmitBtn');
+
+    if (!login) { errEl.textContent = 'Введите логин.'; return; }
+    if (!password) { errEl.textContent = 'Введите пароль.'; return; }
 
     btn.disabled = true;
     btn.textContent = 'Подождите...';
 
-    if (isReg) {
-      if (password.length < 8) { errEl.textContent = 'Пароль должен быть не короче 8 символов.'; btn.disabled = false; btn.textContent = 'Создать аккаунт'; return; }
-      var pwdRules = checkPasswordRules(password);
-      var passed = 0;
-      Object.keys(pwdRules).forEach(function(k) { if (pwdRules[k]) passed++; });
-      if (passed < 3) { errEl.textContent = 'Пароль слишком слабый. Нужно минимум 3 условия из 5.'; btn.disabled = false; btn.textContent = 'Создать аккаунт'; return; }
-
-      var name = document.getElementById('authName').value.trim();
-      var password2 = document.getElementById('authPassword2').value;
-      if (name.length < 2) { errEl.textContent = 'Введите имя (минимум 2 символа).'; btn.disabled = false; btn.textContent = 'Создать аккаунт'; return; }
-      if (password !== password2) { errEl.textContent = 'Пароли не совпадают.'; btn.disabled = false; btn.textContent = 'Создать аккаунт'; return; }
-
-      pendingEmail = email;
-
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(function(cred) {
-          // Отправляем письмо с подтверждением
-          return cred.user.sendEmailVerification({
-            url: window.location.origin + window.location.pathname
-          }).then(function() { return cred.user; });
-        })
-        .then(function(user) {
-          // Сохраняем профиль в Firestore
-          return db.collection('users').doc(user.uid).set({
-            name: name,
-            email: email,
-            courses: [],
-            subscription: 'inactive',
-            emailVerified: false,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        })
-        .then(function() {
-          // Разлогиниваем — пользователь должен подтвердить email
-          return auth.signOut();
-        })
-        .then(function() {
-          btn.disabled = false;
-          btn.textContent = 'Создать аккаунт';
-          errEl.textContent = '';
-          okEl.textContent = '';
-          infoEl.innerHTML = '<strong>📧 Письмо отправлено!</strong><br>Мы отправили ссылку для подтверждения на <b>' + email + '</b>. Перейдите по ссылке в письме — и сможете войти. Не забудьте проверить папку «Спам».';
+    // Ищем пользователя по логину
+    db.collection('users').where('login', '==', login.toLowerCase()).limit(1).get()
+      .then(function(snapshot) {
+        if (snapshot.empty) throw { code: 'custom/user-not-found' };
+        var userData = snapshot.docs[0].data();
+        return auth.signInWithEmailAndPassword(userData.email, password);
+      })
+      .then(function(cred) {
+        if (!cred.user.emailVerified) {
+          pendingEmail = cred.user.email;
+          return auth.signOut().then(function() { throw { code: 'auth/email-not-verified' }; });
+        }
+        okEl.textContent = 'С возвращением!';
+        btn.disabled = false;
+        btn.textContent = 'Войти';
+        setTimeout(closeAuth, 1000);
+      })
+      .catch(function(err) {
+        console.error(err);
+        btn.disabled = false;
+        btn.textContent = 'Войти';
+        if (err.code === 'auth/email-not-verified') {
+          errEl.textContent = 'Почта не подтверждена. Проверьте письмо — ссылка была отправлена при регистрации.';
+          infoEl.innerHTML = '📧 Письмо было отправлено на <b>' + (pendingEmail || '') + '</b>. Не получили? Нажмите кнопку ниже.';
           infoEl.classList.add('show');
-          document.getElementById('authSubmitBtn').style.display = 'none';
-          document.getElementById('resendBtn').style.display = 'block';
-        })
-        .catch(function(err) {
-          console.error('Ошибка регистрации:', err);
+          document.getElementById('loginResendBtn').style.display = 'block';
+        } else {
           errEl.textContent = translateAuthError(err.code);
-          btn.disabled = false;
-          btn.textContent = 'Создать аккаунт';
-        });
-
-    } else {
-      // Вход
-      auth.signInWithEmailAndPassword(email, password)
-        .then(function(cred) {
-          if (!cred.user.emailVerified) {
-            // Email не подтверждён — выходим и предлагаем подтвердить
-            pendingEmail = email;
-            return auth.signOut().then(function() {
-              throw { code: 'auth/email-not-verified' };
-            });
-          }
-          okEl.textContent = 'С возвращением!';
-          btn.disabled = false;
-          btn.textContent = 'Войти';
-          setTimeout(closeAuth, 1000);
-        })
-        .catch(function(err) {
-          console.error('Ошибка входа:', err);
-          btn.disabled = false;
-          btn.textContent = 'Войти';
-          if (err.code === 'auth/email-not-verified') {
-            errEl.textContent = 'Email не подтверждён. Проверьте почту и перейдите по ссылке из письма.';
-            document.getElementById('resendBtn').style.display = 'block';
-            document.getElementById('authInfoBox').innerHTML = '📧 Письмо было отправлено на <b>' + pendingEmail + '</b>. Не получили? Нажмите кнопку ниже.';
-            document.getElementById('authInfoBox').classList.add('show');
-          } else {
-            errEl.textContent = translateAuthError(err.code);
-          }
-        });
-    }
+        }
+      });
   };
 
+  // Повторная отправка письма (после регистрации)
   window.resendVerification = function() {
-    var email = pendingEmail || document.getElementById('authEmail').value.trim().toLowerCase();
-    var password = document.getElementById('authPassword').value;
+    if (!pendingEmail) { alert('Сначала введите email и пароль.'); return; }
+    var password = document.getElementById('regPassword').value;
     var errEl = document.getElementById('authError');
     var infoEl = document.getElementById('authInfoBox');
-    errEl.textContent = '';
 
-    if (!email || !password) {
-      errEl.textContent = 'Введите email и пароль, чтобы отправить письмо повторно.';
+    if (!password) {
+      errEl.textContent = 'Введите пароль ещё раз, чтобы отправить письмо повторно.';
       return;
     }
 
-    // Входим, отправляем письмо, выходим
-    auth.signInWithEmailAndPassword(email, password)
+    auth.signInWithEmailAndPassword(pendingEmail, password)
       .then(function(cred) {
         return cred.user.sendEmailVerification({
           url: window.location.origin + window.location.pathname
         }).then(function() { return auth.signOut(); });
       })
       .then(function() {
-        infoEl.innerHTML = '📧 Письмо отправлено повторно на <b>' + email + '</b>. Проверьте папку «Спам».';
+        infoEl.innerHTML = '📧 Письмо отправлено повторно на <b>' + pendingEmail + '</b>. Проверьте «Спам».';
         infoEl.classList.add('show');
-        errEl.textContent = '';
       })
       .catch(function(err) {
-        console.error('Ошибка повторной отправки:', err);
         errEl.textContent = translateAuthError(err.code);
+      });
+  };
+
+  // Повторная отправка письма (со вкладки «Вход»)
+  window.resendFromLogin = function() {
+    if (!pendingEmail) { alert('Сначала введите логин и пароль.'); return; }
+    var password = document.getElementById('loginPassword').value;
+    var errEl = document.getElementById('loginError');
+    var infoEl = document.getElementById('loginInfoBox');
+
+    if (!password) { errEl.textContent = 'Введите пароль.'; return; }
+
+    auth.signInWithEmailAndPassword(pendingEmail, password)
+      .then(function(cred) {
+        return cred.user.sendEmailVerification({
+          url: window.location.origin + window.location.pathname
+        }).then(function() { return auth.signOut(); });
+      })
+      .then(function() {
+        infoEl.innerHTML = '📧 Письмо отправлено повторно на <b>' + pendingEmail + '</b>. Проверьте «Спам».';
+        infoEl.classList.add('show');
+      })
+      .catch(function(err) {
+        errEl.textContent = translateAuthError(err.code);
+      });
+  };
+
+  // === ЗАБЫЛИ ПАРОЛЬ ===
+  window.submitForgot = function() {
+    var errEl = document.getElementById('forgotError');
+    var okEl = document.getElementById('forgotSuccess');
+    errEl.textContent = ''; okEl.textContent = '';
+
+    var login = document.getElementById('forgotLogin').value.trim();
+    var email = document.getElementById('forgotEmail').value.trim().toLowerCase();
+    var btn = document.getElementById('forgotSubmitBtn');
+
+    if (!login) { errEl.textContent = 'Введите логин.'; return; }
+    if (!isValidEmail(email)) { errEl.textContent = 'Введите корректную почту.'; return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Отправляем...';
+
+    db.collection('users').where('login', '==', login.toLowerCase()).limit(1).get()
+      .then(function(snapshot) {
+        if (snapshot.empty) throw { code: 'custom/user-not-found' };
+        var userData = snapshot.docs[0].data();
+        if (userData.email !== email) throw { code: 'custom/email-mismatch' };
+        return auth.sendPasswordResetEmail(email);
+      })
+      .then(function() {
+        okEl.textContent = 'Письмо для сброса пароля отправлено на ' + email + '. Проверьте «Спам».';
+        btn.disabled = false;
+        btn.textContent = 'Отправить письмо';
+        setTimeout(function() { setAuthMode('login'); }, 3000);
+      })
+      .catch(function(err) {
+        console.error(err);
+        errEl.textContent = translateAuthError(err.code);
+        btn.disabled = false;
+        btn.textContent = 'Отправить письмо';
       });
   };
 
