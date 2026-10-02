@@ -5,880 +5,257 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Balance — Профилактика эмоционального выгорания</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<!-- Firebase SDK (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
 <style>
 :root {
-  --bg: #faf7f2;
-  --bg-alt: #f5efe6;
-  --card: #ffffff;
-  --text: #2b2b2b;
-  --text-soft: #6b6b6b;
-  --text-dim: #999;
-  --primary: #8ba888;
-  --primary-dark: #6d8c6a;
-  --primary-light: #eef3ec;
-  --accent: #e8c4b8;
-  --accent-soft: #f5e8e2;
-  --border: #ebe3d8;
-  --border-soft: #f0eae0;
-  --success: #7fa97c;
-  --warning: #d4a373;
-  --danger: #c97b6a;
+  --bg: #faf7f2; --bg-alt: #f5efe6; --card: #fff;
+  --text: #2b2b2b; --text-soft: #6b6b6b; --text-dim: #999;
+  --primary: #8ba888; --primary-dark: #6d8c6a; --primary-light: #eef3ec;
+  --accent: #e8c4b8; --accent-soft: #f5e8e2;
+  --border: #ebe3d8; --border-soft: #f0eae0;
+  --success: #7fa97c; --warning: #d4a373; --danger: #c97b6a;
   --shadow-sm: 0 2px 8px rgba(90,70,50,0.04);
   --shadow: 0 4px 16px rgba(90,70,50,0.06);
   --shadow-lg: 0 12px 32px rgba(90,70,50,0.10);
   --radius: 16px;
 }
-
 [data-theme="dark"] {
-  --bg: #1a1815;
-  --bg-alt: #252220;
-  --card: #2b2724;
-  --text: #f0e8dc;
-  --text-soft: #b0a89c;
-  --text-dim: #7a7268;
-  --primary: #a4c19f;
-  --primary-dark: #8ba888;
-  --primary-light: rgba(164, 193, 159, 0.12);
-  --accent: #d4a88f;
-  --accent-soft: rgba(212, 168, 143, 0.15);
-  --border: #3d3733;
-  --border-soft: #332e2a;
-  --success: #a4c19f;
-  --warning: #e0b580;
-  --danger: #d99680;
+  --bg: #1a1815; --bg-alt: #252220; --card: #2b2724;
+  --text: #f0e8dc; --text-soft: #b0a89c; --text-dim: #7a7268;
+  --primary: #a4c19f; --primary-dark: #8ba888; --primary-light: rgba(164,193,159,0.12);
+  --accent: #d4a88f; --accent-soft: rgba(212,168,143,0.15);
+  --border: #3d3733; --border-soft: #332e2a;
+  --success: #a4c19f; --warning: #e0b580; --danger: #d99680;
   --shadow-sm: 0 2px 8px rgba(0,0,0,0.25);
   --shadow: 0 4px 16px rgba(0,0,0,0.3);
   --shadow-lg: 0 12px 32px rgba(0,0,0,0.4);
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
-
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  transition: background 0.3s, color 0.3s;
-}
-
-h1, h2, h3, h4 {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-weight: 600;
-  color: var(--text);
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-}
-
-.topnav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-soft);
-  padding: 0.9rem 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-}
-[data-theme="light"] .topnav { background: rgba(250, 247, 242, 0.9); }
-[data-theme="dark"] .topnav { background: rgba(26, 24, 21, 0.9); }
-
-.nav-logo {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.nav-logo-icon {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  background: var(--primary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 0.9rem;
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
-}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.6; transition: background 0.3s, color 0.3s; }
+h1,h2,h3,h4 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; line-height: 1.2; }
+.topnav { position: sticky; top: 0; z-index: 100; background: var(--bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-soft); padding: 0.9rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
+[data-theme="light"] .topnav { background: rgba(250,247,242,0.9); }
+[data-theme="dark"] .topnav { background: rgba(26,24,21,0.9); }
+.nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+.nav-logo-icon { width: 28px; height: 28px; border-radius: 50%; background: var(--primary); display: inline-flex; align-items: center; justify-content: center; color: #fff; font-size: 0.9rem; font-family: 'Inter', sans-serif; font-weight: 700; }
 .nav-menu { display: flex; gap: 0.3rem; flex: 1; justify-content: center; }
-.nav-menu a {
-  padding: 0.5rem 1rem;
-  color: var(--text-soft);
-  text-decoration: none;
-  font-size: 0.92rem;
-  font-weight: 500;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
+.nav-menu a { padding: 0.5rem 1rem; color: var(--text-soft); text-decoration: none; font-size: 0.92rem; font-weight: 500; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
 .nav-menu a:hover { color: var(--text); background: var(--bg-alt); }
 .nav-menu a.active { color: var(--text); font-weight: 600; }
-
-.nav-actions { display: flex; align-items: center; gap: 0.6rem; flex-shrink: 0; }
-.nav-icon-btn {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  background: var(--bg-alt);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  padding: 0;
-}
+.nav-actions { display: flex; align-items: center; gap: 0.6rem; }
+.nav-icon-btn, .nav-profile-btn { width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; padding: 0; }
+.nav-icon-btn { background: var(--bg-alt); }
 .nav-icon-btn:hover { transform: scale(1.05); background: var(--border-soft); }
-.nav-icon-btn svg {
-  width: 20px; height: 20px;
-  stroke: var(--text-soft);
-  fill: none;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.nav-profile-btn {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  background: var(--primary);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  padding: 0;
-}
+.nav-icon-btn svg { width: 20px; height: 20px; stroke: var(--text-soft); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.nav-profile-btn { background: var(--primary); }
 .nav-profile-btn:hover { transform: scale(1.05); }
-.nav-profile-btn svg {
-  width: 20px; height: 20px;
-  stroke: #fff;
-  fill: none;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
+.nav-profile-btn svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .nav-profile-btn.logged-in { background: var(--primary-dark); }
-
-.mobile-menu-btn {
-  display: none;
-  background: none; border: none; cursor: pointer;
-  padding: 0.5rem; font-size: 1.4rem; color: var(--text);
-}
-
+.mobile-menu-btn { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; font-size: 1.4rem; color: var(--text); }
 main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
 .page { display: none; animation: fadeIn 0.5s ease; }
 .page.active { display: block; }
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.85rem 1.75rem;
-  border-radius: 999px;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  text-decoration: none;
-  transition: all 0.25s;
-  font-size: 0.95rem;
-  font-family: inherit;
-}
-.btn-primary {
-  background: var(--primary);
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(139, 168, 136, 0.3);
-}
-.btn-primary:hover {
-  background: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(139, 168, 136, 0.4);
-}
-.btn-outline {
-  background: transparent;
-  border: 1.5px solid var(--border);
-  color: var(--text);
-}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.85rem 1.75rem; border-radius: 999px; font-weight: 500; cursor: pointer; border: none; text-decoration: none; transition: all 0.25s; font-size: 0.95rem; font-family: inherit; }
+.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(139,168,136,0.3); }
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+.btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
 .btn-outline:hover { background: var(--bg-alt); border-color: var(--primary); }
 .btn-ghost { background: var(--bg-alt); color: var(--text); }
 .btn-ghost:hover { background: var(--border-soft); }
 .btn-soft { background: var(--primary-light); color: var(--primary-dark); font-weight: 600; }
-.btn-soft:hover { background: var(--border-soft); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
 .btn-sm { padding: 0.6rem 1.25rem; font-size: 0.85rem; }
-
-.hero {
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 3rem;
-  align-items: center;
-  padding: 3rem 0 4rem;
-}
-.hero-content h1 { font-size: 3.4rem; margin-bottom: 1.5rem; line-height: 1.1; }
+.hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 3rem; align-items: center; padding: 3rem 0 4rem; }
+.hero-content h1 { font-size: 3.4rem; margin-bottom: 1.5rem; }
 .hero-content p { color: var(--text-soft); font-size: 1.05rem; margin-bottom: 2rem; max-width: 460px; }
 .hero-cta { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
 .hero-features { display: flex; gap: 1.5rem; flex-wrap: wrap; color: var(--text-soft); font-size: 0.85rem; }
-.hero-features span { display: flex; align-items: center; gap: 0.4rem; }
-.hero-features .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); display: inline-block; }
-
-.hero-image {
-  position: relative;
-  border-radius: 24px;
-  overflow: hidden;
-  aspect-ratio: 4/5;
-  background: linear-gradient(135deg, #e8d5c4 0%, #d4c5b0 100%);
-  box-shadow: var(--shadow-lg);
-}
-[data-theme="dark"] .hero-image { background: linear-gradient(135deg, #3d3328 0%, #2e2822 100%); }
-.hero-image-placeholder {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 8rem; opacity: 0.3;
-}
-.hero-quote {
-  position: absolute; top: 2rem; right: 2rem;
-  background: rgba(255,255,255,0.9);
-  padding: 1rem 1.25rem;
-  border-radius: 16px;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.1rem;
-  font-style: italic;
-  color: var(--text);
-  max-width: 200px;
-  box-shadow: var(--shadow);
-  line-height: 1.4;
-}
-[data-theme="dark"] .hero-quote { background: rgba(43, 39, 36, 0.9); }
-
+.hero-features .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); display: inline-block; margin-right: 0.4rem; }
+.hero-image { position: relative; border-radius: 24px; overflow: hidden; aspect-ratio: 4/5; background: linear-gradient(135deg, #e8d5c4, #d4c5b0); box-shadow: var(--shadow-lg); }
+[data-theme="dark"] .hero-image { background: linear-gradient(135deg, #3d3328, #2e2822); }
+.hero-image-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 8rem; opacity: 0.3; }
+.hero-quote { position: absolute; top: 2rem; right: 2rem; background: rgba(255,255,255,0.9); padding: 1rem 1.25rem; border-radius: 16px; font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-style: italic; max-width: 200px; box-shadow: var(--shadow); }
+[data-theme="dark"] .hero-quote { background: rgba(43,39,36,0.9); color: var(--text); }
 .section { padding: 3.5rem 0; }
 .section-title { font-size: 2.2rem; margin-bottom: 0.75rem; text-align: center; }
 .section-subtitle { text-align: center; color: var(--text-soft); margin-bottom: 3rem; max-width: 600px; margin-left: auto; margin-right: auto; }
-
 .steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem; }
 .step { text-align: center; padding: 1.5rem 1rem; }
-.step-icon {
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  background: #f5e8d8;
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 1rem;
-}
-[data-theme="dark"] .step-icon { background: rgba(212, 168, 143, 0.15); }
+.step-icon { width: 56px; height: 56px; border-radius: 50%; background: #f5e8d8; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
+[data-theme="dark"] .step-icon { background: rgba(212,168,143,0.15); }
 .step-icon svg { width: 26px; height: 26px; }
-[data-theme="dark"] .step-icon svg { stroke: #d4a88f; }
-.step-num { font-size: 0.75rem; color: var(--primary); font-weight: 700; margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+.step-num { font-size: 0.75rem; color: var(--primary); font-weight: 700; margin-bottom: 0.5rem; }
 .step h4 { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
-.step p { font-size: 0.8rem; color: var(--text-soft); line-height: 1.5; }
-
+.step p { font-size: 0.8rem; color: var(--text-soft); }
 .audience-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-.audience-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.3s, box-shadow 0.3s;
-  border: 1px solid var(--border-soft);
-}
+.audience-card { background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border-soft); transition: transform 0.3s; }
 .audience-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
-.audience-img {
-  height: 180px;
-  background: linear-gradient(135deg, #e8d5c4, #d4c5b0);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 4rem; opacity: 0.6;
-}
+.audience-img { height: 180px; background: linear-gradient(135deg, #e8d5c4, #d4c5b0); display: flex; align-items: center; justify-content: center; font-size: 4rem; opacity: 0.6; }
 [data-theme="dark"] .audience-img { background: linear-gradient(135deg, #3d3328, #2e2822); }
 .audience-body { padding: 1.5rem; }
 .audience-body h4 { font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 600; margin-bottom: 0.5rem; }
-.audience-body p { font-size: 0.88rem; color: var(--text-soft); line-height: 1.5; }
-
-.cta-banner {
-  margin-top: 3rem;
-  border-radius: 24px;
-  padding: 4rem 2rem;
-  text-align: center;
-  background: linear-gradient(135deg, #f0e5d8 0%, #e8d5c4 50%, #d4c5b0 100%);
-}
-[data-theme="dark"] .cta-banner { background: linear-gradient(135deg, #3d3328 0%, #2e2822 50%, #252220 100%); }
+.audience-body p { font-size: 0.88rem; color: var(--text-soft); }
+.cta-banner { margin-top: 3rem; border-radius: 24px; padding: 4rem 2rem; text-align: center; background: linear-gradient(135deg, #f0e5d8, #e8d5c4, #d4c5b0); }
+[data-theme="dark"] .cta-banner { background: linear-gradient(135deg, #3d3328, #2e2822, #252220); }
 .cta-banner h2 { font-size: 2.4rem; margin-bottom: 1rem; }
 .cta-banner p { color: var(--text-soft); margin-bottom: 1.75rem; }
-
-.quiz-container {
-  max-width: 640px;
-  margin: 3rem auto;
-  background: var(--card);
-  border-radius: 24px;
-  padding: 3rem;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border-soft);
-}
-.quiz-progress {
-  height: 4px; background: var(--border-soft);
-  border-radius: 2px; overflow: hidden; margin-bottom: 2rem;
-}
-.quiz-progress-fill {
-  height: 100%; background: var(--primary);
-  width: 0%; transition: width 0.4s ease; border-radius: 2px;
-}
-.quiz-step-label {
-  display: flex; justify-content: space-between;
-  color: var(--text-soft); font-size: 0.85rem; margin-bottom: 1rem;
-}
-.quiz-question {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; line-height: 1.2;
-}
+.quiz-container { max-width: 640px; margin: 3rem auto; background: var(--card); border-radius: 24px; padding: 3rem; box-shadow: var(--shadow); border: 1px solid var(--border-soft); }
+.quiz-progress { height: 4px; background: var(--border-soft); border-radius: 2px; overflow: hidden; margin-bottom: 2rem; }
+.quiz-progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.4s ease; }
+.quiz-step-label { display: flex; justify-content: space-between; color: var(--text-soft); font-size: 0.85rem; margin-bottom: 1rem; }
+.quiz-question { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; margin-bottom: 0.5rem; }
 .quiz-hint { color: var(--text-soft); font-size: 0.9rem; margin-bottom: 2rem; }
 .quiz-options { display: grid; gap: 0.75rem; }
-.quiz-option {
-  padding: 1.1rem 1.4rem;
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 1rem;
-  color: var(--text);
-  background: var(--card);
-  font-family: inherit;
-  text-align: left;
-}
+.quiz-option { padding: 1.1rem 1.4rem; border: 1.5px solid var(--border); border-radius: 12px; cursor: pointer; transition: all 0.2s; font-size: 1rem; color: var(--text); background: var(--card); font-family: inherit; text-align: left; }
 .quiz-option:hover { border-color: var(--primary); background: var(--primary-light); }
-.quiz-option.selected {
-  border-color: var(--primary);
-  background: var(--primary-light);
-  color: var(--primary-dark);
-  font-weight: 600;
-  box-shadow: 0 0 0 3px rgba(139, 168, 136, 0.15);
-}
+.quiz-option.selected { border-color: var(--primary); background: var(--primary-light); color: var(--primary-dark); font-weight: 600; }
 .quiz-nav { display: flex; justify-content: space-between; margin-top: 2rem; }
-
-.result-card {
-  max-width: 720px;
-  margin: 3rem auto;
-  background: var(--card);
-  border-radius: 24px;
-  padding: 3rem;
-  box-shadow: var(--shadow);
-  text-align: center;
-  border: 1px solid var(--border-soft);
-}
-.result-label {
-  color: var(--text-soft);
-  font-size: 0.85rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-}
+.result-card { max-width: 720px; margin: 3rem auto; background: var(--card); border-radius: 24px; padding: 3rem; box-shadow: var(--shadow); text-align: center; border: 1px solid var(--border-soft); }
+.result-label { color: var(--text-soft); font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem; }
 .result-title { font-size: 2.2rem; margin-bottom: 2rem; }
-.result-donut {
-  width: 180px; height: 180px;
-  margin: 0 auto 1.5rem;
-  position: relative;
-  display: flex; align-items: center; justify-content: center;
-}
+.result-donut { width: 180px; height: 180px; margin: 0 auto 1.5rem; position: relative; display: flex; align-items: center; justify-content: center; }
 .result-donut svg { transform: rotate(-90deg); }
-.result-donut-percent {
-  position: absolute;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2.5rem; font-weight: 700; color: var(--text);
-}
+.result-donut-percent { position: absolute; font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 700; }
 .result-donut-label { position: absolute; bottom: 35px; font-size: 0.8rem; color: var(--text-soft); }
-.result-causes {
-  text-align: left;
-  margin: 2rem 0;
-  padding: 1.5rem;
-  background: var(--bg-alt);
-  border-radius: 16px;
-}
-.result-causes h4 {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-soft);
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-.cause-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; font-size: 0.95rem; }
-.cause-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--danger); flex-shrink: 0; }
+.result-causes { text-align: left; margin: 2rem 0; padding: 1.5rem; background: var(--bg-alt); border-radius: 16px; }
+.result-causes h4 { font-family: 'Inter', sans-serif; font-size: 0.85rem; text-transform: uppercase; color: var(--text-soft); margin-bottom: 1rem; font-weight: 600; }
+.cause-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; }
+.cause-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--danger); }
 .cause-dot.warning { background: var(--warning); }
 .cause-dot.success { background: var(--success); }
-.result-note {
-  background: var(--accent-soft);
-  padding: 1rem 1.25rem;
-  border-radius: 12px;
-  color: var(--text-soft);
-  font-size: 0.88rem;
-  display: flex; gap: 0.75rem; align-items: flex-start;
-  text-align: left;
-  margin-top: 1.5rem;
-}
-
-.route-card {
-  max-width: 800px;
-  margin: 3rem auto;
-  background: var(--card);
-  border-radius: 24px;
-  padding: 3rem;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--border-soft);
-}
+.result-note { background: var(--accent-soft); padding: 1rem 1.25rem; border-radius: 12px; color: var(--text-soft); font-size: 0.88rem; display: flex; gap: 0.75rem; text-align: left; margin-top: 1.5rem; }
+.route-card { max-width: 800px; margin: 3rem auto; background: var(--card); border-radius: 24px; padding: 3rem; box-shadow: var(--shadow); border: 1px solid var(--border-soft); }
 .route-title { font-size: 2.2rem; margin-bottom: 0.5rem; }
 .route-subtitle { color: var(--text-soft); margin-bottom: 2.5rem; }
-.route-timeline {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 2.5rem; position: relative;
-}
-.route-timeline::before {
-  content: ''; position: absolute;
-  left: 20px; right: 20px; top: 50%;
-  height: 2px; background: var(--border); z-index: 0;
-}
-.route-step {
-  width: 40px; height: 40px;
-  border-radius: 50%;
-  background: var(--card);
-  border: 2px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 600; color: var(--text-soft);
-  position: relative; z-index: 1; font-size: 0.9rem;
-}
+.route-timeline { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; position: relative; }
+.route-timeline::before { content: ''; position: absolute; left: 20px; right: 20px; top: 50%; height: 2px; background: var(--border); }
+.route-step { width: 40px; height: 40px; border-radius: 50%; background: var(--card); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--text-soft); position: relative; z-index: 1; }
 .route-step.active { background: var(--primary); border-color: var(--primary); color: #fff; }
 .route-week-label { color: var(--text-soft); font-size: 0.85rem; margin-bottom: 0.5rem; }
 .route-week-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; margin-bottom: 1.5rem; }
 .route-tasks { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
-.route-task {
-  display: flex; align-items: center; gap: 1rem;
-  padding: 1rem 1.25rem;
-  background: var(--bg-alt);
-  border-radius: 12px;
-  transition: all 0.2s;
-  cursor: pointer;
-}
+.route-task { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; background: var(--bg-alt); border-radius: 12px; cursor: pointer; }
 .route-task:hover { background: var(--border-soft); }
-.route-task-icon {
-  width: 40px; height: 40px;
-  border-radius: 10px;
-  background: var(--card);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.1rem; flex-shrink: 0;
-}
+.route-task-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--card); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
 .route-task-info h5 { font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600; margin-bottom: 0.15rem; }
 .route-task-info p { font-size: 0.78rem; color: var(--text-soft); }
-
 .courses-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; justify-content: center; }
-.courses-tab {
-  padding: 0.6rem 1.25rem;
-  border-radius: 999px;
-  border: 1.5px solid var(--border);
-  background: var(--card);
-  color: var(--text-soft);
-  cursor: pointer;
-  font-size: 0.88rem;
-  font-weight: 500;
-  transition: all 0.2s;
-  font-family: inherit;
-}
+.courses-tab { padding: 0.6rem 1.25rem; border-radius: 999px; border: 1.5px solid var(--border); background: var(--card); color: var(--text-soft); cursor: pointer; font-size: 0.88rem; font-weight: 500; font-family: inherit; transition: all 0.2s; }
 .courses-tab:hover { border-color: var(--primary); color: var(--text); }
 .courses-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
-.courses-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-}
-.course-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.3s, box-shadow 0.3s;
-  border: 1px solid var(--border-soft);
-  display: flex; flex-direction: column;
-}
+.courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+.course-card { background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border-soft); display: flex; flex-direction: column; transition: transform 0.3s; }
 .course-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
-.course-img {
-  height: 160px;
-  background: linear-gradient(135deg, #e8d5c4, #d4c5b0);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 3.5rem; opacity: 0.6;
-  position: relative;
-}
+.course-img { height: 160px; background: linear-gradient(135deg, #e8d5c4, #d4c5b0); display: flex; align-items: center; justify-content: center; font-size: 3.5rem; opacity: 0.6; position: relative; }
 [data-theme="dark"] .course-img { background: linear-gradient(135deg, #3d3328, #2e2822); }
-.course-badge {
-  position: absolute; top: 1rem; left: 1rem;
-  background: rgba(255,255,255,0.95);
-  padding: 0.3rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #2b2b2b;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
+.course-badge { position: absolute; top: 1rem; left: 1rem; background: rgba(255,255,255,0.95); padding: 0.3rem 0.75rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; color: #2b2b2b; text-transform: uppercase; }
 .course-badge.free { color: var(--success); }
 .course-body { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
-.course-title {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.35rem; font-weight: 600; margin-bottom: 0.5rem;
-}
-.course-desc { color: var(--text-soft); font-size: 0.88rem; line-height: 1.5; margin-bottom: 1rem; flex: 1; }
+.course-title { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 600; margin-bottom: 0.5rem; }
+.course-desc { color: var(--text-soft); font-size: 0.88rem; margin-bottom: 1rem; flex: 1; }
 .course-meta { display: flex; gap: 1rem; font-size: 0.78rem; color: var(--text-dim); margin-bottom: 1rem; flex-wrap: wrap; }
-.course-footer {
-  display: flex; justify-content: space-between; align-items: center;
-  padding-top: 1rem; border-top: 1px solid var(--border-soft);
-}
+.course-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid var(--border-soft); }
 .course-price { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 700; }
 .course-price.free { color: var(--success); }
-
 .materials-layout { display: grid; grid-template-columns: 220px 1fr; gap: 2rem; }
 .materials-sidebar { position: sticky; top: 100px; align-self: start; }
-.materials-sidebar h4 {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-soft);
-  margin-bottom: 1rem;
-}
+.materials-sidebar h4 { font-family: 'Inter', sans-serif; font-size: 0.8rem; text-transform: uppercase; color: var(--text-soft); margin-bottom: 1rem; }
 .materials-sidebar ul { list-style: none; display: flex; flex-direction: column; gap: 0.25rem; }
-.materials-sidebar li {
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  color: var(--text-soft);
-  transition: all 0.2s;
-}
+.materials-sidebar li { padding: 0.6rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.9rem; color: var(--text-soft); transition: all 0.2s; }
 .materials-sidebar li:hover { background: var(--bg-alt); color: var(--text); }
 .materials-sidebar li.active { background: var(--primary-light); color: var(--primary-dark); font-weight: 600; }
-.materials-search {
-  width: 100%;
-  padding: 0.9rem 1.25rem;
-  border: 1.5px solid var(--border);
-  border-radius: 999px;
-  background: var(--card);
-  font-size: 0.92rem;
-  margin-bottom: 1.5rem;
-  font-family: inherit;
-  color: var(--text);
-}
+.materials-search { width: 100%; padding: 0.9rem 1.25rem; border: 1.5px solid var(--border); border-radius: 999px; background: var(--card); font-size: 0.92rem; margin-bottom: 1.5rem; font-family: inherit; color: var(--text); }
 .materials-search:focus { outline: none; border-color: var(--primary); }
 .materials-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.25rem; }
-.material-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.25s;
-  cursor: pointer;
-}
+.material-card { background: var(--card); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border-soft); box-shadow: var(--shadow-sm); cursor: pointer; transition: transform 0.25s; }
 .material-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-.material-img {
-  height: 140px;
-  background: linear-gradient(135deg, #f0e5d8, #e8d5c4);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 3rem; opacity: 0.6;
-}
+.material-img { height: 140px; background: linear-gradient(135deg, #f0e5d8, #e8d5c4); display: flex; align-items: center; justify-content: center; font-size: 3rem; opacity: 0.6; }
 [data-theme="dark"] .material-img { background: linear-gradient(135deg, #3d3328, #2e2822); }
 .material-body { padding: 1.25rem; }
 .material-body h5 { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
 .material-body p { font-size: 0.8rem; color: var(--text-soft); }
-
 .profile-layout { display: grid; grid-template-columns: 320px 1fr; gap: 2rem; margin-top: 2rem; }
-.profile-side {
-  background: var(--card);
-  border-radius: 20px;
-  padding: 2rem;
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-sm);
-  text-align: center;
-}
-.profile-avatar-lg {
-  width: 90px; height: 90px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  display: flex; align-items: center; justify-content: center;
-  color: #fff;
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2.5rem; font-weight: 700;
-  margin: 0 auto 1rem;
-}
+.profile-side { background: var(--card); border-radius: 20px; padding: 2rem; border: 1px solid var(--border-soft); box-shadow: var(--shadow-sm); text-align: center; }
+.profile-avatar-lg { width: 90px; height: 90px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); display: flex; align-items: center; justify-content: center; color: #fff; font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 700; margin: 0 auto 1rem; }
 .profile-side h3 { font-size: 1.5rem; margin-bottom: 0.25rem; }
 .profile-side .login { color: var(--text-soft); font-size: 0.9rem; margin-bottom: 1.5rem; }
-.profile-side .sub-status {
-  display: inline-block;
-  padding: 0.4rem 1rem;
-  border-radius: 999px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-}
+.profile-side .sub-status { display: inline-block; padding: 0.4rem 1rem; border-radius: 999px; font-size: 0.82rem; font-weight: 600; margin-bottom: 1.5rem; }
 .sub-active { background: var(--primary-light); color: var(--primary-dark); }
 .sub-inactive { background: var(--accent-soft); color: var(--danger); }
-
 .profile-main { display: flex; flex-direction: column; gap: 1.5rem; }
-.profile-card {
-  background: var(--card);
-  border-radius: 20px;
-  padding: 2rem;
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-sm);
-}
-.profile-card h4 {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-soft);
-  margin-bottom: 1.25rem;
-  font-weight: 600;
-}
+.profile-card { background: var(--card); border-radius: 20px; padding: 2rem; border: 1px solid var(--border-soft); box-shadow: var(--shadow-sm); }
+.profile-card h4 { font-family: 'Inter', sans-serif; font-size: 0.85rem; text-transform: uppercase; color: var(--text-soft); margin-bottom: 1.25rem; font-weight: 600; }
 .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
 .stat-mini { text-align: center; padding: 1rem; background: var(--bg-alt); border-radius: 12px; }
-.stat-mini .num {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 1.8rem; font-weight: 700;
-  color: var(--primary-dark);
-}
+.stat-mini .num { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 700; color: var(--primary-dark); }
 .stat-mini .lbl { font-size: 0.78rem; color: var(--text-soft); margin-top: 0.25rem; }
-
-.profile-course-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0.9rem 0;
-  border-bottom: 1px solid var(--border-soft);
-}
+.profile-course-row { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 0; border-bottom: 1px solid var(--border-soft); }
 .profile-course-row:last-child { border-bottom: none; }
 .profile-course-row .name { font-weight: 500; font-size: 0.95rem; }
 .profile-course-row .status { color: var(--success); font-size: 0.82rem; font-weight: 600; }
-
 .empty-state { color: var(--text-dim); font-size: 0.9rem; font-style: italic; text-align: center; padding: 1rem; }
-
 .about-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 2rem; }
-.about-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 2rem;
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-sm);
-}
+.about-card { background: var(--card); border-radius: var(--radius); padding: 2rem; border: 1px solid var(--border-soft); box-shadow: var(--shadow-sm); }
 .about-card h4 { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem; }
-.about-card p { color: var(--text-soft); font-size: 0.9rem; line-height: 1.6; }
-
+.about-card p { color: var(--text-soft); font-size: 0.9rem; }
 .phase-timeline { position: relative; padding-left: 2rem; margin-top: 1rem; }
-.phase-timeline::before {
-  content: ''; position: absolute;
-  left: 7px; top: 8px; bottom: 8px;
-  width: 2px; background: var(--border);
-}
+.phase-timeline::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: var(--border); }
 .phase-item { position: relative; padding-bottom: 1.5rem; }
 .phase-item:last-child { padding-bottom: 0; }
-.phase-item::before {
-  content: ''; position: absolute;
-  left: -2rem; top: 6px;
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  background: var(--primary);
-  border: 3px solid var(--card);
-  box-shadow: 0 0 0 2px var(--primary);
-}
+.phase-item::before { content: ''; position: absolute; left: -2rem; top: 6px; width: 14px; height: 14px; border-radius: 50%; background: var(--primary); border: 3px solid var(--card); box-shadow: 0 0 0 2px var(--primary); }
 .phase-item h5 { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.25rem; }
 .phase-item p { font-size: 0.85rem; color: var(--text-soft); }
-
 .role-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.5rem; }
-.role-card-lg {
-  padding: 2rem 1.5rem;
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
-  background: var(--card);
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.25s;
-}
+.role-card-lg { padding: 2rem 1.5rem; border: 1.5px solid var(--border); border-radius: 16px; background: var(--card); cursor: pointer; text-align: center; transition: all 0.25s; }
 .role-card-lg:hover { border-color: var(--primary); background: var(--primary-light); transform: translateY(-3px); }
 .role-emoji-lg { font-size: 2.5rem; margin-bottom: 0.75rem; }
 .role-title-lg { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; margin-bottom: 0.4rem; }
-.role-desc-lg { font-size: 0.85rem; color: var(--text-soft); line-height: 1.5; }
-
-.modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(43, 43, 43, 0.4);
-  backdrop-filter: blur(6px);
-  display: none;
-  justify-content: center; align-items: center;
-  z-index: 1000;
-  opacity: 0;
-  transition: opacity 0.25s;
-  padding: 1rem;
-}
+.role-desc-lg { font-size: 0.85rem; color: var(--text-soft); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(43,43,43,0.4); backdrop-filter: blur(6px); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.25s; padding: 1rem; }
 .modal-overlay.show { display: flex; opacity: 1; }
-.modal {
-  background: var(--card);
-  border-radius: 24px;
-  padding: 2.5rem;
-  width: 100%;
-  max-width: 460px;
-  text-align: center;
-  transform: scale(0.92);
-  transition: transform 0.25s;
-  position: relative;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: var(--shadow-lg);
-}
+.modal { background: var(--card); border-radius: 24px; padding: 2.5rem; width: 100%; max-width: 460px; text-align: center; transform: scale(0.92); transition: transform 0.25s; position: relative; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
 .modal-overlay.show .modal { transform: scale(1); }
 .modal.modal-wide { max-width: 640px; }
-.modal-close {
-  position: absolute;
-  top: 1rem; right: 1.25rem;
-  background: none; border: none;
-  font-size: 1.5rem; cursor: pointer;
-  color: var(--text-soft); line-height: 1;
-  padding: 0.25rem;
-}
+.modal-close { position: absolute; top: 1rem; right: 1.25rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-soft); line-height: 1; padding: 0.25rem; }
 .modal h2 { font-size: 1.8rem; margin-bottom: 0.5rem; }
 .modal p { color: var(--text-soft); margin-bottom: 1.5rem; font-size: 0.92rem; }
-.modal .price-big {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 2.5rem; font-weight: 700;
-  color: var(--primary-dark);
-  margin-bottom: 1rem;
-}
-
-.settings-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 1.1rem 0;
-  border-bottom: 1px solid var(--border-soft);
-}
+.modal .price-big { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 1rem; }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 0; border-bottom: 1px solid var(--border-soft); }
 .settings-row:last-child { border-bottom: none; }
 .settings-row-label h5 { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.2rem; text-align: left; }
 .settings-row-label p { font-size: 0.82rem; color: var(--text-soft); margin: 0; text-align: left; }
-.theme-switch {
-  position: relative;
-  width: 56px; height: 30px;
-  background: var(--border);
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.3s;
-  flex-shrink: 0;
-  border: none;
-  padding: 0;
-}
-.theme-switch::after {
-  content: '';
-  position: absolute;
-  top: 3px; left: 3px;
-  width: 24px; height: 24px;
-  border-radius: 50%;
-  background: #fff;
-  transition: transform 0.3s, background 0.3s;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-}
+.theme-switch { position: relative; width: 56px; height: 30px; background: var(--border); border-radius: 999px; cursor: pointer; transition: background 0.3s; flex-shrink: 0; border: none; padding: 0; }
+.theme-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform 0.3s; }
 .theme-switch.on { background: var(--primary); }
 .theme-switch.on::after { transform: translateX(26px); }
-.theme-switch-icon {
-  position: absolute; top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.75rem;
-  pointer-events: none;
-  transition: opacity 0.3s;
-}
+.theme-switch-icon { position: absolute; top: 50%; transform: translateY(-50%); font-size: 0.75rem; pointer-events: none; }
 .theme-switch-icon.sun { left: 8px; opacity: 1; }
 .theme-switch-icon.moon { right: 8px; opacity: 0.4; }
 .theme-switch.on .theme-switch-icon.sun { opacity: 0.4; }
 .theme-switch.on .theme-switch-icon.moon { opacity: 1; }
-
-.auth-tabs {
-  display: flex;
-  background: var(--bg-alt);
-  border-radius: 12px;
-  padding: 4px;
-  margin-bottom: 1.75rem;
-}
-.auth-tab {
-  flex: 1;
-  padding: 0.7rem 1rem;
-  border: none;
-  background: transparent;
-  color: var(--text-soft);
-  border-radius: 9px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 0.92rem;
-  transition: all 0.2s;
-  font-family: inherit;
-}
+.auth-tabs { display: flex; background: var(--bg-alt); border-radius: 12px; padding: 4px; margin-bottom: 1.75rem; }
+.auth-tab { flex: 1; padding: 0.7rem 1rem; border: none; background: transparent; color: var(--text-soft); border-radius: 9px; cursor: pointer; font-weight: 500; font-size: 0.92rem; font-family: inherit; transition: all 0.2s; }
 .auth-tab.active { background: var(--card); color: var(--text); box-shadow: var(--shadow-sm); }
 .auth-form { text-align: left; }
-.auth-form label {
-  display: block;
-  font-size: 0.82rem;
-  color: var(--text-soft);
-  margin-bottom: 0.4rem;
-  font-weight: 500;
-}
-.auth-form input {
-  width: 100%;
-  padding: 0.9rem 1rem;
-  border-radius: 12px;
-  border: 1.5px solid var(--border);
-  background: var(--card);
-  color: var(--text);
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
-  transition: border-color 0.2s;
-  font-family: inherit;
-}
-.auth-form input:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(139, 168, 136, 0.12);
-}
+.auth-form label { display: block; font-size: 0.82rem; color: var(--text-soft); margin-bottom: 0.4rem; font-weight: 500; }
+.auth-form input { width: 100%; padding: 0.9rem 1rem; border-radius: 12px; border: 1.5px solid var(--border); background: var(--card); color: var(--text); font-size: 0.95rem; margin-bottom: 1rem; font-family: inherit; }
+.auth-form input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(139,168,136,0.12); }
 .password-wrap { position: relative; margin-bottom: 1rem; }
 .password-wrap input { margin-bottom: 0; padding-right: 3rem; }
-.eye-btn {
-  position: absolute;
-  right: 0.75rem; top: 50%;
-  transform: translateY(-50%);
-  background: none; border: none;
-  cursor: pointer;
-  padding: 0.3rem;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text-soft);
-  transition: color 0.2s;
-}
+.eye-btn { position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0.3rem; color: var(--text-soft); }
 .eye-btn:hover, .eye-btn.visible { color: var(--primary); }
 .eye-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; }
-
 .auth-error { color: var(--danger); font-size: 0.85rem; margin-bottom: 1rem; min-height: 1.2em; }
 .auth-success { color: var(--success); font-size: 0.9rem; margin-bottom: 1rem; }
-
+.auth-info-box { background: var(--primary-light); padding: 1rem; border-radius: 12px; color: var(--primary-dark); font-size: 0.88rem; text-align: left; margin-bottom: 1rem; display: none; }
+.auth-info-box.show { display: block; }
 .pwd-strength { margin-top: -0.5rem; margin-bottom: 1rem; font-size: 0.78rem; }
 .pwd-strength-bar { height: 3px; background: var(--border-soft); border-radius: 2px; overflow: hidden; margin-bottom: 0.5rem; }
-.pwd-strength-fill { height: 100%; width: 0; border-radius: 2px; transition: width 0.3s, background 0.3s; background: var(--danger); }
-.pwd-strength-text { color: var(--text-soft); }
+.pwd-strength-fill { height: 100%; width: 0; background: var(--danger); transition: width 0.3s, background 0.3s; }
 .pwd-strength-text.weak { color: var(--danger); }
 .pwd-strength-text.medium { color: var(--warning); }
 .pwd-strength-text.strong { color: var(--success); }
@@ -887,42 +264,22 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
 .pwd-rules li.ok { color: var(--success); }
 .pwd-rules li::before { content: '○ '; }
 .pwd-rules li.ok::before { content: '✓ '; }
-
 @media (max-width: 900px) {
   .nav-menu { display: none; }
-  .nav-menu.open {
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    top: 100%;
-    left: 0; right: 0;
-    background: var(--card);
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-soft);
-    box-shadow: var(--shadow);
-  }
+  .nav-menu.open { display: flex; flex-direction: column; position: absolute; top: 100%; left: 0; right: 0; background: var(--card); padding: 1rem; border-bottom: 1px solid var(--border-soft); box-shadow: var(--shadow); }
   .mobile-menu-btn { display: block; }
   .topnav { padding: 0.9rem 1rem; }
-
   main { padding: 0 1rem 3rem; }
   .hero { grid-template-columns: 1fr; padding: 1.5rem 0 2rem; }
   .hero-content h1 { font-size: 2.3rem; }
   .hero-image { aspect-ratio: 4/3; }
   .hero-quote { display: none; }
-
   .steps { grid-template-columns: repeat(2, 1fr); }
-  .audience-grid { grid-template-columns: 1fr; }
-  .about-grid { grid-template-columns: 1fr; }
-  .role-picker { grid-template-columns: 1fr; }
-  .materials-layout { grid-template-columns: 1fr; }
+  .audience-grid, .about-grid, .role-picker, .materials-layout, .profile-layout, .stat-row { grid-template-columns: 1fr; }
   .materials-sidebar { position: static; }
-  .profile-layout { grid-template-columns: 1fr; }
-  .stat-row { grid-template-columns: 1fr; }
-
   .quiz-container { padding: 2rem 1.5rem; margin: 1.5rem auto; }
   .quiz-question { font-size: 1.5rem; }
   .result-card, .route-card { padding: 2rem 1.5rem; margin: 1.5rem auto; }
-
   .section-title { font-size: 1.7rem; }
   .cta-banner h2 { font-size: 1.7rem; }
 }
@@ -931,11 +288,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
 <body>
 
 <nav class="topnav">
-  <div class="nav-logo" onclick="navigate('dashboard')">
-    <span class="nav-logo-icon">B</span>
-    Balance
-  </div>
-
+  <div class="nav-logo" onclick="navigate('dashboard')"><span class="nav-logo-icon">B</span> Balance</div>
   <div class="nav-menu" id="navMenu">
     <a class="active" onclick="navigate('dashboard')">Главная</a>
     <a onclick="navigate('quiz')">Тест</a>
@@ -943,7 +296,6 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
     <a onclick="navigate('resources')">Материалы</a>
     <a onclick="navigate('about')">О нас</a>
   </div>
-
   <div class="nav-actions">
     <button class="nav-icon-btn" onclick="openSettings()" aria-label="Настройки">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -962,9 +314,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
     <div class="hero-content">
       <h1>Не ищите способ восстановиться. Найдите свой.</h1>
       <p>Интерактивное методическое пособие по профилактике эмоционального выгорания. Пройдите диагностику, узнайте свой уровень стресса и получите персональный маршрут восстановления.</p>
-      <div class="hero-cta">
-        <button class="btn btn-primary" onclick="navigate('quiz')">Пройти тест →</button>
-      </div>
+      <div class="hero-cta"><button class="btn btn-primary" onclick="navigate('quiz')">Пройти тест →</button></div>
       <div class="hero-features">
         <span><span class="dot"></span> Бесплатный тест</span>
         <span><span class="dot"></span> 7–10 минут</span>
@@ -978,26 +328,11 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   </div>
 
   <div class="steps">
-    <div class="step">
-      <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="13" y2="17"></line></svg></div>
-      <div class="step-num">01</div><h4>Пройдите тест</h4><p>Ответьте на несколько вопросов о своём состоянии и жизни</p>
-    </div>
-    <div class="step">
-      <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div>
-      <div class="step-num">02</div><h4>Узнайте свой профиль</h4><p>Получите анализ уровня стресса и причин выгорания</p>
-    </div>
-    <div class="step">
-      <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 7v13l6-3 6 3 6-3V4l-6 3z"></path><line x1="9" y1="4" x2="9" y2="17"></line><line x1="15" y1="7" x2="15" y2="20"></line></svg></div>
-      <div class="step-num">03</div><h4>Получите маршрут</h4><p>Персональная рекомендация — подходящие методы и материалы</p>
-    </div>
-    <div class="step">
-      <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"></path><path d="M12 12c0-3 2-6 6-6 0 3-2 6-6 6z"></path><path d="M12 14c0-2-2-4-5-4 0 2 2 4 5 4z"></path></svg></div>
-      <div class="step-num">04</div><h4>Действуйте</h4><p>Используйте методические материалы, курсы и практики</p>
-    </div>
-    <div class="step">
-      <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="21" y2="21"></line><rect x="5" y="14" width="3" height="5"></rect><rect x="10.5" y="10" width="3" height="9"></rect><rect x="16" y="6" width="3" height="13"></rect></svg></div>
-      <div class="step-num">05</div><h4>Следите за прогрессом</h4><p>Повторяйте тест каждые 2 недели и наблюдайте за изменениями</p>
-    </div>
+    <div class="step"><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="13" y2="17"></line></svg></div><div class="step-num">01</div><h4>Пройдите тест</h4><p>Ответьте на несколько вопросов о своём состоянии и жизни</p></div>
+    <div class="step"><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div><div class="step-num">02</div><h4>Узнайте свой профиль</h4><p>Получите анализ уровня стресса и причин выгорания</p></div>
+    <div class="step"><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 7v13l6-3 6 3 6-3V4l-6 3z"></path><line x1="9" y1="4" x2="9" y2="17"></line><line x1="15" y1="7" x2="15" y2="20"></line></svg></div><div class="step-num">03</div><h4>Получите маршрут</h4><p>Персональная рекомендация — подходящие методы и материалы</p></div>
+    <div class="step"><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"></path><path d="M12 12c0-3 2-6 6-6 0 3-2 6-6 6z"></path><path d="M12 14c0-2-2-4-5-4 0 2 2 4 5 4z"></path></svg></div><div class="step-num">04</div><h4>Действуйте</h4><p>Используйте методические материалы, курсы и практики</p></div>
+    <div class="step"><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="21" y2="21"></line><rect x="5" y="14" width="3" height="5"></rect><rect x="10.5" y="10" width="3" height="9"></rect><rect x="16" y="6" width="3" height="13"></rect></svg></div><div class="step-num">05</div><h4>Следите за прогрессом</h4><p>Повторяйте тест каждые 2 недели и наблюдайте за изменениями</p></div>
   </div>
 
   <div class="section">
@@ -1028,7 +363,6 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
       <div class="role-card-lg" onclick="selectRole('student')"><div class="role-emoji-lg">🎓</div><div class="role-title-lg">Студент</div><div class="role-desc-lg">Учёба, сессии, совмещение с работой</div></div>
     </div>
   </div>
-
   <div class="quiz-container" id="quizCard" style="display:none;">
     <div class="quiz-step-label"><span id="stepInfo">Шаг 2 из 3</span><span>Вопрос <span id="qNum">1</span> из 25</span></div>
     <div class="quiz-progress"><div class="quiz-progress-fill" id="progressFill"></div></div>
@@ -1069,9 +403,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   <div class="route-card">
     <h2 class="route-title">Ваш персональный маршрут</h2>
     <p class="route-subtitle">Мы подобрали для вас индивидуальный план восстановления на 4 недели</p>
-    <div class="route-timeline">
-      <div class="route-step active">1</div><div class="route-step">2</div><div class="route-step">3</div><div class="route-step">4</div>
-    </div>
+    <div class="route-timeline"><div class="route-step active">1</div><div class="route-step">2</div><div class="route-step">3</div><div class="route-step">4</div></div>
     <div class="route-week-label">Неделя 1</div>
     <h3 class="route-week-title">Снизить перегрузку</h3>
     <div class="route-tasks">
@@ -1096,60 +428,12 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
     <button class="courses-tab" onclick="filterCourses('sport', this)">Спорт</button>
   </div>
   <div class="courses-grid" id="coursesGrid">
-    <div class="course-card" data-cat="yoga">
-      <div class="course-img">🧘‍♀️<span class="course-badge free">Бесплатно</span></div>
-      <div class="course-body">
-        <h3 class="course-title">Основы медитации и осознанности</h3>
-        <p class="course-desc">Научитесь управлять своим состоянием и снижать уровень тревожности.</p>
-        <div class="course-meta"><span>📚 8 занятий</span><span>⏱ 3 недели</span></div>
-        <div class="course-footer"><span class="course-price free">Бесплатно</span><button class="btn btn-soft btn-sm" onclick="openModal('Основы медитации и осознанности', 'Бесплатно', 'course')">Записаться</button></div>
-      </div>
-    </div>
-    <div class="course-card" data-cat="art">
-      <div class="course-img">🎨<span class="course-badge">Базовый</span></div>
-      <div class="course-body">
-        <h3 class="course-title">Арт-терапия: рисуем эмоции</h3>
-        <p class="course-desc">Через творчество вы сможете выразить свои чувства и снизить напряжение.</p>
-        <div class="course-meta"><span>📚 6 занятий</span><span>⏱ 2 недели</span></div>
-        <div class="course-footer"><span class="course-price">1 490 ₽</span><button class="btn btn-primary btn-sm" onclick="openModal('Арт-терапия: рисуем эмоции', '1 490 ₽', 'course')">Подробнее</button></div>
-      </div>
-    </div>
-    <div class="course-card" data-cat="sport">
-      <div class="course-img">🤸‍♀️<span class="course-badge">Базовый</span></div>
-      <div class="course-body">
-        <h3 class="course-title">Йога для начинающих</h3>
-        <p class="course-desc">Простые практики для тела и ума. Подходит для любого уровня.</p>
-        <div class="course-meta"><span>📚 10 занятий</span><span>⏱ 2 недели</span></div>
-        <div class="course-footer"><span class="course-price">1 990 ₽</span><button class="btn btn-primary btn-sm" onclick="openModal('Йога для начинающих', '1 990 ₽', 'course')">Подробнее</button></div>
-      </div>
-    </div>
-    <div class="course-card" data-cat="psych">
-      <div class="course-img">🧠<span class="course-badge">Продвинутый</span></div>
-      <div class="course-body">
-        <h3 class="course-title">Управление стрессом</h3>
-        <p class="course-desc">8 лекций, практические задания, поддержка куратора.</p>
-        <div class="course-meta"><span>📚 8 занятий</span><span>⏱ 90 дней</span></div>
-        <div class="course-footer"><span class="course-price">5 490 ₽</span><button class="btn btn-primary btn-sm" onclick="openModal('Управление стрессом', '5 490 ₽', 'course')">Подробнее</button></div>
-      </div>
-    </div>
-    <div class="course-card" data-cat="psych">
-      <div class="course-img">🌱<span class="course-badge">VIP</span></div>
-      <div class="course-body">
-        <h3 class="course-title">Полное восстановление</h3>
-        <p class="course-desc">12 модулей, личные консультации, закрытый чат поддержки.</p>
-        <div class="course-meta"><span>📚 12 модулей</span><span>⏱ 6 месяцев</span></div>
-        <div class="course-footer"><span class="course-price">12 990 ₽</span><button class="btn btn-primary btn-sm" onclick="openModal('Полное восстановление', '12 990 ₽', 'course')">Подробнее</button></div>
-      </div>
-    </div>
-    <div class="course-card" data-cat="yoga">
-      <div class="course-img">🌸<span class="course-badge free">Бесплатно</span></div>
-      <div class="course-body">
-        <h3 class="course-title">Email-курс «Неделя баланса»</h3>
-        <p class="course-desc">7 дней — 7 писем с практиками.</p>
-        <div class="course-meta"><span>📧 7 дней</span><span>⏱ 15 мин/день</span></div>
-        <div class="course-footer"><span class="course-price free">Бесплатно</span><button class="btn btn-soft btn-sm" onclick="openModal('Email-курс «Неделя баланса»', 'Бесплатно', 'course')">Подписаться</button></div>
-      </div>
-    </div>
+    <div class="course-card" data-cat="yoga"><div class="course-img">🧘‍♀️<span class="course-badge free">Бесплатно</span></div><div class="course-body"><h3 class="course-title">Основы медитации и осознанности</h3><p class="course-desc">Научитесь управлять своим состоянием и снижать уровень тревожности.</p><div class="course-meta"><span>📚 8 занятий</span><span>⏱ 3 недели</span></div><div class="course-footer"><span class="course-price free">Бесплатно</span><button class="btn btn-soft btn-sm" onclick="openModal('Основы медитации и осознанности', 'Бесплатно', 'course')">Записаться</button></div></div></div>
+    <div class="course-card" data-cat="art"><div class="course-img">🎨<span class="course-badge">Базовый</span></div><div class="course-body"><h3 class="course-title">Арт-терапия: рисуем эмоции</h3><p class="course-desc">Через творчество вы сможете выразить свои чувства и снизить напряжение.</p><div class="course-meta"><span>📚 6 занятий</span><span>⏱ 2 недели</span></div><div class="course-footer"><span class="course-price">1 490 ₽</span><button class="btn btn-primary btn-sm" onclick="openModal('Арт-терапия: рисуем эмоции', '1 490 ₽', 'course')">Подробнее</button></div></div></div>
+    <div class="course-card" data-cat="sport"><div class="course-img">🤸‍♀️<span class="course-badge">Базовый</span></div><div class="course-body"><h3 class="course-title">Йога для начинающих</h3><p class="course-desc">Простые практики для тела и ума. Подходит для любого уровня.</p><div class="course-meta"><span>📚 10 занятий</span><span>⏱ 2 недели</span></div><div class="course-footer"><span class="course-price">1 990 ₽</span><button class="btn btn-primary btn-sm" onclick="openModal('Йога для начинающих', '1 990 ₽', 'course')">Подробнее</button></div></div></div>
+    <div class="course-card" data-cat="psych"><div class="course-img">🧠<span class="course-badge">Продвинутый</span></div><div class="course-body"><h3 class="course-title">Управление стрессом</h3><p class="course-desc">8 лекций, практические задания, поддержка куратора.</p><div class="course-meta"><span>📚 8 занятий</span><span>⏱ 90 дней</span></div><div class="course-footer"><span class="course-price">5 490 ₽</span><button class="btn btn-primary btn-sm" onclick="openModal('Управление стрессом', '5 490 ₽', 'course')">Подробнее</button></div></div></div>
+    <div class="course-card" data-cat="psych"><div class="course-img">🌱<span class="course-badge">VIP</span></div><div class="course-body"><h3 class="course-title">Полное восстановление</h3><p class="course-desc">12 модулей, личные консультации, закрытый чат поддержки.</p><div class="course-meta"><span>📚 12 модулей</span><span>⏱ 6 месяцев</span></div><div class="course-footer"><span class="course-price">12 990 ₽</span><button class="btn btn-primary btn-sm" onclick="openModal('Полное восстановление', '12 990 ₽', 'course')">Подробнее</button></div></div></div>
+    <div class="course-card" data-cat="yoga"><div class="course-img">🌸<span class="course-badge free">Бесплатно</span></div><div class="course-body"><h3 class="course-title">Email-курс «Неделя баланса»</h3><p class="course-desc">7 дней — 7 писем с практиками.</p><div class="course-meta"><span>📧 7 дней</span><span>⏱ 15 мин/день</span></div><div class="course-footer"><span class="course-price free">Бесплатно</span><button class="btn btn-soft btn-sm" onclick="openModal('Email-курс «Неделя баланса»', 'Бесплатно', 'course')">Подписаться</button></div></div></div>
   </div>
 </section>
 
@@ -1199,7 +483,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
       <div class="phase-item"><h5>Этап 1 — MVP</h5><p>Лендинг + тест, 10–15 бесплатных методик, простая логика рекомендаций</p></div>
       <div class="phase-item"><h5>Этап 2 — Рост</h5><p>Личный кабинет, прогресс, дневник. 50+ методик, 5–10 мини-курсов</p></div>
       <div class="phase-item"><h5>Этап 3 — Монетизация</h5><p>Premium-подписка, партнёрский магазин, B2B-пилоты с компаниями</p></div>
-      <div class="phase-item"><h4>Этап 4 — Масштабирование</h4><p>ИИ-ассистент, локализация, партнёрства с крупными брендами</p></div>
+      <div class="phase-item"><h5>Этап 4 — Масштабирование</h5><p>ИИ-ассистент, локализация, партнёрства с крупными брендами</p></div>
     </div>
   </div>
   <div class="about-grid" style="margin-top: 1.5rem;">
@@ -1237,8 +521,8 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
         <label for="authName">Имя</label>
         <input type="text" id="authName" placeholder="Как вас зовут?" autocomplete="name">
       </div>
-      <label for="authLogin">Логин</label>
-      <input type="text" id="authLogin" placeholder="Введите логин" autocomplete="username">
+      <label for="authEmail">Email</label>
+      <input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email">
       <label for="authPassword">Пароль</label>
       <div class="password-wrap">
         <input type="password" id="authPassword" placeholder="Минимум 8 символов" autocomplete="new-password" oninput="updatePwdStrength()">
@@ -1268,7 +552,9 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
       </div>
       <div class="auth-error" id="authError"></div>
       <div class="auth-success" id="authSuccess"></div>
+      <div class="auth-info-box" id="authInfoBox"></div>
       <button class="btn btn-primary" style="width:100%; margin-top: 0.5rem;" id="authSubmitBtn" onclick="submitAuth()">Создать аккаунт</button>
+      <button class="btn btn-outline" style="width:100%; margin-top: 0.5rem; display:none;" id="resendBtn" onclick="resendVerification()">Отправить письмо повторно</button>
     </div>
   </div>
 </div>
@@ -1321,7 +607,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
-  // === FIREBASE INIT ===
+  // === FIREBASE ===
   var firebaseConfig = {
     apiKey: "AIzaSyAsGZ661cK8obTVlQvfyzKdqY9ppOC5hlE",
     authDomain: "balance-ap.firebaseapp.com",
@@ -1334,24 +620,15 @@ document.addEventListener('DOMContentLoaded', function() {
   var auth = firebase.auth();
   var db = firebase.firestore();
 
-  // Домен-обёртка для логина (Firebase требует email)
-  var LOGIN_DOMAIN = '@balance-app.local';
-  function loginToEmail(login) {
-    return login.toLowerCase().replace(/[^a-z0-9._-]/g, '') + LOGIN_DOMAIN;
-  }
-
-  var currentUser = null; // { uid, name, login, courses, subscription, lastTest }
+  var currentUser = null;
+  var pendingEmail = null; // email, ожидающий подтверждения
 
   // === ТЕМА ===
   (function initTheme() {
     var saved = localStorage.getItem('bc_theme');
-    if (saved === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } else if (saved === 'light') {
-      document.documentElement.setAttribute('data-theme', 'light');
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    }
+    if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    else if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme', 'dark');
   })();
 
   // === НАВИГАЦИЯ ===
@@ -1368,9 +645,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  window.toggleMobileMenu = function() {
-    document.getElementById('navMenu').classList.toggle('open');
-  };
+  window.toggleMobileMenu = function() { document.getElementById('navMenu').classList.toggle('open'); };
 
   window.filterCourses = function(cat, btn) {
     document.querySelectorAll('.courses-tab').forEach(function(b) { b.classList.remove('active'); });
@@ -1406,10 +681,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('modalPrice').textContent = price;
     var emoji = '🎓';
     var text = 'Функционал оплаты находится в разработке. Мы сохранили ваш запрос.';
-    if (price === 'Бесплатно' || price === '0 ₽') {
-      emoji = '✅';
-      text = 'Регистрация на бесплатный материал.';
-    }
+    if (price === 'Бесплатно' || price === '0 ₽') { emoji = '✅'; text = 'Регистрация на бесплатный материал.'; }
     document.getElementById('modalEmoji').textContent = emoji;
     document.getElementById('modalText').textContent = text;
     modalCurrentAction = title + ' — ' + price;
@@ -1423,9 +695,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (modalCurrentCourse) {
       if (!currentUser) {
         alert('Сначала войдите в аккаунт, чтобы сохранить курс в профиле.');
-        closeModal();
-        openAuth();
-        return;
+        closeModal(); openAuth(); return;
       }
       saveCourseToUser(modalCurrentCourse.title, modalCurrentCourse.price);
     }
@@ -1433,9 +703,7 @@ document.addEventListener('DOMContentLoaded', function() {
     alert('Спасибо! Запрос принят: ' + modalCurrentAction);
   };
 
-  modalOverlay.addEventListener('click', function(e) {
-    if (e.target === modalOverlay) closeModal();
-  });
+  modalOverlay.addEventListener('click', function(e) { if (e.target === modalOverlay) closeModal(); });
 
   function saveCourseToUser(title, price) {
     if (!currentUser) return;
@@ -1444,12 +712,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (exists) return;
     courses.push({ title: title, price: price, date: new Date().toISOString() });
     var update = { courses: courses };
-    if (price !== '0 ₽' && price !== 'Бесплатно') {
-      update.subscription = 'active';
-    }
-    db.collection('users').doc(currentUser.uid).update(update).catch(function(err) {
-      console.error('Ошибка сохранения курса:', err);
-    });
+    if (price !== '0 ₽' && price !== 'Бесплатно') update.subscription = 'active';
+    db.collection('users').doc(currentUser.uid).update(update).catch(function(err) { console.error(err); });
   }
 
   // === ВОПРОСЫ ===
@@ -1512,7 +776,6 @@ document.addEventListener('DOMContentLoaded', function() {
     qNumEl.textContent = currentQ + 1;
     qTextEl.textContent = getQuestionText(item);
     progressEl.style.width = ((currentQ + 1) / questions.length) * 100 + '%';
-
     var html = '';
     for (var i = 0; i < item.opts.length; i++) {
       var cls = (answers[currentQ] === i) ? ' selected' : '';
@@ -1520,11 +783,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     qOptsEl.innerHTML = html;
     qOptsEl.querySelectorAll('.quiz-option').forEach(function(el) {
-      el.addEventListener('click', function() {
-        selectAns(parseInt(this.getAttribute('data-idx'), 10));
-      });
+      el.addEventListener('click', function() { selectAns(parseInt(this.getAttribute('data-idx'), 10)); });
     });
-
     btnPrev.disabled = (currentQ === 0);
     btnNext.disabled = (answers[currentQ] === null);
     btnNext.textContent = (currentQ === questions.length - 1) ? 'Получить результат →' : 'Далее →';
@@ -1532,25 +792,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function selectAns(idx) {
     answers[currentQ] = idx;
-    qOptsEl.querySelectorAll('.quiz-option').forEach(function(el, i) {
-      el.classList.toggle('selected', i === idx);
-    });
+    qOptsEl.querySelectorAll('.quiz-option').forEach(function(el, i) { el.classList.toggle('selected', i === idx); });
     btnNext.disabled = false;
   }
 
   window.nextQ = function() {
     if (answers[currentQ] === null) return;
-    if (currentQ < questions.length - 1) {
-      currentQ++;
-      renderQ();
-    } else {
-      calcResults();
-    }
+    if (currentQ < questions.length - 1) { currentQ++; renderQ(); }
+    else calcResults();
   };
 
-  window.prevQ = function() {
-    if (currentQ > 0) { currentQ--; renderQ(); }
-  };
+  window.prevQ = function() { if (currentQ > 0) { currentQ--; renderQ(); } };
 
   window.restartQuiz = function() {
     currentQ = 0;
@@ -1570,110 +822,65 @@ document.addEventListener('DOMContentLoaded', function() {
       score += questions[i].reverse ? (3 - a) : a;
     }
     var pct = Math.round((score / maxScore) * 100);
-
     var isWorker = (userRole === 'worker');
     var title, desc, causes, color;
 
     if (pct < 33) {
       title = 'Низкий уровень выгорания';
-      desc = isWorker
-        ? 'Вы хорошо справляетесь с рабочей нагрузкой и умеете восстанавливаться. Продолжайте следить за собой.'
-        : 'Вы хорошо справляетесь с учёбой и умеете восстанавливаться. Продолжайте следить за собой.';
-      causes = [
-        { text: 'Стабильное эмоциональное состояние', type: 'success' },
-        { text: 'Хороший баланс работы и отдыха', type: 'success' },
-        { text: 'Развитые навыки саморегуляции', type: 'success' }
-      ];
+      desc = isWorker ? 'Вы хорошо справляетесь с рабочей нагрузкой и умеете восстанавливаться.' : 'Вы хорошо справляетесь с учёбой и умеете восстанавливаться.';
+      causes = [{text:'Стабильное эмоциональное состояние',type:'success'},{text:'Хороший баланс работы и отдыха',type:'success'},{text:'Развитые навыки саморегуляции',type:'success'}];
       color = '#7fa97c';
     } else if (pct < 66) {
       title = 'Умеренный уровень выгорания';
-      desc = isWorker
-        ? 'Вы периодически испытываете напряжение из-за работы. Сигнальный этап — самое время добавить восстановление.'
-        : 'Вы периодически испытываете напряжение из-за учёбы. Сигнальный этап — самое время добавить восстановление.';
-      causes = [
-        { text: 'Высокая нагрузка', type: 'warning' },
-        { text: 'Недостаток отдыха', type: 'warning' },
-        { text: 'Эмоциональное напряжение', type: 'warning' }
-      ];
+      desc = isWorker ? 'Вы периодически испытываете напряжение из-за работы.' : 'Вы периодически испытываете напряжение из-за учёбы.';
+      causes = [{text:'Высокая нагрузка',type:'warning'},{text:'Недостаток отдыха',type:'warning'},{text:'Эмоциональное напряжение',type:'warning'}];
       color = '#d4a373';
     } else {
       title = 'Высокий уровень выгорания';
-      desc = isWorker
-        ? 'Вы в зоне сильного стресса, связанного с работой. Важно срочно уделить внимание отдыху. Рекомендуем обратиться к специалисту.'
-        : 'Вы в зоне сильного стресса, связанного с учёбой. Важно срочно уделить внимание отдыху. Рекомендуем обратиться к специалисту.';
-      causes = [
-        { text: 'Высокая нагрузка', type: 'danger' },
-        { text: 'Недостаток отдыха', type: 'danger' },
-        { text: 'Сложности с границами', type: 'danger' },
-        { text: 'Тревожность', type: 'danger' }
-      ];
+      desc = isWorker ? 'Вы в зоне сильного стресса, связанного с работой.' : 'Вы в зоне сильного стресса, связанного с учёбой.';
+      causes = [{text:'Высокая нагрузка',type:'danger'},{text:'Недостаток отдыха',type:'danger'},{text:'Сложности с границами',type:'danger'},{text:'Тревожность',type:'danger'}];
       color = '#c97b6a';
     }
 
     document.getElementById('resTitle').textContent = title;
     document.getElementById('resDesc').textContent = desc;
     document.getElementById('resPercent').textContent = pct + '%';
-
     var donut = document.getElementById('donutFill');
     var circumference = 2 * Math.PI * 75;
     donut.setAttribute('stroke-dasharray', circumference);
     donut.setAttribute('stroke', color);
-    var offset = circumference - (pct / 100) * circumference;
     donut.style.strokeDashoffset = circumference;
-    setTimeout(function() { donut.style.strokeDashoffset = offset; }, 100);
+    setTimeout(function() { donut.style.strokeDashoffset = circumference - (pct / 100) * circumference; }, 100);
 
     var causesHtml = '';
-    causes.forEach(function(c) {
-      causesHtml += '<div class="cause-item"><span class="cause-dot ' + c.type + '"></span><span>' + c.text + '</span></div>';
-    });
+    causes.forEach(function(c) { causesHtml += '<div class="cause-item"><span class="cause-dot ' + c.type + '"></span><span>' + c.text + '</span></div>'; });
     document.getElementById('resCauses').innerHTML = causesHtml;
 
-    // Сохраняем результат в Firebase
     if (currentUser) {
       db.collection('users').doc(currentUser.uid).update({
-        lastTest: {
-          percent: pct,
-          level: title,
-          role: userRole,
-          date: new Date().toISOString()
-        }
-      }).catch(function(err) { console.error('Ошибка сохранения теста:', err); });
+        lastTest: { percent: pct, level: title, role: userRole, date: new Date().toISOString() }
+      }).catch(function(err) { console.error(err); });
     }
-
     navigate('results');
   }
 
   // === НАСТРОЙКИ ===
   var settingsOverlay = document.getElementById('settingsOverlay');
-
-  window.openSettings = function() {
-    settingsOverlay.classList.add('show');
-    syncThemeSwitch();
-    syncNotifySwitch();
-  };
-
+  window.openSettings = function() { settingsOverlay.classList.add('show'); syncThemeSwitch(); syncNotifySwitch(); };
   window.closeSettings = function() { settingsOverlay.classList.remove('show'); };
-
-  settingsOverlay.addEventListener('click', function(e) {
-    if (e.target === settingsOverlay) closeSettings();
-  });
+  settingsOverlay.addEventListener('click', function(e) { if (e.target === settingsOverlay) closeSettings(); });
 
   window.toggleTheme = function() {
     var current = document.documentElement.getAttribute('data-theme') || 'light';
     var next = current === 'dark' ? 'light' : 'dark';
-    if (next === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-      document.documentElement.removeAttribute('data-theme');
-    }
+    if (next === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    else document.documentElement.removeAttribute('data-theme');
     localStorage.setItem('bc_theme', next);
     syncThemeSwitch();
   };
 
   function syncThemeSwitch() {
-    var sw = document.getElementById('themeSwitch');
-    var current = document.documentElement.getAttribute('data-theme') || 'light';
-    sw.classList.toggle('on', current === 'dark');
+    document.getElementById('themeSwitch').classList.toggle('on', document.documentElement.getAttribute('data-theme') === 'dark');
   }
 
   window.toggleNotify = function() {
@@ -1683,11 +890,10 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   function syncNotifySwitch() {
-    var sw = document.getElementById('notifySwitch');
-    sw.classList.toggle('on', localStorage.getItem('bc_notify') === 'on');
+    document.getElementById('notifySwitch').classList.toggle('on', localStorage.getItem('bc_notify') === 'on');
   }
 
-  // === АУТЕНТИФИКАЦИЯ (FIREBASE) ===
+  // === АВТОРИЗАЦИЯ ===
   var authOverlay = document.getElementById('authOverlay');
   var profileOverlay = document.getElementById('profileOverlay');
   var authMode = 'register';
@@ -1702,51 +908,37 @@ document.addEventListener('DOMContentLoaded', function() {
     authOverlay.classList.remove('show');
     document.getElementById('authError').textContent = '';
     document.getElementById('authSuccess').textContent = '';
+    document.getElementById('authInfoBox').classList.remove('show');
     document.getElementById('authName').value = '';
-    document.getElementById('authLogin').value = '';
+    document.getElementById('authEmail').value = '';
     document.getElementById('authPassword').value = '';
     document.getElementById('authPassword2').value = '';
     document.getElementById('pwdStrengthBox').style.display = 'none';
     document.getElementById('pwdStrengthFill').style.width = '0%';
+    document.getElementById('resendBtn').style.display = 'none';
   };
 
-  authOverlay.addEventListener('click', function(e) {
-    if (e.target === authOverlay) closeAuth();
-  });
+  authOverlay.addEventListener('click', function(e) { if (e.target === authOverlay) closeAuth(); });
 
   window.closeProfile = function() { profileOverlay.classList.remove('show'); };
-  profileOverlay.addEventListener('click', function(e) {
-    if (e.target === profileOverlay) closeProfile();
-  });
+  profileOverlay.addEventListener('click', function(e) { if (e.target === profileOverlay) closeProfile(); });
 
   window.openProfile = function() {
     if (!currentUser) return;
-
     var initial = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : '?';
     document.getElementById('profileAvatar').textContent = initial;
     document.getElementById('profileName').textContent = currentUser.name;
-    document.getElementById('profileLogin').textContent = '@' + currentUser.login;
-
+    document.getElementById('profileLogin').textContent = currentUser.email || '';
     var subBadge = document.getElementById('profileSubBadge');
-    if (currentUser.subscription === 'active') {
-      subBadge.textContent = 'Premium активна';
-      subBadge.className = 'sub-status sub-active';
-    } else {
-      subBadge.textContent = 'Подписка не активна';
-      subBadge.className = 'sub-status sub-inactive';
-    }
+    if (currentUser.subscription === 'active') { subBadge.textContent = 'Premium активна'; subBadge.className = 'sub-status sub-active'; }
+    else { subBadge.textContent = 'Подписка не активна'; subBadge.className = 'sub-status sub-inactive'; }
 
     var testBlock = document.getElementById('profileTestBlock');
     if (currentUser.lastTest) {
       var t = currentUser.lastTest;
       var d = new Date(t.date);
       var dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
-      testBlock.innerHTML =
-        '<div class="stat-row">' +
-          '<div class="stat-mini"><div class="num">' + t.percent + '%</div><div class="lbl">Уровень стресса</div></div>' +
-          '<div class="stat-mini"><div class="num" style="font-size: 1.1rem;">' + t.level.replace(' уровень выгорания','') + '</div><div class="lbl">Профиль</div></div>' +
-          '<div class="stat-mini"><div class="num" style="font-size: 1rem;">' + dateStr + '</div><div class="lbl">Дата теста</div></div>' +
-        '</div>';
+      testBlock.innerHTML = '<div class="stat-row"><div class="stat-mini"><div class="num">' + t.percent + '%</div><div class="lbl">Уровень стресса</div></div><div class="stat-mini"><div class="num" style="font-size:1.1rem;">' + t.level.replace(' уровень выгорания','') + '</div><div class="lbl">Профиль</div></div><div class="stat-mini"><div class="num" style="font-size:1rem;">' + dateStr + '</div><div class="lbl">Дата теста</div></div></div>';
     } else {
       testBlock.innerHTML = '<div class="empty-state">Вы ещё не проходили тест</div>';
     }
@@ -1754,23 +946,16 @@ document.addEventListener('DOMContentLoaded', function() {
     var coursesBlock = document.getElementById('profileCoursesBlock');
     if (currentUser.courses && currentUser.courses.length > 0) {
       var html = '';
-      currentUser.courses.forEach(function(c) {
-        html += '<div class="profile-course-row"><span class="name">' + c.title + '</span><span class="status">' + c.price + '</span></div>';
-      });
+      currentUser.courses.forEach(function(c) { html += '<div class="profile-course-row"><span class="name">' + c.title + '</span><span class="status">' + c.price + '</span></div>'; });
       coursesBlock.innerHTML = html;
     } else {
       coursesBlock.innerHTML = '<div class="empty-state">Вы ещё не записались ни на один курс</div>';
     }
-
     profileOverlay.classList.add('show');
   };
 
   window.logoutUser = function() {
-    if (confirm('Выйти из аккаунта?')) {
-      auth.signOut().then(function() {
-        closeProfile();
-      });
-    }
+    if (confirm('Выйти из аккаунта?')) auth.signOut().then(function() { closeProfile(); });
   };
 
   window.setAuthMode = function(mode) {
@@ -1784,27 +969,18 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('authSubmitBtn').textContent = isReg ? 'Создать аккаунт' : 'Войти';
     document.getElementById('authError').textContent = '';
     document.getElementById('authSuccess').textContent = '';
+    document.getElementById('authInfoBox').classList.remove('show');
+    document.getElementById('resendBtn').style.display = 'none';
   };
 
   window.togglePassword = function(inputId, btn) {
     var input = document.getElementById(inputId);
-    if (input.type === 'password') {
-      input.type = 'text';
-      btn.classList.add('visible');
-    } else {
-      input.type = 'password';
-      btn.classList.remove('visible');
-    }
+    if (input.type === 'password') { input.type = 'text'; btn.classList.add('visible'); }
+    else { input.type = 'password'; btn.classList.remove('visible'); }
   };
 
   function checkPasswordRules(pwd) {
-    return {
-      length: pwd.length >= 8,
-      upper: /[A-ZА-Я]/.test(pwd),
-      lower: /[a-zа-я]/.test(pwd),
-      digit: /\d/.test(pwd),
-      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(pwd)
-    };
+    return { length: pwd.length >= 8, upper: /[A-ZА-Я]/.test(pwd), lower: /[a-zа-я]/.test(pwd), digit: /\d/.test(pwd), special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(pwd) };
   }
 
   window.updatePwdStrength = function() {
@@ -1813,10 +989,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var text = document.getElementById('pwdStrengthText');
     var rulesEl = document.getElementById('pwdRules');
     var pwd = document.getElementById('authPassword').value;
-
     if (pwd.length === 0) { box.style.display = 'none'; return; }
     box.style.display = 'block';
-
     var rules = checkPasswordRules(pwd);
     var passed = 0;
     Object.keys(rules).forEach(function(key) {
@@ -1824,166 +998,188 @@ document.addEventListener('DOMContentLoaded', function() {
       if (li) li.classList.toggle('ok', rules[key]);
       if (rules[key]) passed++;
     });
-
     fill.style.width = (passed / 5) * 100 + '%';
     text.classList.remove('weak', 'medium', 'strong');
-
-    if (passed <= 2) {
-      fill.style.background = 'var(--danger)';
-      text.classList.add('weak');
-      text.textContent = 'Слабый пароль';
-    } else if (passed <= 4) {
-      fill.style.background = 'var(--warning)';
-      text.classList.add('medium');
-      text.textContent = 'Средний пароль';
-    } else {
-      fill.style.background = 'var(--success)';
-      text.classList.add('strong');
-      text.textContent = 'Надёжный пароль';
-    }
+    if (passed <= 2) { fill.style.background = 'var(--danger)'; text.classList.add('weak'); text.textContent = 'Слабый пароль'; }
+    else if (passed <= 4) { fill.style.background = 'var(--warning)'; text.classList.add('medium'); text.textContent = 'Средний пароль'; }
+    else { fill.style.background = 'var(--success)'; text.classList.add('strong'); text.textContent = 'Надёжный пароль'; }
   };
 
   function updateProfileIcon() {
-    var btn = document.getElementById('profileBtn');
-    if (currentUser) {
-      btn.classList.add('logged-in');
-    } else {
-      btn.classList.remove('logged-in');
-    }
+    document.getElementById('profileBtn').classList.toggle('logged-in', !!currentUser);
   }
 
-  // Перевод ошибок Firebase на русский
   function translateAuthError(code) {
     var map = {
-      'auth/email-already-in-use': 'Этот логин уже занят. Попробуйте другой.',
-      'auth/invalid-email': 'Неверный формат логина.',
+      'auth/email-already-in-use': 'Этот email уже зарегистрирован. Попробуйте войти или использовать другой.',
+      'auth/invalid-email': 'Неверный формат email.',
       'auth/weak-password': 'Слишком слабый пароль.',
-      'auth/user-not-found': 'Логин не найден. Проверьте написание.',
+      'auth/user-not-found': 'Аккаунт с таким email не найден.',
       'auth/wrong-password': 'Неверный пароль.',
-      'auth/invalid-credential': 'Неверный логин или пароль.',
+      'auth/invalid-credential': 'Неверный email или пароль.',
       'auth/too-many-requests': 'Слишком много попыток. Подождите немного.',
-      'auth/network-request-failed': 'Проблема с интернетом. Проверьте соединение.'
+      'auth/network-request-failed': 'Проблема с интернетом.',
+      'auth/email-not-verified': 'Email не подтверждён. Проверьте почту.'
     };
     return map[code] || 'Ошибка: ' + code;
+  }
+
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
   window.submitAuth = function() {
     var errEl = document.getElementById('authError');
     var okEl = document.getElementById('authSuccess');
-    errEl.textContent = '';
-    okEl.textContent = '';
+    var infoEl = document.getElementById('authInfoBox');
+    errEl.textContent = ''; okEl.textContent = '';
+    infoEl.classList.remove('show');
 
-    var login = document.getElementById('authLogin').value.trim();
+    var email = document.getElementById('authEmail').value.trim().toLowerCase();
     var password = document.getElementById('authPassword').value;
     var isReg = (authMode === 'register');
-
-    if (login.length < 3) {
-      errEl.textContent = 'Логин должен быть не короче 3 символов.';
-      return;
-    }
-    if (!/^[a-zA-Z0-9._-]+$/.test(login)) {
-      errEl.textContent = 'Логин может содержать только английские буквы, цифры, точку, дефис и подчёркивание.';
-      return;
-    }
-
-    var email = loginToEmail(login);
     var btn = document.getElementById('authSubmitBtn');
+
+    if (!isValidEmail(email)) { errEl.textContent = 'Введите корректный email.'; return; }
+
     btn.disabled = true;
     btn.textContent = 'Подождите...';
 
     if (isReg) {
-      if (password.length < 8) {
-        errEl.textContent = 'Пароль должен быть не короче 8 символов.';
-        btn.disabled = false;
-        btn.textContent = 'Создать аккаунт';
-        return;
-      }
+      if (password.length < 8) { errEl.textContent = 'Пароль должен быть не короче 8 символов.'; btn.disabled = false; btn.textContent = 'Создать аккаунт'; return; }
       var pwdRules = checkPasswordRules(password);
       var passed = 0;
       Object.keys(pwdRules).forEach(function(k) { if (pwdRules[k]) passed++; });
-      if (passed < 3) {
-        errEl.textContent = 'Пароль слишком слабый. Нужно минимум 3 условия из 5.';
-        btn.disabled = false;
-        btn.textContent = 'Создать аккаунт';
-        return;
-      }
+      if (passed < 3) { errEl.textContent = 'Пароль слишком слабый. Нужно минимум 3 условия из 5.'; btn.disabled = false; btn.textContent = 'Создать аккаунт'; return; }
 
       var name = document.getElementById('authName').value.trim();
       var password2 = document.getElementById('authPassword2').value;
+      if (name.length < 2) { errEl.textContent = 'Введите имя (минимум 2 символа).'; btn.disabled = false; btn.textContent = 'Создать аккаунт'; return; }
+      if (password !== password2) { errEl.textContent = 'Пароли не совпадают.'; btn.disabled = false; btn.textContent = 'Создать аккаунт'; return; }
 
-      if (name.length < 2) {
-        errEl.textContent = 'Введите имя (минимум 2 символа).';
-        btn.disabled = false; btn.textContent = 'Создать аккаунт'; return;
-      }
-      if (password !== password2) {
-        errEl.textContent = 'Пароли не совпадают.';
-        btn.disabled = false; btn.textContent = 'Создать аккаунт'; return;
-      }
+      pendingEmail = email;
 
       auth.createUserWithEmailAndPassword(email, password)
         .then(function(cred) {
-          return db.collection('users').doc(cred.user.uid).set({
+          // Отправляем письмо с подтверждением
+          return cred.user.sendEmailVerification({
+            url: window.location.origin + window.location.pathname
+          }).then(function() { return cred.user; });
+        })
+        .then(function(user) {
+          // Сохраняем профиль в Firestore
+          return db.collection('users').doc(user.uid).set({
             name: name,
-            login: login.toLowerCase(),
+            email: email,
             courses: [],
             subscription: 'inactive',
+            emailVerified: false,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
         })
         .then(function() {
-          okEl.textContent = 'Аккаунт создан! Добро пожаловать, ' + name + '!';
-          btn.disabled = false; btn.textContent = 'Создать аккаунт';
-          setTimeout(closeAuth, 1500);
+          // Разлогиниваем — пользователь должен подтвердить email
+          return auth.signOut();
+        })
+        .then(function() {
+          btn.disabled = false;
+          btn.textContent = 'Создать аккаунт';
+          errEl.textContent = '';
+          okEl.textContent = '';
+          infoEl.innerHTML = '<strong>📧 Письмо отправлено!</strong><br>Мы отправили ссылку для подтверждения на <b>' + email + '</b>. Перейдите по ссылке в письме — и сможете войти. Не забудьте проверить папку «Спам».';
+          infoEl.classList.add('show');
+          document.getElementById('authSubmitBtn').style.display = 'none';
+          document.getElementById('resendBtn').style.display = 'block';
         })
         .catch(function(err) {
           console.error('Ошибка регистрации:', err);
           errEl.textContent = translateAuthError(err.code);
-          btn.disabled = false; btn.textContent = 'Создать аккаунт';
+          btn.disabled = false;
+          btn.textContent = 'Создать аккаунт';
         });
 
     } else {
+      // Вход
       auth.signInWithEmailAndPassword(email, password)
-        .then(function() {
+        .then(function(cred) {
+          if (!cred.user.emailVerified) {
+            // Email не подтверждён — выходим и предлагаем подтвердить
+            pendingEmail = email;
+            return auth.signOut().then(function() {
+              throw { code: 'auth/email-not-verified' };
+            });
+          }
           okEl.textContent = 'С возвращением!';
-          btn.disabled = false; btn.textContent = 'Войти';
+          btn.disabled = false;
+          btn.textContent = 'Войти';
           setTimeout(closeAuth, 1000);
         })
         .catch(function(err) {
           console.error('Ошибка входа:', err);
-          errEl.textContent = translateAuthError(err.code);
-          btn.disabled = false; btn.textContent = 'Войти';
+          btn.disabled = false;
+          btn.textContent = 'Войти';
+          if (err.code === 'auth/email-not-verified') {
+            errEl.textContent = 'Email не подтверждён. Проверьте почту и перейдите по ссылке из письма.';
+            document.getElementById('resendBtn').style.display = 'block';
+            document.getElementById('authInfoBox').innerHTML = '📧 Письмо было отправлено на <b>' + pendingEmail + '</b>. Не получили? Нажмите кнопку ниже.';
+            document.getElementById('authInfoBox').classList.add('show');
+          } else {
+            errEl.textContent = translateAuthError(err.code);
+          }
         });
     }
   };
 
-  // === СЛЕЖЕНИЕ ЗА СОСТОЯНИЕМ АВТОРИЗАЦИИ ===
+  window.resendVerification = function() {
+    var email = pendingEmail || document.getElementById('authEmail').value.trim().toLowerCase();
+    var password = document.getElementById('authPassword').value;
+    var errEl = document.getElementById('authError');
+    var infoEl = document.getElementById('authInfoBox');
+    errEl.textContent = '';
+
+    if (!email || !password) {
+      errEl.textContent = 'Введите email и пароль, чтобы отправить письмо повторно.';
+      return;
+    }
+
+    // Входим, отправляем письмо, выходим
+    auth.signInWithEmailAndPassword(email, password)
+      .then(function(cred) {
+        return cred.user.sendEmailVerification({
+          url: window.location.origin + window.location.pathname
+        }).then(function() { return auth.signOut(); });
+      })
+      .then(function() {
+        infoEl.innerHTML = '📧 Письмо отправлено повторно на <b>' + email + '</b>. Проверьте папку «Спам».';
+        infoEl.classList.add('show');
+        errEl.textContent = '';
+      })
+      .catch(function(err) {
+        console.error('Ошибка повторной отправки:', err);
+        errEl.textContent = translateAuthError(err.code);
+      });
+  };
+
+  // === СЛЕЖЕНИЕ ЗА СОСТОЯНИЕМ ===
   auth.onAuthStateChanged(function(user) {
-    if (user) {
-      // Подтягиваем профиль из Firestore в реальном времени
+    if (user && user.emailVerified) {
       db.collection('users').doc(user.uid).onSnapshot(function(doc) {
         if (doc.exists) {
           currentUser = doc.data();
           currentUser.uid = user.uid;
           updateProfileIcon();
-          // Если открыт профиль — обновим
-          if (profileOverlay.classList.contains('show')) {
-            openProfile();
-          }
+          if (profileOverlay.classList.contains('show')) openProfile();
         }
-      }, function(err) {
-        console.error('Ошибка чтения профиля:', err);
-      });
+      }, function(err) { console.error(err); });
     } else {
       currentUser = null;
       updateProfileIcon();
     }
   });
 
-  // === ИНИЦИАЛИЗАЦИЯ ===
   updateProfileIcon();
   syncThemeSwitch();
   syncNotifySwitch();
-
 });
 </script>
 </body>
