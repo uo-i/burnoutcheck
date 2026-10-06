@@ -110,30 +110,12 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // === ВОПРОСЫ (50 штук) ===
-  // Каждый вопрос привязан к шкале:
-  //   EI — эмоциональное истощение
-  //   DP — деперсонализация / цинизм
-  //   RD — редукция достижений / потеря смысла
-  //
-  // Поля адаптации:
-  //   q         — базовый текст
-  //   qTeen     — для 16-18
-  //   qYoung    — для 19-25
-  //   qAdult    — для 26-35
-  //   qMature   — для 36-50
-  //   qSenior   — для 50+
-  //   reverse   — true, если вопрос обратный (0 = высокий риск, 3 = низкий)
-  //
-  // Опции универсальные: 0..3 балла
-
   var OPT4 = ["Никогда", "Иногда", "Часто", "Постоянно"];
   var OPT4R = ["Почти никогда", "Иногда", "Часто", "Очень часто"];
-  var OPT_AGREE = ["Полностью не согласен", "Скорее не согласен", "Скорее согласен", "Полностью согласен"];
-  var OPT_AGREE_R = ["Полностью согласен", "Скорее согласен", "Скорее не согласен", "Совсем не согласен"];
   var OPT_QUALITY = ["Отличное", "Хорошее", "Удовлетворительное", "Плохое"];
 
   var questions = [
-    // === ШКАЛА EI: эмоциональное истощение (17 вопросов) ===
+    // === EI: эмоциональное истощение (17) ===
     { scale: "EI", q: "Как часто вы чувствуете, что у вас «не хватает сил» на обычные дела?", qTeen: "Как часто у тебя не хватает сил даже на простые дела?", opts: OPT4R },
     { scale: "EI", q: "Как часто вы чувствуете себя эмоционально опустошённым?", qTeen: "Как часто ты чувствуешь себя эмоционально выжатым?", opts: OPT4 },
     { scale: "EI", q: "Просыпаетесь ли вы уже уставшим, даже после сна?", opts: OPT4R },
@@ -152,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
     { scale: "EI", q: "Как часто вы замечаете, что стали хуже переносить шум и суету?", opts: OPT4 },
     { scale: "EI", q: "Как часто вы чувствуете, что вам нужна пауза, но вы не можете её взять?", opts: OPT4 },
 
-    // === ШКАЛА DP: деперсонализация / цинизм (17 вопросов) ===
+    // === DP: деперсонализация / цинизм (17) ===
     { scale: "DP", q: "Как часто вы раздражаетесь по мелочам?", opts: OPT4 },
     { scale: "DP", q: "Как часто вы чувствуете, что стали циничнее по отношению к работе?", qTeen: "Как часто ты относишься к учёбе с раздражением?", opts: OPT4 },
     { scale: "DP", q: "Как часто вы замечаете, что стали безразличны к тому, что раньше волновало?", opts: OPT4 },
@@ -171,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
     { scale: "DP", q: "Как часто вы замечаете, что стали безразличны к результату своей работы?", qTeen: "Как часто ты относишься к своим оценкам безразлично?", opts: OPT4 },
     { scale: "DP", q: "Как часто вы хотите, чтобы все оставили вас в покое?", opts: OPT4 },
 
-    // === ШКАЛА RD: редукция достижений (16 вопросов) ===
+    // === RD: редукция достижений (16) ===
     { scale: "RD", q: "Как часто вы чувствуете, что не справляетесь с обязанностями?", opts: OPT4 },
     { scale: "RD", q: "Как часто вы сомневаетесь в своих профессиональных навыках?", qTeen: "Как часто ты сомневаешься в своих учебных способностях?", opts: OPT4 },
     { scale: "RD", q: "Как часто вы чувствуете, что работаете (учитесь) хуже, чем раньше?", qTeen: "Как часто тебе кажется, что ты стал учиться хуже?", opts: OPT4 },
@@ -190,11 +172,9 @@ document.addEventListener('DOMContentLoaded', function() {
     { scale: "RD", q: "Как часто вы чувствуете, что «застряли» на месте?", opts: OPT4 }
   ];
 
-  // Проверка: 17 + 17 + 16 = 50 ✓
-
   var currentQ = 0;
   var answers = new Array(questions.length).fill(null);
-  var ageGroup = null; // teen | young | adult | mature | senior
+  var ageGroup = null;
 
   var qNumEl = document.getElementById('qNum');
   var qTextEl = document.getElementById('qText');
@@ -204,13 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var btnNext = document.getElementById('btnNext');
 
   function getQuestionText(item) {
-    var map = {
-      teen: item.qTeen,
-      young: item.qYoung,
-      adult: item.qAdult,
-      mature: item.qMature,
-      senior: item.qSenior
-    };
+    var map = { teen: item.qTeen, young: item.qYoung, adult: item.qAdult, mature: item.qMature, senior: item.qSenior };
     return (ageGroup && map[ageGroup]) ? map[ageGroup] : item.q;
   }
 
@@ -228,6 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
     qNumEl.textContent = currentQ + 1;
     qTextEl.textContent = getQuestionText(item);
     progressEl.style.width = ((currentQ + 1) / questions.length) * 100 + '%';
+
     var html = '';
     for (var i = 0; i < item.opts.length; i++) {
       var cls = (answers[currentQ] === i) ? ' selected' : '';
@@ -237,8 +212,11 @@ document.addEventListener('DOMContentLoaded', function() {
     qOptsEl.querySelectorAll('.quiz-option').forEach(function(el) {
       el.addEventListener('click', function() { selectAns(parseInt(this.getAttribute('data-idx'), 10)); });
     });
+
+    // Кнопка Назад: на первом вопросе — возврат к выбору возраста
     btnPrev.disabled = false;
     btnPrev.textContent = (currentQ === 0) ? '← К выбору возраста' : '← Назад';
+
     btnNext.disabled = (answers[currentQ] === null);
     btnNext.textContent = (currentQ === questions.length - 1) ? 'Получить результат →' : 'Далее →';
   }
@@ -254,12 +232,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (currentQ < questions.length - 1) { currentQ++; renderQ(); }
     else calcResults();
   };
+
   window.prevQ = function() {
     if (currentQ > 0) {
       currentQ--;
       renderQ();
     } else {
-      // Возврат к выбору возраста
       document.getElementById('quizCard').style.display = 'none';
       document.getElementById('rolePicker').style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -275,11 +253,8 @@ document.addEventListener('DOMContentLoaded', function() {
     navigate('quiz');
   };
 
-  // === ОПРЕДЕЛЕНИЕ ТИПА ВЫГОРАНИЯ ===
   function calcResults() {
-    // Считаем баллы по каждой шкале
     var scaleScores = { EI: 0, DP: 0, RD: 0 };
-    var scaleCounts = { EI: 0, DP: 0, RD: 0 };
     var scaleMaxes = { EI: 0, DP: 0, RD: 0 };
 
     for (var i = 0; i < questions.length; i++) {
@@ -288,7 +263,6 @@ document.addEventListener('DOMContentLoaded', function() {
       var val = questions[i].reverse ? (3 - a) : a;
       var s = questions[i].scale;
       scaleScores[s] += val;
-      scaleCounts[s]++;
       scaleMaxes[s] += 3;
     }
 
@@ -300,39 +274,32 @@ document.addEventListener('DOMContentLoaded', function() {
     var pctDP = Math.round((scaleScores.DP / scaleMaxes.DP) * 100);
     var pctRD = Math.round((scaleScores.RD / scaleMaxes.RD) * 100);
 
-    // Определяем тип по максимальной шкале
     var maxScale = Math.max(pctEI, pctDP, pctRD);
-    var type = '';
-    var typeDesc = '';
+    var type = '', typeDesc = '';
+
     if (maxScale === pctEI && pctEI >= 40) {
       type = 'Истощение';
-      typeDesc = 'Ваш тип выгорания — истощение. Вы в первую очередь физически и эмоционально вымотаны. Нужно восстановление ресурсов.';
+      typeDesc = 'Ваш тип выгорания — истощение. Вы в первую очередь физически и эмоционально вымотаны.';
     } else if (maxScale === pctDP && pctDP >= 40) {
       type = 'Цинизм';
-      typeDesc = 'Ваш тип выгорания — цинизм. Вы теряете интерес и вовлечённость, стали раздражительны и отстранены. Нужна переоценка смысла.';
+      typeDesc = 'Ваш тип выгорания — цинизм. Вы теряете интерес и вовлечённость, стали раздражительны и отстранены.';
     } else if (maxScale === pctRD && pctRD >= 40) {
       type = 'Потеря смысла';
-      typeDesc = 'Ваш тип выгорания — редукция достижений. Вам кажется, что ничего не получается и ничего не имеет смысла. Нужна новая цель.';
+      typeDesc = 'Ваш тип выгорания — редукция достижений. Вам кажется, что ничего не получается и ничего не имеет смысла.';
     } else {
       type = 'Смешанный';
-      typeDesc = 'У вас смешанный тип — признаки всех трёх шкал выражены примерно одинаково. Нужен комплексный подход.';
+      typeDesc = 'У вас смешанный тип — признаки всех трёх шкал выражены примерно одинаково.';
     }
 
-    // Уровень
     var level, color;
     if (pct < 33) { level = 'Низкий'; color = '#7fa97c'; }
     else if (pct < 66) { level = 'Умеренный'; color = '#d4a373'; }
     else { level = 'Высокий'; color = '#c97b6a'; }
 
-    // Заголовок и описание
-    var title = level + ' уровень выгорания';
-    var desc = typeDesc + ' Это не диагноз, а ориентир для дальнейших шагов.';
-
-    document.getElementById('resTitle').textContent = title;
-    document.getElementById('resDesc').textContent = desc;
+    document.getElementById('resTitle').textContent = level + ' уровень выгорания';
+    document.getElementById('resDesc').textContent = typeDesc + ' Это не диагноз, а ориентир для дальнейших шагов.';
     document.getElementById('resPercent').textContent = pct + '%';
 
-    // Донат
     var donut = document.getElementById('donutFill');
     var circumference = 2 * Math.PI * 75;
     donut.setAttribute('stroke-dasharray', circumference);
@@ -340,24 +307,15 @@ document.addEventListener('DOMContentLoaded', function() {
     donut.style.strokeDashoffset = circumference;
     setTimeout(function() { donut.style.strokeDashoffset = circumference - (pct / 100) * circumference; }, 100);
 
-    // Причины — три шкалы
     var causesHtml = '';
     causesHtml += '<div class="cause-item"><span class="cause-dot ' + (pctEI >= 60 ? 'danger' : (pctEI >= 33 ? 'warning' : 'success')) + '"></span><span>Эмоциональное истощение — ' + pctEI + '%</span></div>';
     causesHtml += '<div class="cause-item"><span class="cause-dot ' + (pctDP >= 60 ? 'danger' : (pctDP >= 33 ? 'warning' : 'success')) + '"></span><span>Цинизм и отстранённость — ' + pctDP + '%</span></div>';
     causesHtml += '<div class="cause-item"><span class="cause-dot ' + (pctRD >= 60 ? 'danger' : (pctRD >= 33 ? 'warning' : 'success')) + '"></span><span>Потеря смысла и достижений — ' + pctRD + '%</span></div>';
     document.getElementById('resCauses').innerHTML = causesHtml;
 
-    // Сохраняем в Firebase с типом
     if (currentUser) {
       db.collection('users').doc(currentUser.uid).update({
-        lastTest: {
-          percent: pct,
-          level: title,
-          type: type,
-          ageGroup: ageGroup,
-          scales: { EI: pctEI, DP: pctDP, RD: pctRD },
-          date: new Date().toISOString()
-        }
+        lastTest: { percent: pct, level: level + ' уровень выгорания', type: type, ageGroup: ageGroup, scales: { EI: pctEI, DP: pctDP, RD: pctRD }, date: new Date().toISOString() }
       }).catch(function(err) { console.error(err); });
     }
 
@@ -448,7 +406,6 @@ document.addEventListener('DOMContentLoaded', function() {
       var t = currentUser.lastTest;
       var d = new Date(t.date);
       var dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
-      var typeStr = t.type ? ' · ' + t.type : '';
       testBlock.innerHTML = '<div class="stat-row"><div class="stat-mini"><div class="num">' + t.percent + '%</div><div class="lbl">Уровень</div></div><div class="stat-mini"><div class="num" style="font-size:1rem;">' + (t.type || '—') + '</div><div class="lbl">Тип</div></div><div class="stat-mini"><div class="num" style="font-size:1rem;">' + dateStr + '</div><div class="lbl">Дата</div></div></div>';
     } else {
       testBlock.innerHTML = '<div class="empty-state">Вы ещё не проходили тест</div>';
@@ -587,17 +544,11 @@ document.addEventListener('DOMContentLoaded', function() {
         return auth.createUserWithEmailAndPassword(email, password);
       })
       .then(function(cred) {
-        return cred.user.sendEmailVerification({
-          url: window.location.origin + window.location.pathname
-        }).then(function() { return cred.user; });
+        return cred.user.sendEmailVerification({ url: window.location.origin + window.location.pathname }).then(function() { return cred.user; });
       })
       .then(function(user) {
         return db.collection('users').doc(user.uid).set({
-          login: login,
-          email: email,
-          courses: [],
-          subscription: 'inactive',
-          emailVerified: false,
+          login: login, email: email, courses: [], subscription: 'inactive', emailVerified: false,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
       })
@@ -606,7 +557,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.disabled = false;
         btn.style.display = 'none';
         document.getElementById('resendBtn').style.display = 'block';
-        infoEl.innerHTML = '<strong>📧 Письмо отправлено!</strong><br>Мы отправили ссылку для подтверждения на <b>' + email + '</b>. Перейдите по ссылке в письме — и сможете войти. Проверьте папку «Спам».';
+        infoEl.innerHTML = '<strong>📧 Письмо отправлено!</strong><br>Мы отправили ссылку для подтверждения на <b>' + email + '</b>. Перейдите по ссылке в письме. Проверьте папку «Спам».';
         infoEl.classList.add('show');
       })
       .catch(function(err) {
@@ -654,7 +605,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.disabled = false;
         btn.textContent = 'Войти';
         if (err.code === 'auth/email-not-verified') {
-          errEl.textContent = 'Почта не подтверждена. Проверьте письмо — ссылка была отправлена при регистрации.';
+          errEl.textContent = 'Почта не подтверждена. Проверьте письмо.';
           infoEl.innerHTML = '📧 Письмо было отправлено на <b>' + (pendingEmail || '') + '</b>. Не получили? Нажмите кнопку ниже.';
           infoEl.classList.add('show');
           document.getElementById('loginResendBtn').style.display = 'block';
@@ -669,14 +620,11 @@ document.addEventListener('DOMContentLoaded', function() {
     var password = document.getElementById('regPassword').value;
     var errEl = document.getElementById('authError');
     var infoEl = document.getElementById('authInfoBox');
-
-    if (!password) { errEl.textContent = 'Введите пароль ещё раз, чтобы отправить письмо повторно.'; return; }
+    if (!password) { errEl.textContent = 'Введите пароль ещё раз.'; return; }
 
     auth.signInWithEmailAndPassword(pendingEmail, password)
       .then(function(cred) {
-        return cred.user.sendEmailVerification({
-          url: window.location.origin + window.location.pathname
-        }).then(function() { return auth.signOut(); });
+        return cred.user.sendEmailVerification({ url: window.location.origin + window.location.pathname }).then(function() { return auth.signOut(); });
       })
       .then(function() {
         infoEl.innerHTML = '📧 Письмо отправлено повторно на <b>' + pendingEmail + '</b>. Проверьте «Спам».';
@@ -690,14 +638,11 @@ document.addEventListener('DOMContentLoaded', function() {
     var password = document.getElementById('loginPassword').value;
     var errEl = document.getElementById('loginError');
     var infoEl = document.getElementById('loginInfoBox');
-
     if (!password) { errEl.textContent = 'Введите пароль.'; return; }
 
     auth.signInWithEmailAndPassword(pendingEmail, password)
       .then(function(cred) {
-        return cred.user.sendEmailVerification({
-          url: window.location.origin + window.location.pathname
-        }).then(function() { return auth.signOut(); });
+        return cred.user.sendEmailVerification({ url: window.location.origin + window.location.pathname }).then(function() { return auth.signOut(); });
       })
       .then(function() {
         infoEl.innerHTML = '📧 Письмо отправлено повторно на <b>' + pendingEmail + '</b>. Проверьте «Спам».';
