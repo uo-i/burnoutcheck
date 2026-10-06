@@ -237,7 +237,8 @@ document.addEventListener('DOMContentLoaded', function() {
     qOptsEl.querySelectorAll('.quiz-option').forEach(function(el) {
       el.addEventListener('click', function() { selectAns(parseInt(this.getAttribute('data-idx'), 10)); });
     });
-    btnPrev.disabled = (currentQ === 0);
+    btnPrev.disabled = false;
+    btnPrev.textContent = (currentQ === 0) ? '← К выбору возраста' : '← Назад';
     btnNext.disabled = (answers[currentQ] === null);
     btnNext.textContent = (currentQ === questions.length - 1) ? 'Получить результат →' : 'Далее →';
   }
@@ -253,8 +254,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (currentQ < questions.length - 1) { currentQ++; renderQ(); }
     else calcResults();
   };
-
-  window.prevQ = function() { if (currentQ > 0) { currentQ--; renderQ(); } };
+  window.prevQ = function() {
+    if (currentQ > 0) {
+      currentQ--;
+      renderQ();
+    } else {
+      // Возврат к выбору возраста
+      document.getElementById('quizCard').style.display = 'none';
+      document.getElementById('rolePicker').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   window.restartQuiz = function() {
     currentQ = 0;
