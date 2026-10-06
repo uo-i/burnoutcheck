@@ -192,6 +192,8 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
 .phase-item h5 { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.25rem; }
 .phase-item p { font-size: 0.85rem; color: var(--text-soft); }
 .role-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.5rem; }
+#agePicker { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 700px) { #agePicker { grid-template-columns: 1fr; } }
 .role-card-lg { padding: 2rem 1.5rem; border: 1.5px solid var(--border); border-radius: 16px; background: var(--card); cursor: pointer; text-align: center; transition: all 0.25s; }
 .role-card-lg:hover { border-color: var(--primary); background: var(--primary-light); transform: translateY(-3px); }
 .role-emoji-lg { font-size: 2.5rem; margin-bottom: 0.75rem; }
