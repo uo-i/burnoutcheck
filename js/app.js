@@ -109,38 +109,92 @@ document.addEventListener('DOMContentLoaded', function() {
     db.collection('users').doc(currentUser.uid).update(update).catch(function(err) { console.error(err); });
   }
 
-  // === ВОПРОСЫ ===
+  // === ВОПРОСЫ (50 штук) ===
+  // Каждый вопрос привязан к шкале:
+  //   EI — эмоциональное истощение
+  //   DP — деперсонализация / цинизм
+  //   RD — редукция достижений / потеря смысла
+  //
+  // Поля адаптации:
+  //   q         — базовый текст
+  //   qTeen     — для 16-18
+  //   qYoung    — для 19-25
+  //   qAdult    — для 26-35
+  //   qMature   — для 36-50
+  //   qSenior   — для 50+
+  //   reverse   — true, если вопрос обратный (0 = высокий риск, 3 = низкий)
+  //
+  // Опции универсальные: 0..3 балла
+
+  var OPT4 = ["Никогда", "Иногда", "Часто", "Постоянно"];
+  var OPT4R = ["Почти никогда", "Иногда", "Часто", "Очень часто"];
+  var OPT_AGREE = ["Полностью не согласен", "Скорее не согласен", "Скорее согласен", "Полностью согласен"];
+  var OPT_AGREE_R = ["Полностью согласен", "Скорее согласен", "Скорее не согласен", "Совсем не согласен"];
+  var OPT_QUALITY = ["Отличное", "Хорошее", "Удовлетворительное", "Плохое"];
+
   var questions = [
-    { q: "Как часто вы чувствуете, что у вас «не хватает сил» на обычные дела?", opts: ["Почти никогда","Иногда","Часто","Очень часто"] },
-    { q: "Бывает ли, что вы раздражаетесь по мелочам?", opts: ["Редко","Периодически","Часто","Постоянно"] },
-    { qWorker: "Насколько сложно вам отключиться от рабочих мыслей вечером?", qStudent: "Насколько сложно вам отключиться от учебных мыслей вечером?", opts: ["Легко","Иногда сложно","Часто сложно","Почти невозможно"] },
-    { q: "Как вы оцениваете качество своего сна в последнее время?", opts: ["Отличное","Хорошее","Удовлетворительное","Плохое"] },
-    { qWorker: "Чувствуете ли вы, что ваши усилия на работе не ценятся?", qStudent: "Чувствуете ли вы, что ваши усилия в учёбе не ценятся?", opts: ["Никогда","Редко","Часто","Всегда"] },
-    { q: "Как часто вы пропускаете приёмы пищи из-за занятости?", opts: ["Никогда","Редко","Часто","Постоянно"] },
-    { q: "Испытываете ли вы чувство вины, когда отдыхаете?", opts: ["Нет","Иногда","Часто","Постоянно"] },
-    { qWorker: "Насколько вы удовлетворены своей работой сейчас?", qStudent: "Насколько вы удовлетворены своей учёбой сейчас?", opts: ["Полностью","В основном","Частично","Совсем не удовлетворён"] },
-    { qWorker: "Как часто вы думаете о том, чтобы сменить работу?", qStudent: "Как часто вы думаете о том, чтобы бросить учёбу?", opts: ["Никогда","Редко","Часто","Постоянно"] },
-    { qWorker: "Чувствуете ли вы, что стали более циничными по отношению к работе?", qStudent: "Чувствуете ли вы, что стали более циничными по отношению к учёбе?", opts: ["Нет","Немного","Значительно","Очень сильно"] },
-    { q: "Как часто вы чувствуете себя эмоционально опустошённым?", opts: ["Никогда","Редко","Часто","Постоянно"] },
-    { q: "Удаётся ли вам находить радость в вещах, которые раньше нравились?", opts: ["Да, всегда","Чаще да","Реже","Почти никогда"], reverse: true },
-    { q: "Как часто вы чувствуете, что не справляетесь с обязанностями?", opts: ["Никогда","Редко","Часто","Постоянно"] },
-    { q: "Насколько сильно вы переживаете из-за ошибок?", opts: ["Не переживаю","Немного","Сильно","Очень сильно"] },
-    { qWorker: "Как часто вы чувствуете, что вас перегружают задачи на работе?", qStudent: "Как часто вы чувствуете, что вас перегружают заданиями в учёбе?", opts: ["Никогда","Редко","Часто","Постоянно"] },
-    { q: "Считаете ли вы, что у вас нет времени на себя?", opts: ["Нет, время есть","Иногда не хватает","Часто не хватает","Никогда не хватает"] },
-    { q: "Как часто вы чувствуете, что вам нужна поддержка?", opts: ["Никогда","Иногда","Часто","Постоянно"] },
-    { qWorker: "Насколько вы уверены в своих профессиональных навыках?", qStudent: "Насколько вы уверены в своих учебных навыках?", opts: ["Полностью уверен","В основном уверен","Сомневаюсь","Совсем не уверен"], reverse: true },
-    { qWorker: "Как часто вы чувствуете, что работа забирает все ваши ресурсы?", qStudent: "Как часто вы чувствуете, что учёба забирает все ваши ресурсы?", opts: ["Никогда","Редко","Часто","Постоянно"] },
-    { q: "Испытываете ли вы физические симптомы стресса?", opts: ["Никогда","Редко","Часто","Постоянно"] },
-    { q: "Как часто вы чувствуете, что не можете сказать «нет» новым задачам?", opts: ["Всегда могу отказать","Чаще могу","Чаще не могу","Никогда не могу"] },
-    { qWorker: "Насколько вы чувствуете себя вовлечённым в работу?", qStudent: "Насколько вы чувствуете себя вовлечённым в учёбу?", opts: ["Полностью вовлечён","В основном вовлечён","Частично вовлечён","Совсем не вовлечён"], reverse: true },
-    { q: "Как часто вы чувствуете, что ваши границы нарушаются?", opts: ["Никогда","Редко","Часто","Постоянно"] },
-    { qWorker: "Считаете ли вы, что ваша работа имеет смысл?", qStudent: "Считаете ли вы, что ваша учёба имеет смысл?", opts: ["Полностью согласен","Скорее согласен","Скорее не согласен","Совсем не согласен"], reverse: true },
-    { q: "Как вы оцениваете свой общий уровень стресса за последний месяц?", opts: ["Низкий","Умеренный","Высокий","Очень высокий"] }
+    // === ШКАЛА EI: эмоциональное истощение (17 вопросов) ===
+    { scale: "EI", q: "Как часто вы чувствуете, что у вас «не хватает сил» на обычные дела?", qTeen: "Как часто у тебя не хватает сил даже на простые дела?", opts: OPT4R },
+    { scale: "EI", q: "Как часто вы чувствуете себя эмоционально опустошённым?", qTeen: "Как часто ты чувствуешь себя эмоционально выжатым?", opts: OPT4 },
+    { scale: "EI", q: "Просыпаетесь ли вы уже уставшим, даже после сна?", opts: OPT4R },
+    { scale: "EI", q: "Как вы оцениваете качество своего сна в последнее время?", opts: OPT_QUALITY },
+    { scale: "EI", q: "Как часто вы чувствуете физическую усталость без причины?", opts: OPT4 },
+    { scale: "EI", q: "Как часто вы чувствуете, что работа / учёба вытягивает из вас все силы?", qTeen: "Как часто учёба забирает у тебя все силы?", qSenior: "Как часто рабочие задачи забирают у вас все силы?", opts: OPT4 },
+    { scale: "EI", q: "Как часто у вас болит голова или напряжены мышцы из-за нагрузки?", opts: OPT4 },
+    { scale: "EI", q: "Пропускаете ли вы приёмы пищи из-за занятости?", opts: OPT4 },
+    { scale: "EI", q: "Как часто вы чувствуете себя «на пределе»?", opts: OPT4 },
+    { scale: "EI", q: "Как часто вы работаете (учитесь) без перерыва по несколько часов подряд?", qTeen: "Как часто ты сидишь за уроками без перерыва?", opts: OPT4 },
+    { scale: "EI", q: "Как часто вы чувствуете сонливость в течение дня?", opts: OPT4 },
+    { scale: "EI", q: "Как часто вы чувствуете, что не успеваете восстановиться за выходные?", qTeen: "Как часто ты не успеваешь отдохнуть за выходные?", opts: OPT4 },
+    { scale: "EI", q: "Как часто вы чувствуете, что напряжены даже в спокойной обстановке?", opts: OPT4 },
+    { scale: "EI", q: "Как часто вы чувствуете, что у вас нет времени на себя?", qTeen: "Как часто у тебя нет времени на себя?", opts: OPT4 },
+    { scale: "EI", q: "Как часто вы чувствуете себя измотанным к концу дня?", opts: OPT4 },
+    { scale: "EI", q: "Как часто вы замечаете, что стали хуже переносить шум и суету?", opts: OPT4 },
+    { scale: "EI", q: "Как часто вы чувствуете, что вам нужна пауза, но вы не можете её взять?", opts: OPT4 },
+
+    // === ШКАЛА DP: деперсонализация / цинизм (17 вопросов) ===
+    { scale: "DP", q: "Как часто вы раздражаетесь по мелочам?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы чувствуете, что стали циничнее по отношению к работе?", qTeen: "Как часто ты относишься к учёбе с раздражением?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы замечаете, что стали безразличны к тому, что раньше волновало?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы срываетесь на близких или коллегах?", qTeen: "Как часто ты срываешься на близких?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы чувствуете, что окружающие вас раздражают?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы хотите остаться один, чтобы никто не трогал?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы чувствуете, что ваши усилия на работе не ценятся?", qTeen: "Как часто ты чувствуешь, что твои старания в учёбе не замечают?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы думаете о том, чтобы всё бросить?", qTeen: "Как часто ты хочешь всё бросить?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы сомневаетесь, что ваша работа (учёба) имеет смысл?", qTeen: "Как часто ты сомневаешься, что учёба имеет смысл?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы замечаете, что вам сложно сочувствовать другим?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы обсуждаете других с раздражением или пренебрежением?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы считаете, что «всё бессмысленно»?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы чувствуете, что от вас все чего-то хотят, а вы ничего не хотите?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы откладываете дела, которые раньше делали легко?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы чувствуете, что всё вокруг стало «серым»?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы замечаете, что стали безразличны к результату своей работы?", qTeen: "Как часто ты относишься к своим оценкам безразлично?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы хотите, чтобы все оставили вас в покое?", opts: OPT4 },
+
+    // === ШКАЛА RD: редукция достижений (16 вопросов) ===
+    { scale: "RD", q: "Как часто вы чувствуете, что не справляетесь с обязанностями?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы сомневаетесь в своих профессиональных навыках?", qTeen: "Как часто ты сомневаешься в своих учебных способностях?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы чувствуете, что работаете (учитесь) хуже, чем раньше?", qTeen: "Как часто тебе кажется, что ты стал учиться хуже?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы переживаете из-за мелких ошибок?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы чувствуете, что не соответствуете ожиданиям других?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы чувствуете, что теряете интерес к тому, что раньше нравилось?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы думаете, что «ничего не изменится к лучшему»?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы чувствуете, что ваши усилия не приводят к результату?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы сравниваете себя с другими и чувствуете себя хуже?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы чувствуете, что не контролируете свою жизнь?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы чувствуете, что потеряли цель?", qTeen: "Как часто тебе кажется, что ты не знаешь, куда идти?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы испытываете чувство вины, когда отдыхаете?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы чувствуете, что ваша работа (учёба) бессмысленна?", qTeen: "Как часто ты чувствуешь, что учёба — пустая трата времени?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы чувствуете, что не реализуете себя?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вам сложно радоваться успехам (своим или чужим)?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы чувствуете, что «застряли» на месте?", opts: OPT4 }
   ];
+
+  // Проверка: 17 + 17 + 16 = 50 ✓
 
   var currentQ = 0;
   var answers = new Array(questions.length).fill(null);
-  var userRole = null;
+  var ageGroup = null; // teen | young | adult | mature | senior
 
   var qNumEl = document.getElementById('qNum');
   var qTextEl = document.getElementById('qText');
@@ -150,13 +204,18 @@ document.addEventListener('DOMContentLoaded', function() {
   var btnNext = document.getElementById('btnNext');
 
   function getQuestionText(item) {
-    if (userRole === 'student' && item.qStudent) return item.qStudent;
-    if (userRole === 'worker' && item.qWorker) return item.qWorker;
-    return item.q;
+    var map = {
+      teen: item.qTeen,
+      young: item.qYoung,
+      adult: item.qAdult,
+      mature: item.qMature,
+      senior: item.qSenior
+    };
+    return (ageGroup && map[ageGroup]) ? map[ageGroup] : item.q;
   }
 
-  window.selectRole = function(role) {
-    userRole = role;
+  window.selectAge = function(age) {
+    ageGroup = age;
     document.getElementById('rolePicker').style.display = 'none';
     document.getElementById('quizCard').style.display = 'block';
     currentQ = 0;
@@ -200,44 +259,70 @@ document.addEventListener('DOMContentLoaded', function() {
   window.restartQuiz = function() {
     currentQ = 0;
     answers = new Array(questions.length).fill(null);
-    userRole = null;
+    ageGroup = null;
     document.getElementById('rolePicker').style.display = 'block';
     document.getElementById('quizCard').style.display = 'none';
     navigate('quiz');
   };
 
+  // === ОПРЕДЕЛЕНИЕ ТИПА ВЫГОРАНИЯ ===
   function calcResults() {
-    var score = 0;
-    var maxScore = questions.length * 3;
+    // Считаем баллы по каждой шкале
+    var scaleScores = { EI: 0, DP: 0, RD: 0 };
+    var scaleCounts = { EI: 0, DP: 0, RD: 0 };
+    var scaleMaxes = { EI: 0, DP: 0, RD: 0 };
+
     for (var i = 0; i < questions.length; i++) {
       var a = answers[i];
       if (a === null) a = 0;
-      score += questions[i].reverse ? (3 - a) : a;
+      var val = questions[i].reverse ? (3 - a) : a;
+      var s = questions[i].scale;
+      scaleScores[s] += val;
+      scaleCounts[s]++;
+      scaleMaxes[s] += 3;
     }
-    var pct = Math.round((score / maxScore) * 100);
-    var isWorker = (userRole === 'worker');
-    var title, desc, causes, color;
 
-    if (pct < 33) {
-      title = 'Низкий уровень выгорания';
-      desc = isWorker ? 'Вы хорошо справляетесь с рабочей нагрузкой.' : 'Вы хорошо справляетесь с учёбой.';
-      causes = [{text:'Стабильное состояние',type:'success'},{text:'Баланс работы и отдыха',type:'success'},{text:'Развитая саморегуляция',type:'success'}];
-      color = '#7fa97c';
-    } else if (pct < 66) {
-      title = 'Умеренный уровень выгорания';
-      desc = isWorker ? 'Вы периодически испытываете напряжение из-за работы.' : 'Вы периодически испытываете напряжение из-за учёбы.';
-      causes = [{text:'Высокая нагрузка',type:'warning'},{text:'Недостаток отдыха',type:'warning'},{text:'Эмоциональное напряжение',type:'warning'}];
-      color = '#d4a373';
+    var totalScore = scaleScores.EI + scaleScores.DP + scaleScores.RD;
+    var totalMax = scaleMaxes.EI + scaleMaxes.DP + scaleMaxes.RD;
+    var pct = Math.round((totalScore / totalMax) * 100);
+
+    var pctEI = Math.round((scaleScores.EI / scaleMaxes.EI) * 100);
+    var pctDP = Math.round((scaleScores.DP / scaleMaxes.DP) * 100);
+    var pctRD = Math.round((scaleScores.RD / scaleMaxes.RD) * 100);
+
+    // Определяем тип по максимальной шкале
+    var maxScale = Math.max(pctEI, pctDP, pctRD);
+    var type = '';
+    var typeDesc = '';
+    if (maxScale === pctEI && pctEI >= 40) {
+      type = 'Истощение';
+      typeDesc = 'Ваш тип выгорания — истощение. Вы в первую очередь физически и эмоционально вымотаны. Нужно восстановление ресурсов.';
+    } else if (maxScale === pctDP && pctDP >= 40) {
+      type = 'Цинизм';
+      typeDesc = 'Ваш тип выгорания — цинизм. Вы теряете интерес и вовлечённость, стали раздражительны и отстранены. Нужна переоценка смысла.';
+    } else if (maxScale === pctRD && pctRD >= 40) {
+      type = 'Потеря смысла';
+      typeDesc = 'Ваш тип выгорания — редукция достижений. Вам кажется, что ничего не получается и ничего не имеет смысла. Нужна новая цель.';
     } else {
-      title = 'Высокий уровень выгорания';
-      desc = isWorker ? 'Вы в зоне сильного стресса, связанного с работой.' : 'Вы в зоне сильного стресса, связанного с учёбой.';
-      causes = [{text:'Высокая нагрузка',type:'danger'},{text:'Недостаток отдыха',type:'danger'},{text:'Сложности с границами',type:'danger'},{text:'Тревожность',type:'danger'}];
-      color = '#c97b6a';
+      type = 'Смешанный';
+      typeDesc = 'У вас смешанный тип — признаки всех трёх шкал выражены примерно одинаково. Нужен комплексный подход.';
     }
+
+    // Уровень
+    var level, color;
+    if (pct < 33) { level = 'Низкий'; color = '#7fa97c'; }
+    else if (pct < 66) { level = 'Умеренный'; color = '#d4a373'; }
+    else { level = 'Высокий'; color = '#c97b6a'; }
+
+    // Заголовок и описание
+    var title = level + ' уровень выгорания';
+    var desc = typeDesc + ' Это не диагноз, а ориентир для дальнейших шагов.';
 
     document.getElementById('resTitle').textContent = title;
     document.getElementById('resDesc').textContent = desc;
     document.getElementById('resPercent').textContent = pct + '%';
+
+    // Донат
     var donut = document.getElementById('donutFill');
     var circumference = 2 * Math.PI * 75;
     donut.setAttribute('stroke-dasharray', circumference);
@@ -245,15 +330,27 @@ document.addEventListener('DOMContentLoaded', function() {
     donut.style.strokeDashoffset = circumference;
     setTimeout(function() { donut.style.strokeDashoffset = circumference - (pct / 100) * circumference; }, 100);
 
+    // Причины — три шкалы
     var causesHtml = '';
-    causes.forEach(function(c) { causesHtml += '<div class="cause-item"><span class="cause-dot ' + c.type + '"></span><span>' + c.text + '</span></div>'; });
+    causesHtml += '<div class="cause-item"><span class="cause-dot ' + (pctEI >= 60 ? 'danger' : (pctEI >= 33 ? 'warning' : 'success')) + '"></span><span>Эмоциональное истощение — ' + pctEI + '%</span></div>';
+    causesHtml += '<div class="cause-item"><span class="cause-dot ' + (pctDP >= 60 ? 'danger' : (pctDP >= 33 ? 'warning' : 'success')) + '"></span><span>Цинизм и отстранённость — ' + pctDP + '%</span></div>';
+    causesHtml += '<div class="cause-item"><span class="cause-dot ' + (pctRD >= 60 ? 'danger' : (pctRD >= 33 ? 'warning' : 'success')) + '"></span><span>Потеря смысла и достижений — ' + pctRD + '%</span></div>';
     document.getElementById('resCauses').innerHTML = causesHtml;
 
+    // Сохраняем в Firebase с типом
     if (currentUser) {
       db.collection('users').doc(currentUser.uid).update({
-        lastTest: { percent: pct, level: title, role: userRole, date: new Date().toISOString() }
+        lastTest: {
+          percent: pct,
+          level: title,
+          type: type,
+          ageGroup: ageGroup,
+          scales: { EI: pctEI, DP: pctDP, RD: pctRD },
+          date: new Date().toISOString()
+        }
       }).catch(function(err) { console.error(err); });
     }
+
     navigate('results');
   }
 
@@ -341,7 +438,8 @@ document.addEventListener('DOMContentLoaded', function() {
       var t = currentUser.lastTest;
       var d = new Date(t.date);
       var dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
-      testBlock.innerHTML = '<div class="stat-row"><div class="stat-mini"><div class="num">' + t.percent + '%</div><div class="lbl">Уровень стресса</div></div><div class="stat-mini"><div class="num" style="font-size:1.1rem;">' + t.level.replace(' уровень выгорания','') + '</div><div class="lbl">Профиль</div></div><div class="stat-mini"><div class="num" style="font-size:1rem;">' + dateStr + '</div><div class="lbl">Дата теста</div></div></div>';
+      var typeStr = t.type ? ' · ' + t.type : '';
+      testBlock.innerHTML = '<div class="stat-row"><div class="stat-mini"><div class="num">' + t.percent + '%</div><div class="lbl">Уровень</div></div><div class="stat-mini"><div class="num" style="font-size:1rem;">' + (t.type || '—') + '</div><div class="lbl">Тип</div></div><div class="stat-mini"><div class="num" style="font-size:1rem;">' + dateStr + '</div><div class="lbl">Дата</div></div></div>';
     } else {
       testBlock.innerHTML = '<div class="empty-state">Вы ещё не проходили тест</div>';
     }
@@ -440,7 +538,6 @@ document.addEventListener('DOMContentLoaded', function() {
       'auth/too-many-requests': 'Слишком много попыток. Подождите немного.',
       'auth/network-request-failed': 'Проблема с интернетом.',
       'auth/email-not-verified': 'Почта не подтверждена. Проверьте письмо.',
-      'auth/missing-email': 'Введите почту.',
       'custom/login-taken': 'Этот логин уже занят. Придумайте другой.',
       'custom/user-not-found': 'Логин не найден. Проверьте написание.',
       'custom/email-mismatch': 'Указанная почта не совпадает с почтой аккаунта.'
@@ -448,7 +545,6 @@ document.addEventListener('DOMContentLoaded', function() {
     return map[code] || 'Ошибка: ' + code;
   }
 
-  // === РЕГИСТРАЦИЯ ===
   window.submitRegister = function() {
     var errEl = document.getElementById('authError');
     var okEl = document.getElementById('authSuccess');
@@ -511,7 +607,6 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   };
 
-  // === ВХОД ===
   window.submitLogin = function() {
     var errEl = document.getElementById('loginError');
     var okEl = document.getElementById('loginSuccess');
@@ -559,17 +654,13 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   };
 
-  // Повторная отправка письма (после регистрации)
   window.resendVerification = function() {
     if (!pendingEmail) { alert('Сначала введите email и пароль.'); return; }
     var password = document.getElementById('regPassword').value;
     var errEl = document.getElementById('authError');
     var infoEl = document.getElementById('authInfoBox');
 
-    if (!password) {
-      errEl.textContent = 'Введите пароль ещё раз, чтобы отправить письмо повторно.';
-      return;
-    }
+    if (!password) { errEl.textContent = 'Введите пароль ещё раз, чтобы отправить письмо повторно.'; return; }
 
     auth.signInWithEmailAndPassword(pendingEmail, password)
       .then(function(cred) {
@@ -581,12 +672,9 @@ document.addEventListener('DOMContentLoaded', function() {
         infoEl.innerHTML = '📧 Письмо отправлено повторно на <b>' + pendingEmail + '</b>. Проверьте «Спам».';
         infoEl.classList.add('show');
       })
-      .catch(function(err) {
-        errEl.textContent = translateAuthError(err.code);
-      });
+      .catch(function(err) { errEl.textContent = translateAuthError(err.code); });
   };
 
-  // Повторная отправка письма (со вкладки «Вход»)
   window.resendFromLogin = function() {
     if (!pendingEmail) { alert('Сначала введите логин и пароль.'); return; }
     var password = document.getElementById('loginPassword').value;
@@ -605,12 +693,9 @@ document.addEventListener('DOMContentLoaded', function() {
         infoEl.innerHTML = '📧 Письмо отправлено повторно на <b>' + pendingEmail + '</b>. Проверьте «Спам».';
         infoEl.classList.add('show');
       })
-      .catch(function(err) {
-        errEl.textContent = translateAuthError(err.code);
-      });
+      .catch(function(err) { errEl.textContent = translateAuthError(err.code); });
   };
 
-  // === ЗАБЫЛИ ПАРОЛЬ ===
   window.submitForgot = function() {
     var errEl = document.getElementById('forgotError');
     var okEl = document.getElementById('forgotSuccess');
@@ -647,7 +732,6 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   };
 
-  // === СЛЕЖЕНИЕ ЗА СОСТОЯНИЕМ ===
   auth.onAuthStateChanged(function(user) {
     if (user && user.emailVerified) {
       db.collection('users').doc(user.uid).onSnapshot(function(doc) {
