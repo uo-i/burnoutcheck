@@ -35,6 +35,13 @@ document.addEventListener('DOMContentLoaded', function() {
       if (oc.indexOf("'" + pageId + "'") !== -1) link.classList.add('active');
     });
     document.getElementById('navMenu').classList.remove('open');
+
+    document.querySelectorAll('.bottom-nav-item').forEach(function(el){ el.classList.remove('active'); });
+    document.querySelectorAll('.bottom-nav-item').forEach(function(link) {
+      var oc = link.getAttribute('onclick') || '';
+      if (oc.indexOf("'" + pageId + "'") !== -1) link.classList.add('active');
+    });
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -87,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
   window.confirmAction = function() {
     if (modalCurrentCourse) {
       if (!currentUser) {
-        alert('Сначала войдите в аккаунт, чтобы сохранить курс в профиле.');
+        alert('Чтобы записаться на курс, нужно войти в аккаунт.');
         closeModal(); openAuth(); return;
       }
       saveCourseToUser(modalCurrentCourse.title, modalCurrentCourse.price);
@@ -109,13 +116,12 @@ document.addEventListener('DOMContentLoaded', function() {
     db.collection('users').doc(currentUser.uid).update(update).catch(function(err) { console.error(err); });
   }
 
-  // === ВОПРОСЫ (50 штук) ===
+  // === ВОПРОСЫ (50) ===
   var OPT4 = ["Никогда", "Иногда", "Часто", "Постоянно"];
   var OPT4R = ["Почти никогда", "Иногда", "Часто", "Очень часто"];
   var OPT_QUALITY = ["Отличное", "Хорошее", "Удовлетворительное", "Плохое"];
 
   var questions = [
-    // === EI: эмоциональное истощение (17) ===
     { scale: "EI", q: "Как часто вы чувствуете, что у вас «не хватает сил» на обычные дела?", qTeen: "Как часто у тебя не хватает сил даже на простые дела?", opts: OPT4R },
     { scale: "EI", q: "Как часто вы чувствуете себя эмоционально опустошённым?", qTeen: "Как часто ты чувствуешь себя эмоционально выжатым?", opts: OPT4 },
     { scale: "EI", q: "Просыпаетесь ли вы уже уставшим, даже после сна?", opts: OPT4R },
@@ -134,7 +140,6 @@ document.addEventListener('DOMContentLoaded', function() {
     { scale: "EI", q: "Как часто вы замечаете, что стали хуже переносить шум и суету?", opts: OPT4 },
     { scale: "EI", q: "Как часто вы чувствуете, что вам нужна пауза, но вы не можете её взять?", opts: OPT4 },
 
-    // === DP: деперсонализация / цинизм (17) ===
     { scale: "DP", q: "Как часто вы раздражаетесь по мелочам?", opts: OPT4 },
     { scale: "DP", q: "Как часто вы чувствуете, что стали циничнее по отношению к работе?", qTeen: "Как часто ты относишься к учёбе с раздражением?", opts: OPT4 },
     { scale: "DP", q: "Как часто вы замечаете, что стали безразличны к тому, что раньше волновало?", opts: OPT4 },
@@ -153,7 +158,6 @@ document.addEventListener('DOMContentLoaded', function() {
     { scale: "DP", q: "Как часто вы замечаете, что стали безразличны к результату своей работы?", qTeen: "Как часто ты относишься к своим оценкам безразлично?", opts: OPT4 },
     { scale: "DP", q: "Как часто вы хотите, чтобы все оставили вас в покое?", opts: OPT4 },
 
-    // === RD: редукция достижений (16) ===
     { scale: "RD", q: "Как часто вы чувствуете, что не справляетесь с обязанностями?", opts: OPT4 },
     { scale: "RD", q: "Как часто вы сомневаетесь в своих профессиональных навыках?", qTeen: "Как часто ты сомневаешься в своих учебных способностях?", opts: OPT4 },
     { scale: "RD", q: "Как часто вы чувствуете, что работаете (учитесь) хуже, чем раньше?", qTeen: "Как часто тебе кажется, что ты стал учиться хуже?", opts: OPT4 },
@@ -175,6 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var currentQ = 0;
   var answers = new Array(questions.length).fill(null);
   var ageGroup = null;
+  var lastTestResult = null;
 
   var qNumEl = document.getElementById('qNum');
   var qTextEl = document.getElementById('qText');
@@ -213,10 +218,8 @@ document.addEventListener('DOMContentLoaded', function() {
       el.addEventListener('click', function() { selectAns(parseInt(this.getAttribute('data-idx'), 10)); });
     });
 
-    // Кнопка Назад: на первом вопросе — возврат к выбору возраста
     btnPrev.disabled = false;
     btnPrev.textContent = (currentQ === 0) ? '← К выбору возраста' : '← Назад';
-
     btnNext.disabled = (answers[currentQ] === null);
     btnNext.textContent = (currentQ === questions.length - 1) ? 'Получить результат →' : 'Далее →';
   }
@@ -313,13 +316,32 @@ document.addEventListener('DOMContentLoaded', function() {
     causesHtml += '<div class="cause-item"><span class="cause-dot ' + (pctRD >= 60 ? 'danger' : (pctRD >= 33 ? 'warning' : 'success')) + '"></span><span>Потеря смысла и достижений — ' + pctRD + '%</span></div>';
     document.getElementById('resCauses').innerHTML = causesHtml;
 
+    lastTestResult = { percent: pct, level: level + ' уровень выгорания', type: type, ageGroup: ageGroup, scales: { EI: pctEI, DP: pctDP, RD: pctRD }, date: new Date().toISOString() };
+
     if (currentUser) {
-      db.collection('users').doc(currentUser.uid).update({
-        lastTest: { percent: pct, level: level + ' уровень выгорания', type: type, ageGroup: ageGroup, scales: { EI: pctEI, DP: pctDP, RD: pctRD }, date: new Date().toISOString() }
-      }).catch(function(err) { console.error(err); });
+      db.collection('users').doc(currentUser.uid).update({ lastTest: lastTestResult }).catch(function(err) { console.error(err); });
     }
 
+    showSaveBanner();
     navigate('results');
+  }
+
+  function showSaveBanner() {
+    var old = document.getElementById('saveBanner');
+    if (old) old.remove();
+    if (currentUser) return;
+
+    var banner = document.createElement('div');
+    banner.id = 'saveBanner';
+    banner.style.cssText = 'margin-top:1.5rem;padding:1.25rem;background:var(--primary-light);border-radius:16px;text-align:center;';
+    banner.innerHTML =
+      '<div style="font-size:0.95rem;color:var(--primary-dark);margin-bottom:0.75rem;font-weight:500;">' +
+        '💾 Хотите сохранить результат и получить персональный маршрут?' +
+      '</div>' +
+      '<button class="btn btn-primary btn-sm" onclick="openAuth()">Войти или зарегистрироваться</button>';
+
+    var target = document.querySelector('#results .result-card');
+    if (target) target.appendChild(banner);
   }
 
   // === НАСТРОЙКИ ===
@@ -695,6 +717,11 @@ document.addEventListener('DOMContentLoaded', function() {
           currentUser.uid = user.uid;
           updateProfileIcon();
           if (profileOverlay.classList.contains('show')) openProfile();
+          if (lastTestResult) {
+            db.collection('users').doc(user.uid).update({ lastTest: lastTestResult }).catch(function(err) { console.error(err); });
+            var banner = document.getElementById('saveBanner');
+            if (banner) banner.remove();
+          }
         }
       }, function(err) { console.error(err); });
     } else {
