@@ -78,15 +78,19 @@
 </section>
 
 <section id="quiz" class="page">
-  <div class="quiz-container" id="rolePicker">
-    <div class="quiz-step-label"><span>Шаг 1 из 3</span><span>Выбор роли</span></div>
+    <div class="quiz-container" id="rolePicker">
+    <div class="quiz-step-label"><span>Шаг 1 из 3</span><span>О вас</span></div>
     <div class="quiz-progress"><div class="quiz-progress-fill" style="width: 10%;"></div></div>
-    <h2 class="quiz-question">Кто вы?</h2>
-    <p class="quiz-hint">Это поможет подобрать вопросы и рекомендации под вашу ситуацию</p>
-    <div class="role-picker">
-      <div class="role-card-lg" onclick="selectRole('worker')"><div class="role-emoji-lg">💼</div><div class="role-title-lg">Работающий</div><div class="role-desc-lg">Сотрудник, специалист, руководитель</div></div>
-      <div class="role-card-lg" onclick="selectRole('student')"><div class="role-emoji-lg">🎓</div><div class="role-title-lg">Студент</div><div class="role-desc-lg">Учёба, сессии, совмещение с работой</div></div>
+    <h2 class="quiz-question">Сколько вам лет?</h2>
+    <p class="quiz-hint">Возраст нужен, чтобы подобрать вопросы и рекомендации под вашу ситуацию</p>
+    <div class="role-picker" id="agePicker">
+      <div class="role-card-lg" onclick="selectAge('teen')"><div class="role-emoji-lg">🎒</div><div class="role-title-lg">16–18 лет</div><div class="role-desc-lg">Школа, ОГЭ, ЕГЭ, первая нагрузка</div></div>
+      <div class="role-card-lg" onclick="selectAge('young')"><div class="role-emoji-lg">🎓</div><div class="role-title-lg">19–25 лет</div><div class="role-desc-lg">Вуз, сессии, начало карьеры</div></div>
+      <div class="role-card-lg" onclick="selectAge('adult')"><div class="role-emoji-lg">💼</div><div class="role-title-lg">26–35 лет</div><div class="role-desc-lg">Работа, рост, ответственность</div></div>
+      <div class="role-card-lg" onclick="selectAge('mature')"><div class="role-emoji-lg">👔</div><div class="role-title-lg">36–50 лет</div><div class="role-desc-lg">Работа, семья, стабильность</div></div>
+      <div class="role-card-lg" onclick="selectAge('senior')"><div class="role-emoji-lg">🌿</div><div class="role-title-lg">50+ лет</div><div class="role-desc-lg">Опыт, смена ритма, зрелость</div></div>
     </div>
+  </div>>
   </div>
   <div class="quiz-container" id="quizCard" style="display:none;">
     <div class="quiz-step-label"><span id="stepInfo">Шаг 2 из 3</span><span>Вопрос <span id="qNum">1</span> из 25</span></div>
