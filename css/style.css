@@ -412,8 +412,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   /* Отступ снизу под меню */
   body { padding-bottom: 70px; }
   main { padding: 0 1rem 5rem !important; }
-
-  /* === HERO мобильный — фото сверху, текст под ним === */
+/* === HERO мобильный — фото сверху, текст под ним === */
 .hero {
   position: relative;
   display: block;
@@ -446,12 +445,24 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
 .hero-content {
   position: relative;
   z-index: 2;
-  padding: 2rem 1.5rem 3rem;
+  padding: 0.5rem 1.5rem 4rem;
   max-width: 100%;
   margin: 0;
   background: var(--bg);
 }
-.hero-content h1 { font-size: 2rem; }
+.hero-content h1 {
+  font-size: 2rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+.hero-content p {
+  margin-bottom: 2.5rem;
+}
+.hero-cta {
+  margin-top: 0;
+  margin-bottom: 2rem;
+  justify-content: center;
+}
 
   /* === Прочее === */
   .steps { grid-template-columns: repeat(2, 1fr); }
