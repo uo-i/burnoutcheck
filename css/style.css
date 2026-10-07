@@ -447,3 +447,31 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   .cta-banner h2 { font-size: 1.7rem; }
   .course-img { height: 180px; }
 }
+/* === ARTICLE === */
+.article-content {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--text);
+}
+.article-content p {
+  margin-bottom: 1rem;
+}
+.article-content h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  margin-top: 1.75rem;
+  margin-bottom: 0.75rem;
+  color: var(--text);
+}
+.article-content strong {
+  color: var(--primary-dark);
+}
+
+.material-card {
+  cursor: pointer;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.material-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+}
