@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var emoji = '🎓';
     var text = 'Функционал оплаты находится в разработке. Мы сохранили ваш запрос.';
     if (price === 'Бесплатно' || price === '0 ₽') { emoji = '✅'; text = 'Регистрация на бесплатный материал.'; }
+    if (price === '14 дней бесплатно') { emoji = '🎁'; text = 'Пробный период 14 дней — бесплатно. Отмена в любой момент.'; }
     document.getElementById('modalEmoji').textContent = emoji;
     document.getElementById('modalText').textContent = text;
     modalCurrentAction = title + ' — ' + price;
@@ -116,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
     db.collection('users').doc(currentUser.uid).update(update).catch(function(err) { console.error(err); });
   }
 
-  // === ВОПРОСЫ (50) ===
+  // === ВОПРОСЫ ===
   var OPT4 = ["Никогда", "Иногда", "Часто", "Постоянно"];
   var OPT4R = ["Почти никогда", "Иногда", "Часто", "Очень часто"];
   var OPT_QUALITY = ["Отличное", "Хорошее", "Удовлетворительное", "Плохое"];
@@ -173,7 +174,17 @@ document.addEventListener('DOMContentLoaded', function() {
     { scale: "RD", q: "Как часто вы чувствуете, что ваша работа (учёба) бессмысленна?", qTeen: "Как часто ты чувствуешь, что учёба — пустая трата времени?", opts: OPT4 },
     { scale: "RD", q: "Как часто вы чувствуете, что не реализуете себя?", opts: OPT4 },
     { scale: "RD", q: "Как часто вам сложно радоваться успехам (своим или чужим)?", opts: OPT4 },
-    { scale: "RD", q: "Как часто вы чувствуете, что «застряли» на месте?", opts: OPT4 }
+    { scale: "RD", q: "Как часто вы чувствуете, что «застряли» на месте?", opts: OPT4 },
+
+    /* Персонализация — определяет, какие курсы показать */
+    { scale: "HOBBY", q: "Какое хобби помогло бы вам расслабиться и восстановиться?", opts: [
+      "Йога / медитация",
+      "Рисование / арт-терапия",
+      "Вязание / бисер",
+      "Спорт / танцы",
+      "Психология / самопознание",
+      "Другое"
+    ] }
   ];
 
   var currentQ = 0;
@@ -205,7 +216,8 @@ document.addEventListener('DOMContentLoaded', function() {
   function renderQ() {
     var item = questions[currentQ];
     qNumEl.textContent = currentQ + 1;
-    qTextEl.textContent = getQuestionText(item);
+    var qTotalEl = document.getElementById('qTotal');
+    if (qTotalEl) qTotalEl.textContent = questions.length;
     progressEl.style.width = ((currentQ + 1) / questions.length) * 100 + '%';
 
     var html = '';
@@ -261,6 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var scaleMaxes = { EI: 0, DP: 0, RD: 0 };
 
     for (var i = 0; i < questions.length; i++) {
+      if (questions[i].scale === 'HOBBY') continue;
       var a = answers[i];
       if (a === null) a = 0;
       var val = questions[i].reverse ? (3 - a) : a;
@@ -316,15 +329,66 @@ document.addEventListener('DOMContentLoaded', function() {
     causesHtml += '<div class="cause-item"><span class="cause-dot ' + (pctRD >= 60 ? 'danger' : (pctRD >= 33 ? 'warning' : 'success')) + '"></span><span>Потеря смысла и достижений — ' + pctRD + '%</span></div>';
     document.getElementById('resCauses').innerHTML = causesHtml;
 
-    lastTestResult = { percent: pct, level: level + ' уровень выгорания', type: type, ageGroup: ageGroup, scales: { EI: pctEI, DP: pctDP, RD: pctRD }, date: new Date().toISOString() };
+    var hobbyIdx = -1;
+    for (var k = 0; k < questions.length; k++) {
+      if (questions[k].scale === 'HOBBY') { hobbyIdx = k; break; }
+    }
+    var hobbyAnswer = (hobbyIdx >= 0 && answers[hobbyIdx] !== null) ? questions[hobbyIdx].opts[answers[hobbyIdx]] : null;
+
+    lastTestResult = { percent: pct, level: level + ' уровень выгорания', type: type, ageGroup: ageGroup, scales: { EI: pctEI, DP: pctDP, RD: pctRD }, hobby: hobbyAnswer, date: new Date().toISOString() };
 
     if (currentUser) {
       db.collection('users').doc(currentUser.uid).update({ lastTest: lastTestResult }).catch(function(err) { console.error(err); });
     }
 
+    showHobbyRecommendation(hobbyAnswer);
     showSaveBanner();
     navigate('results');
   }
+
+  function showHobbyRecommendation(hobby) {
+    var old = document.getElementById('hobbyBlock');
+    if (old) old.remove();
+    if (!hobby) return;
+
+    var map = {
+      'Йога / медитация':           { cat: 'yoga',  label: 'Йога и медитация' },
+      'Рисование / арт-терапия':    { cat: 'art',   label: 'Рисование и арт-терапия' },
+      'Вязание / бисер':            { cat: 'art',   label: 'Рукоделие' },
+      'Спорт / танцы':              { cat: 'sport', label: 'Спорт' },
+      'Психология / самопознание':  { cat: 'psych', label: 'Психология' }
+    };
+    var rec = map[hobby];
+
+    var block = document.createElement('div');
+    block.id = 'hobbyBlock';
+    block.style.cssText = 'margin-top:1.5rem;padding:1.25rem;background:var(--primary-light);border-radius:16px;text-align:center;';
+    block.innerHTML =
+      '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Ваше хобби для восстановления</div>' +
+      '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.6rem; font-weight:600; color:var(--primary-dark); margin-bottom:1rem;">' + hobby + '</div>' +
+      (rec ? '<button class="btn btn-primary btn-sm" onclick="goToCoursesFiltered(\'' + rec.cat + '\')">Показать курсы: ' + rec.label + ' →</button>' : '');
+
+    var target = document.querySelector('#results .result-card');
+    if (target) {
+      var noteEl = target.querySelector('.result-note');
+      if (noteEl) target.insertBefore(block, noteEl);
+      else target.appendChild(block);
+    }
+  }
+
+  window.goToCoursesFiltered = function(cat) {
+    navigate('courses');
+    setTimeout(function() {
+      var tabs = document.querySelectorAll('.courses-tab');
+      for (var i = 0; i < tabs.length; i++) {
+        var oc = tabs[i].getAttribute('onclick') || '';
+        if (oc.indexOf("'" + cat + "'") !== -1) {
+          filterCourses(cat, tabs[i]);
+          break;
+        }
+      }
+    }, 100);
+  };
 
   function showSaveBanner() {
     var old = document.getElementById('saveBanner');
