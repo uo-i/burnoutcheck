@@ -330,13 +330,23 @@
     <div>
       <input type="text" class="materials-search" placeholder="🔍 Поиск по материалам..." oninput="searchMaterials(this.value)">
       <div class="materials-grid" id="materialsGrid">
-        <div class="material-card" data-cat="articles" data-title="Как справиться с тревожностью"><div class="material-img">📄</div><div class="material-body"><h5>Как справиться с тревожностью в учёбе и на работе</h5><p>Тревожность · Работа · Учёба</p></div></div>
-        <div class="material-card" data-cat="checklists" data-title="Дневник благодарности"><div class="material-img">📓</div><div class="material-body"><h5>Дневник благодарности</h5><p>Настроение · Эмоции · Самопознание</p></div></div>
+<div class="material-card" data-cat="articles" data-title="Как справиться с тревожностью" onclick="openArticle('Как справиться с тревожностью в учёбе и на работе')">
+  <div class="material-img">📄</div>
+  <div class="material-body">
+    <h5>Как справиться с тревожностью в учёбе и на работе</h5>
+    <p>Тревожность · Работа · Учёба</p>
+  </div>
+</div>        <div class="material-card" data-cat="checklists" data-title="Дневник благодарности"><div class="material-img">📓</div><div class="material-body"><h5>Дневник благодарности</h5><p>Настроение · Эмоции · Самопознание</p></div></div>
         <div class="material-card" data-cat="exercises" data-title="Дыхание 4-7-8"><div class="material-img">🫁</div><div class="material-body"><h5>Техника дыхания 4-7-8</h5><p>Дыхание · Релаксация · 5 минут</p></div></div>
         <div class="material-card" data-cat="audio" data-title="Медитация тишины"><div class="material-img">🎧</div><div class="material-body"><h5>Медитация «5 минут тишины»</h5><p>Аудио · Антистресс · 5 минут</p></div></div>
         <div class="material-card" data-cat="books" data-title="Выгорание Маслач"><div class="material-img">📖</div><div class="material-body"><h5>Кристина Маслач — «Выгорание»</h5><p>Книга · Фундаментальный труд</p></div></div>
-        <div class="material-card" data-cat="articles" data-title="Границы на работе"><div class="material-img">📄</div><div class="material-body"><h5>Границы на работе: как сказать «нет»</h5><p>Работа · Коммуникация · 8 минут</p></div></div>
-      </div>
+<div class="material-card" data-cat="articles" data-title="Границы на работе" onclick="openArticle('Границы на работе: как сказать «нет»')">
+  <div class="material-img">📄</div>
+  <div class="material-body">
+    <h5>Границы на работе: как сказать «нет»</h5>
+    <p>Работа · Коммуникация · 8 минут</p>
+  </div>
+</div>      </div>
     </div>
   </div>
 </section>
