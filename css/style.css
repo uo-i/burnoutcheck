@@ -459,6 +459,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
     padding: 0 1.5rem 2.5rem;
     max-width: 100%;
     margin: 0;
+    transform: translateY(-3cm);   /* ← поднимает на 3 см на мобильном */
     background: transparent;
   }
   .hero-content h1 {
