@@ -117,15 +117,15 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   font-size: 3.4rem;
   margin-bottom: 1.5rem;
   line-height: 1.1;
-  color: #b5ac9c;
-  transform: translateY(-4rem);   /* было -6cm, опустили на 1 см */
+  color: #ffffff;
+  transform: translateY(-3rem);
 }
 .hero-content p {
-  color: var(--text-soft);
+  color: #ffffff;
   font-size: 1.05rem;
   margin-bottom: 2rem;
   max-width: 460px;
-  transform: translateY(-0.4cm); /* было -0.7cm, опустили на 0.3 см */
+  transform: translateY(-0.4cm);
 }
 /* Нижний блок — кнопка + бейджи прижаты к низу hero */
 .hero-bottom {
@@ -482,14 +482,15 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   .hero-content h1 {
     font-size: 2rem;
     margin-bottom: 0.75rem;
-    color: #b5ac9c;
+    color: #ffffff;
     transform: translateY(-60vh);   /* было -6cm, опустили на 1 см */
   }
   /* бля */
   .hero-content p {
+    color: #ffffff;
     margin-bottom: 1.5rem;
     font-size: 0.95rem;
-    transform: translateY(-5cm); /* было -0.7cm, опустили на 0.3 см */
+    transform: translateY(-5cm);
   }
   .hero-bottom {
     margin-top: auto;
