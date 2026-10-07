@@ -485,10 +485,11 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
     color: #b5ac9c;
     transform: translateY(-5cm);   /* было -6cm, опустили на 1 см */
   }
+  /* бля */
   .hero-content p {
     margin-bottom: 1.5rem;
     font-size: 0.95rem;
-    transform: translateY(-0.4cm); /* было -0.7cm, опустили на 0.3 см */
+    transform: translateY(-1cm); /* было -0.7cm, опустили на 0.3 см */
   }
   .hero-bottom {
     margin-top: auto;
