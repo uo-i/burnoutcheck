@@ -356,11 +356,6 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   .mobile-menu-btn {
     display: none !important;
   }
-.hero {
-  ...
-  padding: 0 0 3cm 0;
-  background: red !important;   /* ← временный тест */
-  ...
 }
   .topnav { padding: 0.9rem 1rem; }
 
@@ -430,6 +425,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
     align-items: flex-end;
     padding: 0 0 3cm 0;          /* ← поднимаем текст от низа на 3 см (мобильный) */
     overflow: hidden;
+    background: red !important;   /* ← ВРЕМЕННО, для теста *
   }
   .hero-bg {
     position: absolute;
