@@ -380,7 +380,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   body { padding-bottom: 70px; }
   main { padding: 0 1rem 5rem !important; }
 
-  /* === HERO мобильный — текст в левом верхнем углу === */
+  /* === HERO мобильный: заголовок сверху, кнопка снизу === */
   .hero {
     position: relative;
     min-height: 100vh;
@@ -388,7 +388,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
     margin-left: calc(-50vw + 50%);
     margin-right: calc(-50vw + 50%);
     display: flex;
-    align-items: flex-start;
+    align-items: stretch;
     padding: 0;
     overflow: hidden;
   }
@@ -404,10 +404,10 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   .hero-content {
     position: relative;
     z-index: 2;
-    padding: 6rem 1.5rem 1rem;
+    padding: 6rem 1.5rem 2.5rem;
     max-width: 100%;
     margin: 0;
-    min-height: auto;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     background: transparent;
@@ -426,7 +426,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
     font-size: 0.95rem;
     transform: none;
   }
-  .hero-bottom { margin-top: 1.5rem; }
+  .hero-bottom { margin-top: auto; }
   .hero-cta { margin-bottom: 1rem; }
   .hero-cta .btn-primary { padding: 0.85rem 1.75rem; font-size: 0.95rem; font-weight: 500; }
   .hero-features { color: rgba(255,255,255,0.95); font-size: 0.78rem; gap: 1rem; }
