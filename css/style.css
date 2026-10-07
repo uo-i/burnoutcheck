@@ -108,6 +108,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   z-index: 2;
   max-width: 560px;
   padding: 6rem 2rem 6rem 4rem;
+  margin-top: -3cm;        /* ← поднимаем на 3 см */
 }
 .hero-content h1 { font-size: 3.4rem; margin-bottom: 1.5rem; line-height: 1.1; }
 .hero-content p { color: var(--text-soft); font-size: 1.05rem; margin-bottom: 2rem; max-width: 460px; }
