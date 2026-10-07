@@ -216,6 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function renderQ() {
     var item = questions[currentQ];
     qNumEl.textContent = currentQ + 1;
+    qTextEl.textContent = getQuestionText(item);
     var qTotalEl = document.getElementById('qTotal');
     if (qTotalEl) qTotalEl.textContent = questions.length;
     progressEl.style.width = ((currentQ + 1) / questions.length) * 100 + '%';
