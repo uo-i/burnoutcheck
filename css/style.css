@@ -412,58 +412,68 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   /* Отступ снизу под меню */
   body { padding-bottom: 70px; }
   main { padding: 0 1rem 5rem !important; }
-/* === HERO мобильный — фото сверху, текст под ним === */
+/* === HERO мобильный — текст поверх фото === */
 .hero {
   position: relative;
-  display: block;
-  min-height: auto;
+  min-height: 100vh;
   width: 100vw;
   margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
+  display: flex;
+  align-items: flex-end;
   padding: 0;
   overflow: hidden;
 }
 .hero-bg {
-  position: relative;
-  inset: auto;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: auto;
+  height: 100%;
   z-index: 0;
 }
 .hero-bg img {
   width: 100%;
-  height: auto;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
   display: block;
 }
 .hero-bg::after {
-  display: none !important;
+  display: block !important;
+  background: linear-gradient(180deg,
+    rgba(250, 247, 242, 0) 40%,
+    rgba(250, 247, 242, 0.75) 70%,
+    rgba(250, 247, 242, 0.98) 100%) !important;
 }
 [data-theme="dark"] .hero-bg::after {
-  display: none !important;
+  background: linear-gradient(180deg,
+    rgba(26, 24, 21, 0) 40%,
+    rgba(26, 24, 21, 0.75) 70%,
+    rgba(26, 24, 21, 0.98) 100%) !important;
 }
 .hero-content {
   position: relative;
   z-index: 2;
-  padding: 0.5rem 1.5rem 4rem;
+  padding: 0 1.5rem 2.5rem;
   max-width: 100%;
   margin: 0;
-  background: var(--bg);
+  background: transparent;
 }
 .hero-content h1 {
   font-size: 2rem;
-  margin-top: 0;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 .hero-content p {
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
 }
 .hero-cta {
-  margin-top: 0;
-  margin-bottom: 2rem;
-  justify-content: center;
+  margin-bottom: 1.25rem;
 }
-
+.hero-features {
+  font-size: 0.78rem;
+  gap: 1rem;
+}
   /* === Прочее === */
   .steps { grid-template-columns: repeat(2, 1fr); }
   .audience-grid, .about-grid, .role-picker, .materials-layout, .profile-layout, .stat-row { grid-template-columns: 1fr; }
