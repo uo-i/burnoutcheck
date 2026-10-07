@@ -109,7 +109,12 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   max-width: 560px;
   padding: 6rem 2rem 6rem 4rem;
 }
-.hero-content h1 { font-size: 3.4rem; margin-bottom: 1.5rem; line-height: 1.1; transform: translateY(-3cm);}
+.hero-content h1 {
+  font-size: 3.4rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.1;
+  transform: translateY(-3cm);   /* ← поднимаем ТОЛЬКО заголовок (десктоп) */
+}
 .hero-content p { color: var(--text-soft); font-size: 1.05rem; margin-bottom: 2rem; max-width: 460px; }
 .hero-cta { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
 .hero-features { display: flex; gap: 1.5rem; flex-wrap: wrap; color: var(--text-soft); font-size: 0.85rem; }
@@ -463,7 +468,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   .hero-content h1 {
     font-size: 2rem;
     margin-bottom: 0.75rem;
-    transform: translateY(-3cm);
+    transform: translateY(-3cm);   /* ← поднимаем ТОЛЬКО заголовок (мобильный) */
   }
   .hero-content p {
     margin-bottom: 1.5rem;
