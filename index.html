@@ -38,21 +38,23 @@
 
   <div class="hero">
     <div class="hero-bg">
-  <picture>
-    <source media="(max-width: 900px)" srcset="images/hero-mobile.jpg">
-    <img src="images/hero.jpg" alt="Уютная атмосфера: чашка, книга, цветы">
-  </picture>
+      <picture>
+        <source media="(max-width: 900px)" srcset="images/hero-mobile.jpg">
+        <img src="images/hero.jpg" alt="Уютная атмосфера: чашка, книга, цветы">
+      </picture>
     </div>
     <div class="hero-content">
       <h1>Усталость — не слабость.<br>Это сигнал.</h1>
       <p>Интерактивное методическое пособие по профилактике эмоционального выгорания. Пройдите диагностику, узнайте свой уровень стресса и получите персональный маршрут восстановления.</p>
-      <div class="hero-cta">
-        <button class="btn btn-primary" onclick="navigate('quiz')">Пройти тест →</button>
-      </div>
-      <div class="hero-features">
-        <span><span class="dot"></span> Бесплатно</span>
-        <span><span class="dot"></span> 7–10 минут</span>
-        <span><span class="dot"></span> Без регистрации</span>
+      <div class="hero-bottom">
+        <div class="hero-cta">
+          <button class="btn btn-primary" onclick="navigate('quiz')">Пройти тест →</button>
+        </div>
+        <div class="hero-features">
+          <span><span class="dot"></span> Бесплатно</span>
+          <span><span class="dot"></span> 7–10 минут</span>
+          <span><span class="dot"></span> Без регистрации</span>
+        </div>
       </div>
     </div>
   </div>
@@ -160,7 +162,7 @@
 <section id="courses" class="page">
   <div style="text-align: center; padding: 2rem 0;">
     <h1 style="font-size: 2.8rem; margin-bottom: 0.75rem;">Курсы для вашего восстановления</h1>
-    <p style="color: var(--text-soft); max-width: 560px; margin: 0 auto;">Мы подобрали курсы, которые помогут под ваш профиль и интересы.</p>
+    <p style="color: var(--text-soft); max-width: 560px; margin: 0 auto;">14 дней бесплатно на любой курс. Отмена в любой момент.</p>
   </div>
   <div class="courses-tabs">
     <button class="courses-tab active" onclick="filterCourses('all', this)">Все курсы</button>
@@ -170,12 +172,140 @@
     <button class="courses-tab" onclick="filterCourses('sport', this)">Спорт</button>
   </div>
   <div class="courses-grid" id="coursesGrid">
-    <div class="course-card" data-cat="yoga"><div class="course-img">🧘‍♀️<span class="course-badge free">Бесплатно</span></div><div class="course-body"><h3 class="course-title">Основы медитации и осознанности</h3><p class="course-desc">Научитесь управлять своим состоянием и снижать уровень тревожности.</p><div class="course-meta"><span>📚 8 занятий</span><span>⏱ 3 недели</span></div><div class="course-footer"><span class="course-price free">Бесплатно</span><button class="btn btn-soft btn-sm" onclick="openModal('Основы медитации и осознанности', 'Бесплатно', 'course')">Записаться</button></div></div></div>
-    <div class="course-card" data-cat="art"><div class="course-img">🎨<span class="course-badge">Базовый</span></div><div class="course-body"><h3 class="course-title">Арт-терапия: рисуем эмоции</h3><p class="course-desc">Через творчество вы сможете выразить свои чувства и снизить напряжение.</p><div class="course-meta"><span>📚 6 занятий</span><span>⏱ 2 недели</span></div><div class="course-footer"><span class="course-price">1 490 ₽</span><button class="btn btn-primary btn-sm" onclick="openModal('Арт-терапия: рисуем эмоции', '1 490 ₽', 'course')">Подробнее</button></div></div></div>
-    <div class="course-card" data-cat="sport"><div class="course-img">🤸‍♀️<span class="course-badge">Базовый</span></div><div class="course-body"><h3 class="course-title">Йога для начинающих</h3><p class="course-desc">Простые практики для тела и ума. Подходит для любого уровня.</p><div class="course-meta"><span>📚 10 занятий</span><span>⏱ 2 недели</span></div><div class="course-footer"><span class="course-price">1 990 ₽</span><button class="btn btn-primary btn-sm" onclick="openModal('Йога для начинающих', '1 990 ₽', 'course')">Подробнее</button></div></div></div>
-    <div class="course-card" data-cat="psych"><div class="course-img">🧠<span class="course-badge">Продвинутый</span></div><div class="course-body"><h3 class="course-title">Управление стрессом</h3><p class="course-desc">8 лекций, практические задания, поддержка куратора.</p><div class="course-meta"><span>📚 8 занятий</span><span>⏱ 90 дней</span></div><div class="course-footer"><span class="course-price">5 490 ₽</span><button class="btn btn-primary btn-sm" onclick="openModal('Управление стрессом', '5 490 ₽', 'course')">Подробнее</button></div></div></div>
-    <div class="course-card" data-cat="psych"><div class="course-img">🌱<span class="course-badge">VIP</span></div><div class="course-body"><h3 class="course-title">Полное восстановление</h3><p class="course-desc">12 модулей, личные консультации, закрытый чат поддержки.</p><div class="course-meta"><span>📚 12 модулей</span><span>⏱ 6 месяцев</span></div><div class="course-footer"><span class="course-price">12 990 ₽</span><button class="btn btn-primary btn-sm" onclick="openModal('Полное восстановление', '12 990 ₽', 'course')">Подробнее</button></div></div></div>
-    <div class="course-card" data-cat="yoga"><div class="course-img">🌸<span class="course-badge free">Бесплатно</span></div><div class="course-body"><h3 class="course-title">Email-курс «Неделя баланса»</h3><p class="course-desc">7 дней — 7 писем с практиками.</p><div class="course-meta"><span>📧 7 дней</span><span>⏱ 15 мин/день</span></div><div class="course-footer"><span class="course-price free">Бесплатно</span><button class="btn btn-soft btn-sm" onclick="openModal('Email-курс «Неделя баланса»', 'Бесплатно', 'course')">Подписаться</button></div></div></div>
+
+    <div class="course-card" data-cat="yoga">
+      <div class="course-img">
+        <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=80" alt="Медитация и осознанность">
+        <span class="course-badge free">Бесплатно</span>
+      </div>
+      <div class="course-body">
+        <h3 class="course-title">Основы медитации и осознанности</h3>
+        <p class="course-desc">Научитесь успокаивать ум и снижать тревожность за 8 коротких занятий.</p>
+        <ul class="course-features">
+          <li>8 аудио-медитаций по 10 минут</li>
+          <li>Дыхательные практики при тревоге</li>
+          <li>Сканирование тела и работа с зажимами</li>
+          <li>Дневник наблюдений за состоянием</li>
+        </ul>
+        <div class="course-meta"><span>📚 8 занятий</span><span>⏱ 3 недели</span></div>
+        <div class="course-footer">
+          <span class="course-trial">Бесплатно<small>навсегда</small></span>
+          <button class="btn btn-soft btn-sm" onclick="openModal('Основы медитации и осознанности', 'Бесплатно', 'course')">Начать</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="course-card" data-cat="art">
+      <div class="course-img">
+        <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&q=80" alt="Арт-терапия">
+        <span class="course-badge">14 дней бесплатно</span>
+      </div>
+      <div class="course-body">
+        <h3 class="course-title">Арт-терапия: рисуем эмоции</h3>
+        <p class="course-desc">Через творчество выражайте чувства и снижайте напряжение — без художественных навыков.</p>
+        <ul class="course-features">
+          <li>6 практик: от простых линий до мандал</li>
+          <li>Работа с цветом как способ прожить эмоции</li>
+          <li>Дневник настроения в картинках</li>
+          <li>Разбор ваших работ с арт-терапевтом</li>
+        </ul>
+        <div class="course-meta"><span>📚 6 занятий</span><span>⏱ 2 недели</span></div>
+        <div class="course-footer">
+          <span class="course-trial">14 дней бесплатно<small>потом 1 490 ₽</small></span>
+          <button class="btn btn-primary btn-sm" onclick="openModal('Арт-терапия: рисуем эмоции', '14 дней бесплатно', 'course')">Попробовать</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="course-card" data-cat="sport">
+      <div class="course-img">
+        <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&q=80" alt="Йога для начинающих">
+        <span class="course-badge">14 дней бесплатно</span>
+      </div>
+      <div class="course-body">
+        <h3 class="course-title">Йога для начинающих</h3>
+        <p class="course-desc">Мягкие практики для тела и ума. Подходят для любого уровня и возраста.</p>
+        <ul class="course-features">
+          <li>10 видео-занятий по 20–30 минут</li>
+          <li>Базовые асаны и безопасная растяжка</li>
+          <li>Дыхательные техники и релаксация</li>
+          <li>Комплексы для снятия напряжения в спине</li>
+        </ul>
+        <div class="course-meta"><span>📚 10 занятий</span><span>⏱ 2 недели</span></div>
+        <div class="course-footer">
+          <span class="course-trial">14 дней бесплатно<small>потом 1 990 ₽</small></span>
+          <button class="btn btn-primary btn-sm" onclick="openModal('Йога для начинающих', '14 дней бесплатно', 'course')">Попробовать</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="course-card" data-cat="psych">
+      <div class="course-img">
+        <img src="https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=800&q=80" alt="Управление стрессом">
+        <span class="course-badge">14 дней бесплатно</span>
+      </div>
+      <div class="course-body">
+        <h3 class="course-title">Управление стрессом</h3>
+        <p class="course-desc">Практический курс: понимать свои реакции и управлять ими в моменте.</p>
+        <ul class="course-features">
+          <li>8 видео-лекций от психолога</li>
+          <li>Техники КПТ для снижения тревоги</li>
+          <li>Дневник стресса с разбором ситуаций</li>
+          <li>Поддержка куратора и ответы на вопросы</li>
+        </ul>
+        <div class="course-meta"><span>📚 8 занятий</span><span>⏱ 90 дней доступа</span></div>
+        <div class="course-footer">
+          <span class="course-trial">14 дней бесплатно<small>потом 5 490 ₽</small></span>
+          <button class="btn btn-primary btn-sm" onclick="openModal('Управление стрессом', '14 дней бесплатно', 'course')">Попробовать</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="course-card" data-cat="psych">
+      <div class="course-img">
+        <img src="https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800&q=80" alt="Полное восстановление">
+        <span class="course-badge">VIP · 14 дней бесплатно</span>
+      </div>
+      <div class="course-body">
+        <h3 class="course-title">Полное восстановление</h3>
+        <p class="course-desc">Комплексная программа на 6 месяцев для тех, кто прошёл точку невозврата.</p>
+        <ul class="course-features">
+          <li>12 модулей: тело, эмоции, смыслы, границы</li>
+          <li>3 личные консультации с психологом</li>
+          <li>Закрытый чат поддержки участников</li>
+          <li>Индивидуальный план восстановления</li>
+          <li>Доступ к остальным курсам включён</li>
+        </ul>
+        <div class="course-meta"><span>📚 12 модулей</span><span>⏱ 6 месяцев</span></div>
+        <div class="course-footer">
+          <span class="course-trial">14 дней бесплатно<small>потом 12 990 ₽</small></span>
+          <button class="btn btn-primary btn-sm" onclick="openModal('Полное восстановление', '14 дней бесплатно', 'course')">Попробовать</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="course-card" data-cat="yoga">
+      <div class="course-img">
+        <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80" alt="Email-курс Неделя баланса">
+        <span class="course-badge free">Бесплатно</span>
+      </div>
+      <div class="course-body">
+        <h3 class="course-title">Email-курс «Неделя баланса»</h3>
+        <p class="course-desc">7 дней — 7 коротких писем с практиками. Идеально, если некогда сидеть в приложении.</p>
+        <ul class="course-features">
+          <li>1 письмо в день с одной практикой</li>
+          <li>5–15 минут в день, без сложного</li>
+          <li>Чек-лист недели для отслеживания</li>
+          <li>Финальный разбор результатов</li>
+        </ul>
+        <div class="course-meta"><span>📧 7 дней</span><span>⏱ 15 мин/день</span></div>
+        <div class="course-footer">
+          <span class="course-trial">Бесплатно<small>навсегда</small></span>
+          <button class="btn btn-soft btn-sm" onclick="openModal('Email-курс «Неделя баланса»', 'Бесплатно', 'course')">Подписаться</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
