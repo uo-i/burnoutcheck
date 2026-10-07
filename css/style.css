@@ -458,12 +458,12 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
     padding: 0 1.5rem 2.5rem;
     max-width: 100%;
     margin: 0;
-    transform: translateY(-3cm);    /* ← поднимаем текст на 3 см (мобильный) */
     background: transparent;
   }
   .hero-content h1 {
     font-size: 2rem;
     margin-bottom: 0.75rem;
+    transform: translateY(-3cm);
   }
   .hero-content p {
     margin-bottom: 1.5rem;
