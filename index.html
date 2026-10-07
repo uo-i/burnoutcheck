@@ -533,7 +533,16 @@
     <span>Аккаунт</span>
   </a>
 </nav>
-
+<!-- ============ ARTICLE MODAL ============ -->
+<div class="modal-overlay" id="articleOverlay">
+  <div class="modal modal-wide" style="text-align: left; max-width: 720px;">
+    <button class="modal-close" onclick="closeArticle()">×</button>
+    <h2 id="articleTitle" style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; margin-bottom: 0.5rem; text-align: left;">Статья</h2>
+    <div id="articleMeta" style="color: var(--text-soft); font-size: 0.85rem; margin-bottom: 1.5rem;"></div>
+    <div id="articleContent" class="article-content"></div>
+  </div>
+</div>
 <script src="js/app.js"></script>
+<script src="js/articles.js"></script>
 </body>
 </html>
