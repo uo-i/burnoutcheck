@@ -417,28 +417,33 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   main { padding: 0 1rem 5rem !important; }
 
   /* === HERO мобильный === */
-  .hero {
-    min-height: 100vh;
-    margin: 0 -1rem;
-  }
-  .hero-bg::after {
-    background: linear-gradient(180deg,
-      rgba(250, 247, 242, 0.3) 0%,
-      rgba(250, 247, 242, 0.6) 50%,
-      rgba(250, 247, 242, 0.95) 100%) !important;
-  }
-  [data-theme="dark"] .hero-bg::after {
-    background: linear-gradient(180deg,
-      rgba(26, 24, 21, 0.3) 0%,
-      rgba(26, 24, 21, 0.6) 50%,
-      rgba(26, 24, 21, 0.95) 100%) !important;
-  }
-  .hero-content {
-    padding: 4rem 1.5rem 4rem;
-    margin-top: auto;
-    max-width: 100%;
-  }
-  .hero-content h1 { font-size: 2.3rem; }
+.hero {
+  display: block;
+  min-height: auto;
+  margin: 0 -1rem;
+  padding: 0;
+}
+.hero-bg {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: auto;
+}
+.hero-bg img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+.hero-bg::after {
+  display: none !important;
+}
+.hero-content {
+  padding: 2rem 1.5rem 3rem;
+  max-width: 100%;
+  background: var(--bg);
+}
+.hero-content h1 { font-size: 2.2rem; }
 
   /* === Прочее === */
   .steps { grid-template-columns: repeat(2, 1fr); }
