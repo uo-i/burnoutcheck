@@ -89,11 +89,12 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   content: '';
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: linear-gradient(90deg,
-    rgba(0, 0, 0, 0.35) 0%,
-    rgba(0, 0, 0, 0.25) 35%,
-    rgba(0, 0, 0, 0.10) 65%,
-    rgba(0, 0, 0, 0.00) 100%);
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0.45) 35%,
+    rgba(0, 0, 0, 0.2) 65%,
+    rgba(0, 0, 0, 0) 100%);
 }
 
 .hero-content {
