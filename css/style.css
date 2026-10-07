@@ -489,7 +489,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   .hero-content p {
     margin-bottom: 1.5rem;
     font-size: 0.95rem;
-    transform: translateY(-1cm); /* было -0.7cm, опустили на 0.3 см */
+    transform: translateY(-5cm); /* было -0.7cm, опустили на 0.3 см */
   }
   .hero-bottom {
     margin-top: auto;
