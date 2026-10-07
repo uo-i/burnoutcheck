@@ -126,6 +126,11 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   margin-top: auto;
 }
 .hero-cta { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.hero-cta .btn-primary {
+  padding: 1.15rem 2.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
 .hero-features { display: flex; gap: 1.5rem; flex-wrap: wrap; color: rgba(255,255,255,0.9); font-size: 0.85rem; }
 .hero-features span { display: flex; align-items: center; gap: 0.4rem; }
 .hero-features .dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; display: inline-block; }
