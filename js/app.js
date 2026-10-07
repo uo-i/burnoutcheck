@@ -92,6 +92,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
   window.closeModal = function() { modalOverlay.classList.remove('show'); };
 
+  // === МОДАЛКА СТАТЬИ ===
+  var articleOverlay = document.getElementById('articleOverlay');
+
+  window.openArticle = function(title) {
+    if (!articleOverlay) { alert('Статья скоро появится.'); return; }
+    var article = window.ARTICLES && window.ARTICLES[title];
+    if (!article) { alert('Статья скоро появится.'); return; }
+    document.getElementById('articleTitle').textContent = article.title;
+    document.getElementById('articleMeta').textContent = article.meta;
+    document.getElementById('articleContent').innerHTML = article.content;
+    articleOverlay.classList.add('show');
+  };
+
+  window.closeArticle = function() {
+    if (articleOverlay) articleOverlay.classList.remove('show');
+  };
+
+  if (articleOverlay) {
+    articleOverlay.addEventListener('click', function(e) {
+      if (e.target === articleOverlay) closeArticle();
+    });
+  }
+
   window.confirmAction = function() {
     if (modalCurrentCourse) {
       if (!currentUser) {
@@ -176,7 +199,6 @@ document.addEventListener('DOMContentLoaded', function() {
     { scale: "RD", q: "Как часто вам сложно радоваться успехам (своим или чужим)?", opts: OPT4 },
     { scale: "RD", q: "Как часто вы чувствуете, что «застряли» на месте?", opts: OPT4 },
 
-    /* Персонализация — определяет, какие курсы показать */
     { scale: "HOBBY", q: "Какое хобби помогло бы вам расслабиться и восстановиться?", opts: [
       "Йога / медитация",
       "Рисование / арт-терапия",
@@ -605,14 +627,14 @@ document.addEventListener('DOMContentLoaded', function() {
     var infoEl = document.getElementById('authInfoBox');
     errEl.textContent = ''; okEl.textContent = ''; infoEl.classList.remove('show');
 
-    var login = document.getElementById('regLogin').value.trim();
+    var login = document.getElementById('regLogin').value.trim().toLowerCase();
     var email = document.getElementById('regEmail').value.trim().toLowerCase();
     var password = document.getElementById('regPassword').value;
     var password2 = document.getElementById('regPassword2').value;
     var btn = document.getElementById('authSubmitBtn');
 
     if (login.length < 2) { errEl.textContent = 'Логин не короче 2 символов.'; return; }
-    if (!/^[a-zA-Z0-9._-]+$/.test(login)) { errEl.textContent = 'Логин: только английские буквы, цифры, точка, дефис, подчёркивание.'; return; }
+    if (!/^[a-z0-9._-]+$/.test(login)) { errEl.textContent = 'Логин: только английские буквы, цифры, точка, дефис, подчёркивание.'; return; }
     if (!isValidEmail(email)) { errEl.textContent = 'Введите корректную почту.'; return; }
     if (password.length < 8) { errEl.textContent = 'Пароль не короче 8 символов.'; return; }
     var pwdRules = checkPasswordRules(password);
@@ -625,7 +647,7 @@ document.addEventListener('DOMContentLoaded', function() {
     btn.disabled = true;
     btn.textContent = 'Подождите...';
 
-    db.collection('users').where('login', '==', login.toLowerCase()).limit(1).get()
+    db.collection('users').where('login', '==', login).limit(1).get()
       .then(function(snapshot) {
         if (!snapshot.empty) throw { code: 'custom/login-taken' };
         return auth.createUserWithEmailAndPassword(email, password);
@@ -661,7 +683,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var infoEl = document.getElementById('loginInfoBox');
     errEl.textContent = ''; okEl.textContent = ''; infoEl.classList.remove('show');
 
-    var login = document.getElementById('loginLogin').value.trim();
+    var login = document.getElementById('loginLogin').value.trim().toLowerCase();
     var password = document.getElementById('loginPassword').value;
     var btn = document.getElementById('loginSubmitBtn');
 
@@ -671,7 +693,7 @@ document.addEventListener('DOMContentLoaded', function() {
     btn.disabled = true;
     btn.textContent = 'Подождите...';
 
-    db.collection('users').where('login', '==', login.toLowerCase()).limit(1).get()
+    db.collection('users').where('login', '==', login).limit(1).get()
       .then(function(snapshot) {
         if (snapshot.empty) throw { code: 'custom/user-not-found' };
         var userData = snapshot.docs[0].data();
@@ -743,7 +765,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var okEl = document.getElementById('forgotSuccess');
     errEl.textContent = ''; okEl.textContent = '';
 
-    var login = document.getElementById('forgotLogin').value.trim();
+    var login = document.getElementById('forgotLogin').value.trim().toLowerCase();
     var email = document.getElementById('forgotEmail').value.trim().toLowerCase();
     var btn = document.getElementById('forgotSubmitBtn');
 
@@ -753,7 +775,7 @@ document.addEventListener('DOMContentLoaded', function() {
     btn.disabled = true;
     btn.textContent = 'Отправляем...';
 
-    db.collection('users').where('login', '==', login.toLowerCase()).limit(1).get()
+    db.collection('users').where('login', '==', login).limit(1).get()
       .then(function(snapshot) {
         if (snapshot.empty) throw { code: 'custom/user-not-found' };
         var userData = snapshot.docs[0].data();
