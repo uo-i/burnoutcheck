@@ -114,7 +114,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   margin-bottom: 1.5rem;
   line-height: 1.1;
   color: #b5ac9c;
-  transform: translateY(-3cm);
+  transform: translateY(6cm);
 }
 .hero-content p {
   color: var(--text-soft);
@@ -472,7 +472,7 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
     font-size: 2rem;
     margin-bottom: 0.75rem;
     color: #b5ac9c;
-    transform: translateY(-3cm);
+    transform: translateY(6cm);
   }
   .hero-content p {
     margin-bottom: 1.5rem;
