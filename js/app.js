@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-  // === FIREBASE ===
+  // подключение к фаербейс
   var firebaseConfig = {
     apiKey: "AIzaSyAsGZ661cK8obTVlQvfyzKdqY9ppOC5hlE",
     authDomain: "balance-ap.firebaseapp.com",
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var currentUser = null;
   var pendingEmail = null;
 
-  // === ТЕМА ===
+  // тёмная и светлая тема
   (function initTheme() {
     var saved = localStorage.getItem('bc_theme');
     if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme', 'dark');
   })();
 
-  // === НАВИГАЦИЯ ===
+  // навгация между страницами
   window.navigate = function(pageId) {
     document.querySelectorAll('.page').forEach(function(el){ el.classList.remove('active'); });
     document.querySelectorAll('.nav-menu a').forEach(function(el){ el.classList.remove('active'); });
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   };
 
-  // === МОДАЛКА КУРСОВ ===
+  // модалка куров
   var modalOverlay = document.getElementById('modalOverlay');
   var modalCurrentAction = '';
   var modalCurrentCourse = null;
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var emoji = '🎓';
     var text = 'Функционал оплаты находится в разработке. Мы сохранили ваш запрос.';
     if (price === 'Бесплатно' || price === '0 ₽') { emoji = '✅'; text = 'Регистрация на бесплатный материал.'; }
-    if (price === '14 дней бесплатно') { emoji = '🎁'; text = 'Пробный период 14 дней — бесплатно. Отмена в любой момент.'; }
+    if (price === '14 дней бесплатно') { emoji = '🎁'; text = 'Пробный период 14 дней бесплатно. Отмена в любой момент.'; }
     document.getElementById('modalEmoji').textContent = emoji;
     document.getElementById('modalText').textContent = text;
     modalCurrentAction = title + ' — ' + price;
@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   window.closeModal = function() { modalOverlay.classList.remove('show'); };
 
-  // === МОДАЛКА СТАТЬИ ===
+  // модалка стаьи
   var articleOverlay = document.getElementById('articleOverlay');
 
   window.openArticle = function(title) {
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
   window.confirmAction = function() {
     if (modalCurrentCourse) {
       if (!currentUser) {
-        alert('Чтобы записаться на курс, нужно войти в аккаунт.');
+        alert('Чтобы записаться на курс нужно войти в аккаунт.');
         closeModal(); openAuth(); return;
       }
       saveCourseToUser(modalCurrentCourse.title, modalCurrentCourse.price);
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
     db.collection('users').doc(currentUser.uid).update(update).catch(function(err) { console.error(err); });
   }
 
-  // === ВОПРОСЫ ===
+  // вопросы для теста
   var OPT4 = ["Никогда", "Иногда", "Часто", "Постоянно"];
   var OPT4R = ["Почти никогда", "Иногда", "Часто", "Очень часто"];
   var OPT_QUALITY = ["Отличное", "Хорошее", "Удовлетворительное", "Плохое"];
@@ -199,6 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
     { scale: "RD", q: "Как часто вам сложно радоваться успехам (своим или чужим)?", opts: OPT4 },
     { scale: "RD", q: "Как часто вы чувствуете, что «застряли» на месте?", opts: OPT4 },
 
+    // хобби вопрос чтобы подобрать курс
     { scale: "HOBBY", q: "Какое хобби помогло бы вам расслабиться и восстановиться?", opts: [
       "Йога / медитация",
       "Рисование / арт-терапия",
@@ -336,7 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
     else { level = 'Высокий'; color = '#c97b6a'; }
 
     document.getElementById('resTitle').textContent = level + ' уровень выгорания';
-    document.getElementById('resDesc').textContent = typeDesc + ' Это не диагноз, а ориентир для дальнейших шагов.';
+    document.getElementById('resDesc').textContent = typeDesc + ' Это не диагноз а ориентир для дальнейших шагов.';
     document.getElementById('resPercent').textContent = pct + '%';
 
     var donut = document.getElementById('donutFill');
@@ -431,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (target) target.appendChild(banner);
   }
 
-  // === НАСТРОЙКИ ===
+  // настройки сайта
   var settingsOverlay = document.getElementById('settingsOverlay');
   window.openSettings = function() { settingsOverlay.classList.add('show'); syncThemeSwitch(); syncNotifySwitch(); };
   window.closeSettings = function() { settingsOverlay.classList.remove('show'); };
@@ -460,7 +461,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('notifySwitch').classList.toggle('on', localStorage.getItem('bc_notify') === 'on');
   }
 
-  // === АВТОРИЗАЦИЯ ===
+  // автаризация вход и регистрация
   var authOverlay = document.getElementById('authOverlay');
   var profileOverlay = document.getElementById('profileOverlay');
 
@@ -634,7 +635,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var btn = document.getElementById('authSubmitBtn');
 
     if (login.length < 2) { errEl.textContent = 'Логин не короче 2 символов.'; return; }
-    if (!/^[a-z0-9._-]+$/.test(login)) { errEl.textContent = 'Логин: только английские буквы, цифры, точка, дефис, подчёркивание.'; return; }
+    if (!/^[a-z0-9._-]+$/.test(login)) { errEl.textContent = 'Логин: только английские буквы цифры точка дефис подчёркивание.'; return; }
     if (!isValidEmail(email)) { errEl.textContent = 'Введите корректную почту.'; return; }
     if (password.length < 8) { errEl.textContent = 'Пароль не короче 8 символов.'; return; }
     var pwdRules = checkPasswordRules(password);
@@ -666,7 +667,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.disabled = false;
         btn.style.display = 'none';
         document.getElementById('resendBtn').style.display = 'block';
-        infoEl.innerHTML = '<strong>📧 Письмо отправлено!</strong><br>Мы отправили ссылку для подтверждения на <b>' + email + '</b>. Перейдите по ссылке в письме. Проверьте папку «Спам».';
+        infoEl.innerHTML = '<strong>📧 Письмо отправлено!</strong><br>Мы отправили ссылку для подтверждения на <b>' + email + '</b>. Перейдите по ссылке в письме. Проверьте папку Спам.';
         infoEl.classList.add('show');
       })
       .catch(function(err) {
@@ -736,7 +737,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return cred.user.sendEmailVerification({ url: window.location.origin + window.location.pathname }).then(function() { return auth.signOut(); });
       })
       .then(function() {
-        infoEl.innerHTML = '📧 Письмо отправлено повторно на <b>' + pendingEmail + '</b>. Проверьте «Спам».';
+        infoEl.innerHTML = '📧 Письмо отправлено повторно на <b>' + pendingEmail + '</b>. Проверьте Спам.';
         infoEl.classList.add('show');
       })
       .catch(function(err) { errEl.textContent = translateAuthError(err.code); });
@@ -754,7 +755,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return cred.user.sendEmailVerification({ url: window.location.origin + window.location.pathname }).then(function() { return auth.signOut(); });
       })
       .then(function() {
-        infoEl.innerHTML = '📧 Письмо отправлено повторно на <b>' + pendingEmail + '</b>. Проверьте «Спам».';
+        infoEl.innerHTML = '📧 Письмо отправлено повторно на <b>' + pendingEmail + '</b>. Проверьте Спам.';
         infoEl.classList.add('show');
       })
       .catch(function(err) { errEl.textContent = translateAuthError(err.code); });
@@ -783,7 +784,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return auth.sendPasswordResetEmail(email);
       })
       .then(function() {
-        okEl.textContent = 'Письмо для сброса пароля отправлено на ' + email + '. Проверьте «Спам».';
+        okEl.textContent = 'Письмо для сброса пароля отправлено на ' + email + '. Проверьте Спам.';
         btn.disabled = false;
         btn.textContent = 'Отправить письмо';
         setTimeout(function() { setAuthMode('login'); }, 3000);
