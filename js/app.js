@@ -358,11 +358,15 @@ document.addEventListener('DOMContentLoaded', function() {
       if (questions[k].scale === 'HOBBY') { hobbyIdx = k; break; }
     }
     var hobbyAnswer = (hobbyIdx >= 0 && answers[hobbyIdx] !== null) ? questions[hobbyIdx].opts[answers[hobbyIdx]] : null;
-
     lastTestResult = { percent: pct, level: level + ' уровень выгорания', type: type, ageGroup: ageGroup, scales: { EI: pctEI, DP: pctDP, RD: pctRD }, hobby: hobbyAnswer, date: new Date().toISOString() };
 
     if (currentUser) {
-      db.collection('users').doc(currentUser.uid).update({ lastTest: lastTestResult }).catch(function(err) { console.error(err); });
+      var history = currentUser.testHistory || [];
+      history.push(lastTestResult);
+      db.collection('users').doc(currentUser.uid).update({
+        lastTest: lastTestResult,
+        testHistory: history
+      }).catch(function(err) { console.error(err); });
     }
 
     showHobbyRecommendation(hobbyAnswer);
@@ -517,6 +521,55 @@ document.addEventListener('DOMContentLoaded', function() {
       var d = new Date(t.date);
       var dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
       testBlock.innerHTML = '<div class="stat-row"><div class="stat-mini"><div class="num">' + t.percent + '%</div><div class="lbl">Уровень</div></div><div class="stat-mini"><div class="num" style="font-size:1rem;">' + (t.type || '—') + '</div><div class="lbl">Тип</div></div><div class="stat-mini"><div class="num" style="font-size:1rem;">' + dateStr + '</div><div class="lbl">Дата</div></div></div>';
+
+      // показываем динамику если тестов больше одного
+      var history = currentUser.testHistory || [];
+      if (history.length >= 2) {
+        var prev = history[history.length - 2];
+        var curr = history[history.length - 1];
+        var diff = curr.percent - prev.percent;
+        var trendLabel, trendColor, trendSign, trendEmoji;
+        if (diff <= -5) {
+          trendLabel = 'Прогресс';
+          trendColor = 'var(--success)';
+          trendSign = diff + '%';
+          trendEmoji = '↓';
+        } else if (diff >= 5) {
+          trendLabel = 'Ухудшение';
+          trendColor = 'var(--danger)';
+          trendSign = '+' + diff + '%';
+          trendEmoji = '↑';
+        } else {
+          trendLabel = 'Без изменений';
+          trendColor = 'var(--text-soft)';
+          trendSign = diff + '%';
+          trendEmoji = '→';
+        }
+        var trendHtml = '<div style="margin-top:1.5rem;padding:1.25rem;background:var(--bg-alt);border-radius:16px;text-align:center;">' +
+          '<div style="font-family:Inter, sans-serif; font-size:0.8rem; color:var(--text-soft); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Динамика с прошлого теста</div>' +
+          '<div style="display:flex; align-items:center; justify-content:center; gap:1rem; flex-wrap:wrap;">' +
+            '<div style="font-family:Cormorant Garamond, serif; font-size:2rem; font-weight:700; color:' + trendColor + ';">' + trendEmoji + ' ' + trendSign + '</div>' +
+            '<div style="font-size:0.95rem; color:' + trendColor + '; font-weight:600;">' + trendLabel + '</div>' +
+          '</div>' +
+          '<div style="margin-top:0.75rem; font-size:0.82rem; color:var(--text-soft);">' +
+            'Прошлый тест: ' + prev.percent + '% → Сейчас: ' + curr.percent + '%' +
+          '</div>' +
+        '</div>';
+        testBlock.innerHTML += trendHtml;
+      } else {
+        testBlock.innerHTML += '<div style="margin-top:1.5rem;padding:1rem;background:var(--bg-alt);border-radius:12px;text-align:center;font-size:0.85rem;color:var(--text-soft);">Пройдите тест ещё раз через 2 недели — покажем динамику</div>';
+      }
+
+      // напоминание если прошло 14 дней
+      var daysSince = Math.floor((Date.now() - new Date(t.date).getTime()) / 86400000);
+      if (daysSince >= 14) {
+        var remindHtml = '<div style="margin-top:1.5rem;padding:1.25rem;background:var(--warning-light);border-radius:16px;text-align:center;">' +
+          '<div style="font-size:0.95rem;color:var(--warning);font-weight:600;margin-bottom:0.75rem;">⏰ Пора пройти тест снова</div>' +
+          '<div style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Прошло ' + daysSince + ' дней с последнего теста</div>' +
+          '<button class="btn btn-primary btn-sm" onclick="closeProfile(); restartQuiz();">Пройти тест</button>' +
+        '</div>';
+        testBlock.innerHTML += remindHtml;
+      }
     } else {
       testBlock.innerHTML = '<div class="empty-state">Вы ещё не проходили тест</div>';
     }
