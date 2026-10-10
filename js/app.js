@@ -358,6 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (questions[k].scale === 'HOBBY') { hobbyIdx = k; break; }
     }
     var hobbyAnswer = (hobbyIdx >= 0 && answers[hobbyIdx] !== null) ? questions[hobbyIdx].opts[answers[hobbyIdx]] : null;
+
     lastTestResult = { percent: pct, level: level + ' уровень выгорания', type: type, ageGroup: ageGroup, scales: { EI: pctEI, DP: pctDP, RD: pctRD }, hobby: hobbyAnswer, date: new Date().toISOString() };
 
     if (currentUser) {
@@ -505,6 +506,110 @@ document.addEventListener('DOMContentLoaded', function() {
   window.closeProfile = function() { profileOverlay.classList.remove('show'); };
   profileOverlay.addEventListener('click', function(e) { if (e.target === profileOverlay) closeProfile(); });
 
+  // привязка карты
+  var cardOverlay = document.getElementById('cardOverlay');
+
+  window.openCard = function() {
+    if (cardOverlay) cardOverlay.classList.add('show');
+  };
+
+  window.closeCard = function() {
+    if (!cardOverlay) return;
+    cardOverlay.classList.remove('show');
+    document.getElementById('cardNumber').value = '';
+    document.getElementById('cardHolder').value = '';
+    document.getElementById('cardExpiry').value = '';
+    document.getElementById('cardCvv').value = '';
+    document.getElementById('cardError').textContent = '';
+  };
+
+  if (cardOverlay) {
+    cardOverlay.addEventListener('click', function(e) {
+      if (e.target === cardOverlay) closeCard();
+    });
+  }
+
+  var cardNumberEl = document.getElementById('cardNumber');
+  if (cardNumberEl) {
+    cardNumberEl.addEventListener('input', function() {
+      var v = this.value.replace(/\D/g, '').substring(0, 16);
+      this.value = v.replace(/(.{4})/g, '$1 ').trim();
+    });
+  }
+
+  var cardExpiryEl = document.getElementById('cardExpiry');
+  if (cardExpiryEl) {
+    cardExpiryEl.addEventListener('input', function() {
+      var v = this.value.replace(/\D/g, '').substring(0, 4);
+      if (v.length >= 3) v = v.substring(0, 2) + '/' + v.substring(2);
+      this.value = v;
+    });
+  }
+
+  var cardCvvEl = document.getElementById('cardCvv');
+  if (cardCvvEl) {
+    cardCvvEl.addEventListener('input', function() {
+      this.value = this.value.replace(/\D/g, '').substring(0, 4);
+    });
+  }
+
+  window.saveCard = function() {
+    var num = document.getElementById('cardNumber').value.replace(/\s/g, '');
+    var holder = document.getElementById('cardHolder').value.trim();
+    var exp = document.getElementById('cardExpiry').value;
+    var cvv = document.getElementById('cardCvv').value;
+    var errEl = document.getElementById('cardError');
+    errEl.textContent = '';
+
+    if (num.length !== 16) { errEl.textContent = 'Номер карты должен быть 16 цифр.'; return; }
+    if (holder.length < 2) { errEl.textContent = 'Введите имя как на карте.'; return; }
+    if (!/^\d{2}\/\d{2}$/.test(exp)) { errEl.textContent = 'Срок действия в формате ММ/ГГ.'; return; }
+    var mm = parseInt(exp.substring(0,2), 10);
+    if (mm < 1 || mm > 12) { errEl.textContent = 'Месяц от 01 до 12.'; return; }
+    if (cvv.length < 3) { errEl.textContent = 'CVV не короче 3 цифр.'; return; }
+
+    var masked = '•••• •••• •••• ' + num.substring(12);
+    var cardData = { masked: masked, holder: holder, expiry: exp };
+    localStorage.setItem('bc_card_demo', JSON.stringify(cardData));
+
+    closeCard();
+    renderProfileCard();
+  };
+
+  window.removeCard = function() {
+    if (!confirm('Удалить привязанную карту?')) return;
+    localStorage.removeItem('bc_card_demo');
+    renderProfileCard();
+  };
+
+  function renderProfileCard() {
+    var block = document.getElementById('profileCardBlock');
+    if (!block) return;
+    var raw = localStorage.getItem('bc_card_demo');
+    if (!raw) {
+      block.innerHTML =
+        '<div class="empty-state" style="margin-bottom:1rem;">Карта не привязана</div>' +
+        '<button class="btn btn-primary btn-sm" style="width:100%;" onclick="openCard()">💳 Привязать карту</button>';
+      return;
+    }
+    var card;
+    try { card = JSON.parse(raw); } catch(e) { card = null; }
+    if (!card) {
+      block.innerHTML = '<button class="btn btn-primary btn-sm" style="width:100%;" onclick="openCard()">💳 Привязать карту</button>';
+      return;
+    }
+    block.innerHTML =
+      '<div class="card-saved">' +
+        '<div class="card-saved-icon">CARD</div>' +
+        '<div class="card-saved-info">' +
+          '<div class="num">' + card.masked + '</div>' +
+          '<div class="exp">' + card.holder + ' · до ' + card.expiry + '</div>' +
+        '</div>' +
+        '<button class="card-saved-remove" onclick="removeCard()">Удалить</button>' +
+      '</div>' +
+      '<div style="font-size:0.78rem; color:var(--text-dim); text-align:left; margin-top:0.5rem;">Это демо. Реальные данные не сохраняются.</div>';
+  }
+
   window.openProfile = function() {
     if (!currentUser) return;
     var initial = currentUser.login ? currentUser.login.charAt(0).toUpperCase() : '?';
@@ -557,7 +662,7 @@ document.addEventListener('DOMContentLoaded', function() {
         '</div>';
         testBlock.innerHTML += trendHtml;
       } else {
-        testBlock.innerHTML += '<div style="margin-top:1.5rem;padding:1rem;background:var(--bg-alt);border-radius:12px;text-align:center;font-size:0.85rem;color:var(--text-soft);">Пройдите тест ещё раз через 2 недели — покажем динамику</div>';
+        testBlock.innerHTML += '<div style="margin-top:1.5rem;padding:1rem;background:var(--bg-alt);border-radius:12px;text-align:center;font-size:0.85rem;color:var(--text-soft);">Пройдите тест ещё раз через 2 недели и мы покажем динамику</div>';
       }
 
       // напоминание если прошло 14 дней
@@ -582,6 +687,8 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       coursesBlock.innerHTML = '<div class="empty-state">Вы ещё не записались ни на один курс</div>';
     }
+
+    renderProfileCard();
     profileOverlay.classList.add('show');
   };
 
