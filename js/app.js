@@ -211,12 +211,12 @@ document.addEventListener('DOMContentLoaded', function() {
     { scale: "RD", q: "Как часто вам сложно радоваться успехам (своим или чужим)?", opts: OPT4 },
     { scale: "RD", q: "Как часто вы чувствуете, что «застряли» на месте?", opts: OPT4 },
 
-    // вопрос про чтение
-    { scale: "READ", q: "Любите ли вы читать?", opts: [
-      "Люблю",
-      "Обожаю",
-      "Ненавижу",
-      "Не читаю"
+    // вопрос про формат информации
+    { scale: "READ", q: "Как вам удобнее получать информацию?", opts: [
+      "Читать статьи и книги",
+      "Смотреть видео и лекции",
+      "Слушать аудио и подкасты",
+      "Главное чтобы помогало"
     ] },
 
     // хобби вопрос чтобы подобрать курс
@@ -410,17 +410,40 @@ document.addEventListener('DOMContentLoaded', function() {
     if (old) old.remove();
     if (!reading) return;
 
-    // показываем блок только если человек любит или обожает читать
-    if (reading !== 'Люблю' && reading !== 'Обожаю') return;
-
     var block = document.createElement('div');
     block.id = 'readingBlock';
     block.style.cssText = 'margin-top:1.5rem;padding:1.25rem;background:var(--primary-light);border-radius:16px;text-align:center;';
-    block.innerHTML =
-      '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вы любите читать</div>' +
-      '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Как распознать выгорание</div>' +
-      '<p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Статья и лекции о выгорании — специально для тех, кто любит узнавать новое через чтение</p>' +
-      '<button class="btn btn-primary btn-sm" onclick="openArticle(\'Как распознать выгорание\')">Читать статью →</button>';
+
+    if (reading === 'Читать статьи и книги') {
+      block.innerHTML =
+        '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вы любите читать</div>' +
+        '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Как распознать выгорание</div>' +
+        '<p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Статья о стадиях выгорания и первых признаках — для тех кто любит разбираться в теме через чтение</p>' +
+        '<button class="btn btn-primary btn-sm" onclick="openArticle(\'Как распознать выгорание\')">Читать статью →</button>';
+    } else if (reading === 'Смотреть видео и лекции') {
+      block.innerHTML =
+        '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вы любите видео</div>' +
+        '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Как выбраться из выгорания: 5 шагов</div>' +
+        '<p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Видео-разбор от психолога — что делать по шагам если уже на грани</p>' +
+        '<button class="btn btn-primary btn-sm" onclick="showVideoModal()">Смотреть видео →</button>';
+    } else if (reading === 'Слушать аудио и подкасты') {
+      block.innerHTML =
+        '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вы любите слушать</div>' +
+        '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Аудио-практики</div>' +
+        '<p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Скоро добавим подкасты и аудио-медитации. А пока — статьи и видео</p>' +
+        '<button class="btn btn-outline btn-sm" onclick="openArticle(\'Как распознать выгорание\')">Читать статью →</button>';
+    } else if (reading === 'Главное чтобы помогало') {
+      block.innerHTML =
+        '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вам важен результат</div>' +
+        '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Начните с бесплатной статьи</div>' +
+        '<p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Как распознать выгорание на ранней стадии — и что делать дальше</p>' +
+        '<div style="display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;">' +
+          '<button class="btn btn-primary btn-sm" onclick="openArticle(\'Как распознать выгорание\')">Читать статью</button>' +
+          '<button class="btn btn-outline btn-sm" onclick="showVideoModal()">Смотреть видео</button>' +
+        '</div>';
+    } else {
+      return;
+    }
 
     var target = document.querySelector('#results .result-card');
     if (target) {
