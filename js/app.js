@@ -115,6 +115,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  // модалка платного видео
+  window.showVideoModal = function() {
+    if (!modalOverlay) return;
+    document.getElementById('modalEmoji').textContent = '🎥';
+    document.getElementById('modalTitle').textContent = 'Как выбраться из выгорания';
+    document.getElementById('modalPrice').textContent = 'По подписке';
+    document.getElementById('modalText').textContent = 'Видео-разбор от психолога доступен по подписке. Первые 14 дней — бесплатно. Отмена в любой момент.';
+    modalCurrentAction = 'Видео-разбор — по подписке';
+    modalCurrentCourse = null;
+    modalOverlay.classList.add('show');
+  };
+
   window.confirmAction = function() {
     if (modalCurrentCourse) {
       if (!currentUser) {
@@ -198,6 +210,14 @@ document.addEventListener('DOMContentLoaded', function() {
     { scale: "RD", q: "Как часто вы чувствуете, что не реализуете себя?", opts: OPT4 },
     { scale: "RD", q: "Как часто вам сложно радоваться успехам (своим или чужим)?", opts: OPT4 },
     { scale: "RD", q: "Как часто вы чувствуете, что «застряли» на месте?", opts: OPT4 },
+
+    // вопрос про чтение
+    { scale: "READ", q: "Любите ли вы читать?", opts: [
+      "Люблю",
+      "Обожаю",
+      "Ненавижу",
+      "Не читаю"
+    ] },
 
     // хобби вопрос чтобы подобрать курс
     { scale: "HOBBY", q: "Какое хобби помогло бы вам расслабиться и восстановиться?", opts: [
@@ -298,6 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     for (var i = 0; i < questions.length; i++) {
       if (questions[i].scale === 'HOBBY') continue;
+      if (questions[i].scale === 'READ') continue;
       var a = answers[i];
       if (a === null) a = 0;
       var val = questions[i].reverse ? (3 - a) : a;
@@ -353,13 +374,21 @@ document.addEventListener('DOMContentLoaded', function() {
     causesHtml += '<div class="cause-item"><span class="cause-dot ' + (pctRD >= 60 ? 'danger' : (pctRD >= 33 ? 'warning' : 'success')) + '"></span><span>Потеря смысла и достижений — ' + pctRD + '%</span></div>';
     document.getElementById('resCauses').innerHTML = causesHtml;
 
+    // ищем ответ про хобби
     var hobbyIdx = -1;
     for (var k = 0; k < questions.length; k++) {
       if (questions[k].scale === 'HOBBY') { hobbyIdx = k; break; }
     }
     var hobbyAnswer = (hobbyIdx >= 0 && answers[hobbyIdx] !== null) ? questions[hobbyIdx].opts[answers[hobbyIdx]] : null;
 
-    lastTestResult = { percent: pct, level: level + ' уровень выгорания', type: type, ageGroup: ageGroup, scales: { EI: pctEI, DP: pctDP, RD: pctRD }, hobby: hobbyAnswer, date: new Date().toISOString() };
+    // ищем ответ про чтение
+    var readIdx = -1;
+    for (var m = 0; m < questions.length; m++) {
+      if (questions[m].scale === 'READ') { readIdx = m; break; }
+    }
+    var readAnswer = (readIdx >= 0 && answers[readIdx] !== null) ? questions[readIdx].opts[answers[readIdx]] : null;
+
+    lastTestResult = { percent: pct, level: level + ' уровень выгорания', type: type, ageGroup: ageGroup, scales: { EI: pctEI, DP: pctDP, RD: pctRD }, hobby: hobbyAnswer, reading: readAnswer, date: new Date().toISOString() };
 
     if (currentUser) {
       var history = currentUser.testHistory || [];
@@ -371,8 +400,34 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     showHobbyRecommendation(hobbyAnswer);
+    showReadingRecommendation(readAnswer);
     showSaveBanner();
     navigate('results');
+  }
+
+  function showReadingRecommendation(reading) {
+    var old = document.getElementById('readingBlock');
+    if (old) old.remove();
+    if (!reading) return;
+
+    // показываем блок только если человек любит или обожает читать
+    if (reading !== 'Люблю' && reading !== 'Обожаю') return;
+
+    var block = document.createElement('div');
+    block.id = 'readingBlock';
+    block.style.cssText = 'margin-top:1.5rem;padding:1.25rem;background:var(--primary-light);border-radius:16px;text-align:center;';
+    block.innerHTML =
+      '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вы любите читать</div>' +
+      '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Как распознать выгорание</div>' +
+      '<p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Статья и лекции о выгорании — специально для тех, кто любит узнавать новое через чтение</p>' +
+      '<button class="btn btn-primary btn-sm" onclick="openArticle(\'Как распознать выгорание\')">Читать статью →</button>';
+
+    var target = document.querySelector('#results .result-card');
+    if (target) {
+      var noteEl = target.querySelector('.result-note');
+      if (noteEl) target.insertBefore(block, noteEl);
+      else target.appendChild(block);
+    }
   }
 
   function showHobbyRecommendation(hobby) {
@@ -627,7 +682,6 @@ document.addEventListener('DOMContentLoaded', function() {
       var dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
       testBlock.innerHTML = '<div class="stat-row"><div class="stat-mini"><div class="num">' + t.percent + '%</div><div class="lbl">Уровень</div></div><div class="stat-mini"><div class="num" style="font-size:1rem;">' + (t.type || '—') + '</div><div class="lbl">Тип</div></div><div class="stat-mini"><div class="num" style="font-size:1rem;">' + dateStr + '</div><div class="lbl">Дата</div></div></div>';
 
-      // показываем динамику если тестов больше одного
       var history = currentUser.testHistory || [];
       if (history.length >= 2) {
         var prev = history[history.length - 2];
@@ -665,7 +719,6 @@ document.addEventListener('DOMContentLoaded', function() {
         testBlock.innerHTML += '<div style="margin-top:1.5rem;padding:1rem;background:var(--bg-alt);border-radius:12px;text-align:center;font-size:0.85rem;color:var(--text-soft);">Пройдите тест ещё раз через 2 недели и мы покажем динамику</div>';
       }
 
-      // напоминание если прошло 14 дней
       var daysSince = Math.floor((Date.now() - new Date(t.date).getTime()) / 86400000);
       if (daysSince >= 14) {
         var remindHtml = '<div style="margin-top:1.5rem;padding:1.25rem;background:var(--warning-light);border-radius:16px;text-align:center;">' +
