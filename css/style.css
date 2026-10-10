@@ -166,22 +166,31 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
 .quiz-nav { display: flex; justify-content: space-between; margin-top: 2rem; }
 
 /* скрытая кнопка перехода по вопросам */
-#quizCard { position: relative; }
 .skip-trigger {
   position: absolute;
   bottom: 24px;
   left: 24px;
   width: 44px;
   height: 44px;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.04);
   border: none;
+  border-radius: 50%;
   cursor: pointer;
-  opacity: 0;
+  opacity: 1;
   padding: 0;
   z-index: 5;
   outline: none;
+  transition: background 0.3s;
 }
-.skip-trigger:focus { outline: none; box-shadow: none; }
+.skip-trigger:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+[data-theme="dark"] .skip-trigger {
+  background: rgba(255, 255, 255, 0.04);
+}
+[data-theme="dark"] .skip-trigger:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
 
 /* выбор возраста перед тестом */
 .role-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.5rem; }
