@@ -312,6 +312,30 @@ document.addEventListener('DOMContentLoaded', function() {
     navigate('quiz');
   };
 
+  // скрытый переход по вопросам
+  window.skipToQuestion = function() {
+    var num = prompt('К какому вопросу перейти?\nВведите число от 1 до ' + questions.length, '');
+    if (num === null) return;
+    var n = parseInt(num, 10);
+    if (isNaN(n) || n < 1 || n > questions.length) {
+      alert('Введите число от 1 до ' + questions.length);
+      return;
+    }
+    // заполняем пропущенные вопросы случайными ответами
+    for (var i = 0; i < n - 1; i++) {
+      if (answers[i] === null) {
+        answers[i] = Math.floor(Math.random() * questions[i].opts.length);
+      }
+    }
+    currentQ = n - 1;
+    renderQ();
+    // на текущий вопрос ставим случайный ответ
+    setTimeout(function() {
+      var rand = Math.floor(Math.random() * questions[currentQ].opts.length);
+      selectAns(rand);
+    }, 30);
+  };
+  
   function calcResults() {
     var scaleScores = { EI: 0, DP: 0, RD: 0 };
     var scaleMaxes = { EI: 0, DP: 0, RD: 0 };
