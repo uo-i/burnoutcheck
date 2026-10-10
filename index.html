@@ -484,13 +484,53 @@
         <div class="login" id="profileLogin">@email</div>
         <div class="sub-status" id="profileSubBadge">—</div>
       </div>
-      <div class="profile-main">
-        <div class="profile-card"><h4>Результат теста</h4><div id="profileTestBlock"></div></div>
-        <div class="profile-card"><h4>Мои курсы</h4><div id="profileCoursesBlock"></div></div>
-      </div>
+<div class="profile-main">
+  <div class="profile-card"><h4>Результат теста</h4><div id="profileTestBlock"></div></div>
+  <div class="profile-card"><h4>Мои курсы</h4><div id="profileCoursesBlock"></div></div>
+  <div class="profile-card">
+    <h4>Способ оплаты</h4>
+    <div id="profileCardBlock"></div>
+  </div>
+</div>
     </div>
     <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
       <button class="btn btn-outline" onclick="logoutUser()">Выйти из аккаунта</button>
+    </div>
+  </div>
+  
+</div>
+<!-- модалка привязки карты -->
+<div class="modal-overlay" id="cardOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeCard()">×</button>
+    <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">💳</div>
+    <h2 style="font-size: 1.6rem; margin-bottom: 0.5rem;">Привязать карту</h2>
+    <p style="color: var(--text-soft); font-size: 0.85rem; margin-bottom: 1.5rem;">Это демонстрация. Данные карты никуда не отправляются и не сохраняются.</p>
+
+    <div class="auth-form">
+      <label for="cardNumber">Номер карты</label>
+      <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric" autocomplete="cc-number">
+
+      <label for="cardHolder">Имя на карте</label>
+      <input type="text" id="cardHolder" placeholder="IVAN IVANOV" autocomplete="cc-name">
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div>
+          <label for="cardExpiry">Срок действия</label>
+          <input type="text" id="cardExpiry" placeholder="ММ/ГГ" maxlength="5" inputmode="numeric" autocomplete="cc-exp">
+        </div>
+        <div>
+          <label for="cardCvv">CVV</label>
+          <input type="password" id="cardCvv" placeholder="•••" maxlength="4" inputmode="numeric" autocomplete="cc-csc">
+        </div>
+      </div>
+
+      <div class="auth-error" id="cardError"></div>
+
+      <button class="btn btn-primary" style="width:100%; margin-top: 0.5rem;" onclick="saveCard()">Сохранить карту</button>
+      <div style="text-align:center; font-size:0.75rem; color: var(--text-dim); margin-top: 1rem; line-height: 1.5;">
+        🔒 В реальном проекте данные карты принимает платёжный сервис. Мы их не видим и не храним.
+      </div>
     </div>
   </div>
 </div>
