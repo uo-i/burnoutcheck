@@ -105,7 +105,7 @@
   </div>
 
   <div class="quiz-container" id="quizCard" style="display:none;">
-    <div class="quiz-step-label"><span id="stepInfo">Шаг 2 из 3</span><span>Вопрос <span id="qNum">1</span> из <span id="qTotal">51</span></span></div>
+    <div class="quiz-step-label"><span id="stepInfo">Шаг 2 из 3</span><span>Вопрос <span id="qNum">1</span> из <span id="qTotal">28</span></span></div>
     <div class="quiz-progress"><div class="quiz-progress-fill" id="progressFill"></div></div>
     <h2 class="quiz-question" id="qText">Загрузка...</h2>
     <p class="quiz-hint">Выберите один вариант ответа</p>
@@ -163,7 +163,7 @@
 <section id="courses" class="page">
   <div style="text-align: center; padding: 2rem 0;">
     <h1 style="font-size: 2.8rem; margin-bottom: 0.75rem;">Курсы для вашего восстановления</h1>
-    <p style="color: var(--text-soft); max-width: 560px; margin: 0 auto;">14 дней бесплатно на любой курс. Отмена в любой момент.</p>
+    <p style="color: var(--text-soft); max-width: 560px; margin: 0 auto;">7 дней бесплатно на любой курс. Отмена в любой момент.</p>
   </div>
   <div class="courses-tabs">
     <button class="courses-tab active" onclick="filterCourses('all', this)">Все курсы</button>
@@ -221,7 +221,7 @@
     <div class="course-card" data-cat="sport">
       <div class="course-img">
         <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&q=80" alt="Йога для начинающих">
-        <span class="course-badge">14 дней бесплатно</span>
+        <span class="course-badge">7 дней бесплатно</span>
       </div>
       <div class="course-body">
         <h3 class="course-title">Йога для начинающих</h3>
@@ -234,8 +234,8 @@
         </ul>
         <div class="course-meta"><span>📚 10 занятий</span><span>⏱ 2 недели</span></div>
         <div class="course-footer">
-          <span class="course-trial">14 дней бесплатно<small>потом 1 990 ₽</small></span>
-          <button class="btn btn-primary btn-sm" onclick="openModal('Йога для начинающих', '14 дней бесплатно', 'course')">Попробовать</button>
+          <span class="course-trial">7 дней бесплатно<small>потом 1 990 ₽</small></span>
+          <button class="btn btn-primary btn-sm" onclick="openModal('Йога для начинающих', '7 дней бесплатно', 'course')">Попробовать</button>
         </div>
       </div>
     </div>
@@ -243,7 +243,7 @@
     <div class="course-card" data-cat="psych">
       <div class="course-img">
         <img src="https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=800&q=80" alt="Управление стрессом">
-        <span class="course-badge">14 дней бесплатно</span>
+        <span class="course-badge">7 дней бесплатно</span>
       </div>
       <div class="course-body">
         <h3 class="course-title">Управление стрессом</h3>
@@ -256,8 +256,8 @@
         </ul>
         <div class="course-meta"><span>📚 8 занятий</span><span>⏱ 90 дней доступа</span></div>
         <div class="course-footer">
-          <span class="course-trial">14 дней бесплатно<small>потом 5 490 ₽</small></span>
-          <button class="btn btn-primary btn-sm" onclick="openModal('Управление стрессом', '14 дней бесплатно', 'course')">Попробовать</button>
+          <span class="course-trial">7 дней бесплатно<small>потом 5 490 ₽</small></span>
+          <button class="btn btn-primary btn-sm" onclick="openModal('Управление стрессом', '7 дней бесплатно', 'course')">Попробовать</button>
         </div>
       </div>
     </div>
@@ -265,7 +265,7 @@
     <div class="course-card" data-cat="psych">
       <div class="course-img">
         <img src="https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800&q=80" alt="Полное восстановление">
-        <span class="course-badge">VIP · 14 дней бесплатно</span>
+        <span class="course-badge">VIP · 7 дней бесплатно</span>
       </div>
       <div class="course-body">
         <h3 class="course-title">Полное восстановление</h3>
@@ -279,8 +279,8 @@
         </ul>
         <div class="course-meta"><span>📚 12 модулей</span><span>⏱ 6 месяцев</span></div>
         <div class="course-footer">
-          <span class="course-trial">14 дней бесплатно<small>потом 12 990 ₽</small></span>
-          <button class="btn btn-primary btn-sm" onclick="openModal('Полное восстановление', '14 дней бесплатно', 'course')">Попробовать</button>
+          <span class="course-trial">7 дней бесплатно<small>потом 12 990 ₽</small></span>
+          <button class="btn btn-primary btn-sm" onclick="openModal('Полное восстановление', '7 дней бесплатно', 'course')">Попробовать</button>
         </div>
       </div>
     </div>
@@ -331,23 +331,39 @@
     <div>
       <input type="text" class="materials-search" placeholder="🔍 Поиск по материалам..." oninput="searchMaterials(this.value)">
       <div class="materials-grid" id="materialsGrid">
-<div class="material-card" data-cat="articles" data-title="Как справиться с тревожностью" onclick="openArticle('Как справиться с тревожностью в учёбе и на работе')">
-  <div class="material-img">📄</div>
-  <div class="material-body">
-    <h5>Как справиться с тревожностью в учёбе и на работе</h5>
-    <p>Тревожность · Работа · Учёба</p>
-  </div>
-</div>        <div class="material-card" data-cat="checklists" data-title="Дневник благодарности"><div class="material-img">📓</div><div class="material-body"><h5>Дневник благодарности</h5><p>Настроение · Эмоции · Самопознание</p></div></div>
+        <div class="material-card" data-cat="articles" data-title="Как распознать выгорание" onclick="openArticle('Как распознать выгорание')">
+          <div class="material-img">📄</div>
+          <div class="material-body">
+            <h5>Как распознать выгорание</h5>
+            <p>Диагностика · Самопомощь · Бесплатно</p>
+          </div>
+        </div>
+        <div class="material-card" data-cat="articles" data-title="Советы чтобы не ухудшить состояние" onclick="openArticle('Советы чтобы не ухудшить состояние')">
+          <div class="material-img">📄</div>
+          <div class="material-body">
+            <h5>Советы чтобы не ухудшить состояние</h5>
+            <p>Практика · Бесплатно · + видео</p>
+          </div>
+        </div>
+        <div class="material-card" data-cat="articles" data-title="Как справиться с тревожностью" onclick="openArticle('Как справиться с тревожностью в учёбе и на работе')">
+          <div class="material-img">📄</div>
+          <div class="material-body">
+            <h5>Как справиться с тревожностью в учёбе и на работе</h5>
+            <p>Тревожность · Работа · Учёба</p>
+          </div>
+        </div>
+        <div class="material-card" data-cat="checklists" data-title="Дневник благодарности"><div class="material-img">📓</div><div class="material-body"><h5>Дневник благодарности</h5><p>Настроение · Эмоции · Самопознание</p></div></div>
         <div class="material-card" data-cat="exercises" data-title="Дыхание 4-7-8"><div class="material-img">🫁</div><div class="material-body"><h5>Техника дыхания 4-7-8</h5><p>Дыхание · Релаксация · 5 минут</p></div></div>
         <div class="material-card" data-cat="audio" data-title="Медитация тишины"><div class="material-img">🎧</div><div class="material-body"><h5>Медитация «5 минут тишины»</h5><p>Аудио · Антистресс · 5 минут</p></div></div>
         <div class="material-card" data-cat="books" data-title="Выгорание Маслач"><div class="material-img">📖</div><div class="material-body"><h5>Кристина Маслач — «Выгорание»</h5><p>Книга · Фундаментальный труд</p></div></div>
-<div class="material-card" data-cat="articles" data-title="Границы на работе" onclick="openArticle('Границы на работе: как сказать «нет»')">
-  <div class="material-img">📄</div>
-  <div class="material-body">
-    <h5>Границы на работе: как сказать «нет»</h5>
-    <p>Работа · Коммуникация · 8 минут</p>
-  </div>
-</div>      </div>
+        <div class="material-card" data-cat="articles" data-title="Границы на работе" onclick="openArticle('Границы на работе: как сказать «нет»')">
+          <div class="material-img">📄</div>
+          <div class="material-body">
+            <h5>Границы на работе: как сказать «нет»</h5>
+            <p>Работа · Коммуникация · 8 минут</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -485,21 +501,25 @@
         <div class="login" id="profileLogin">@email</div>
         <div class="sub-status" id="profileSubBadge">—</div>
       </div>
-<div class="profile-main">
-  <div class="profile-card"><h4>Результат теста</h4><div id="profileTestBlock"></div></div>
-  <div class="profile-card"><h4>Мои курсы</h4><div id="profileCoursesBlock"></div></div>
-  <div class="profile-card">
-    <h4>Способ оплаты</h4>
-    <div id="profileCardBlock"></div>
-  </div>
-</div>
+      <div class="profile-main">
+        <div class="profile-card"><h4>Результат теста</h4><div id="profileTestBlock"></div></div>
+        <div class="profile-card">
+          <h4>Динамика состояния</h4>
+          <div id="profileChartBlock"></div>
+        </div>
+        <div class="profile-card"><h4>Мои курсы</h4><div id="profileCoursesBlock"></div></div>
+        <div class="profile-card">
+          <h4>Способ оплаты</h4>
+          <div id="profileCardBlock"></div>
+        </div>
+      </div>
     </div>
     <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
       <button class="btn btn-outline" onclick="logoutUser()">Выйти из аккаунта</button>
     </div>
   </div>
-  
 </div>
+
 <!-- модалка привязки карты -->
 <div class="modal-overlay" id="cardOverlay">
   <div class="modal">
