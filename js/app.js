@@ -1,620 +1,1134 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Balance — Профилактика эмоционального выгорания</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-</head>
-<body>
+document.addEventListener('DOMContentLoaded', function() {
 
-<nav class="topnav">
-  <div class="nav-logo" onclick="navigate('dashboard')"><span class="nav-logo-icon">B</span> Balance</div>
-  <div class="nav-menu" id="navMenu">
-    <a class="active" onclick="navigate('dashboard')">Главная</a>
-    <a onclick="navigate('quiz')">Тест</a>
-    <a onclick="navigate('courses')">Курсы</a>
-    <a onclick="navigate('resources')">Материалы</a>
-    <a onclick="navigate('about')">О нас</a>
-  </div>
-  <div class="nav-actions">
-    <button class="nav-icon-btn" onclick="openSettings()" aria-label="Настройки">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-    </button>
-    <button class="nav-profile-btn" id="profileBtn" onclick="openAuth()" aria-label="Профиль">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"></path></svg>
-    </button>
-  </div>
-</nav>
+  // подключение к фаербейс
+  var firebaseConfig = {
+    apiKey: "AIzaSyAsGZ661cK8obTVlQvfyzKdqY9ppOC5hlE",
+    authDomain: "balance-ap.firebaseapp.com",
+    projectId: "balance-ap",
+    storageBucket: "balance-ap.firebasestorage.app",
+    messagingSenderId: "36002433553",
+    appId: "1:36002433553:web:71896fe22a7a8aeaf1ffb0"
+  };
+  firebase.initializeApp(firebaseConfig);
+  var auth = firebase.auth();
+  var db = firebase.firestore();
 
-<main>
+  var currentUser = null;
+  var pendingEmail = null;
 
-<!-- главная страница -->
-<section id="dashboard" class="page active">
+  // тёмная и светлая тема
+  (function initTheme() {
+    var saved = localStorage.getItem('bc_theme');
+    if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    else if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme', 'dark');
+  })();
 
-  <div class="hero">
-    <div class="hero-bg">
-      <picture>
-        <source media="(max-width: 900px)" srcset="images/hero-mobile.jpg">
-        <img src="images/hero.jpg" alt="Уютная атмосфера: чашка, книга, цветы">
-      </picture>
-    </div>
-    <div class="hero-content">
-      <h1>Усталость — не слабость.<br>Это сигнал.</h1>
-      <p>Интерактивное методическое пособие по профилактике эмоционального выгорания. Пройдите диагностику, узнайте свой уровень стресса и получите персональный маршрут восстановления.</p>
-      <div class="hero-bottom">
-        <div class="hero-cta">
-          <button class="btn btn-primary" onclick="navigate('quiz')">Пройти тест →</button>
-        </div>
-        <div class="hero-features">
-          <span><span class="dot"></span> Бесплатно</span>
-          <span><span class="dot"></span> 7–10 минут</span>
-          <span><span class="dot"></span> Без регистрации</span>
-        </div>
-      </div>
-    </div>
-  </div>
+  // навгация между страницами
+  window.navigate = function(pageId) {
+    document.querySelectorAll('.page').forEach(function(el){ el.classList.remove('active'); });
+    document.querySelectorAll('.nav-menu a').forEach(function(el){ el.classList.remove('active'); });
+    var page = document.getElementById(pageId);
+    if (page) page.classList.add('active');
+    document.querySelectorAll('.nav-menu a').forEach(function(link) {
+      var oc = link.getAttribute('onclick') || '';
+      if (oc.indexOf("'" + pageId + "'") !== -1) link.classList.add('active');
+    });
+    document.getElementById('navMenu').classList.remove('open');
 
-  <div class="section">
-    <h2 class="section-title">Как это работает?</h2>
-    <p class="section-subtitle">Всего несколько шагов — и вы получите свой персональный маршрут</p>
-    <div class="steps">
-      <div class="step"><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="13" y2="17"></line></svg></div><div class="step-num">01</div><h4>Пройдите тест</h4><p>Ответьте на несколько вопросов о своём состоянии и жизни</p></div>
-      <div class="step"><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></div><div class="step-num">02</div><h4>Узнайте свой профиль</h4><p>Получите анализ уровня стресса и причин выгорания</p></div>
-      <div class="step"><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 7v13l6-3 6 3 6-3V4l-6 3z"></path><line x1="9" y1="4" x2="9" y2="17"></line><line x1="15" y1="7" x2="15" y2="20"></line></svg></div><div class="step-num">03</div><h4>Получите маршрут</h4><p>Персональная рекомендация — подходящие методы и материалы</p></div>
-      <div class="step"><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"></path><path d="M12 12c0-3 2-6 6-6 0 3-2 6-6 6z"></path><path d="M12 14c0-2-2-4-5-4 0 2 2 4 5 4z"></path></svg></div><div class="step-num">04</div><h4>Действуйте</h4><p>Используйте методические материалы, курсы и практики</p></div>
-      <div class="step"><div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="21" y2="21"></line><rect x="5" y="14" width="3" height="5"></rect><rect x="10.5" y="10" width="3" height="9"></rect><rect x="16" y="6" width="3" height="13"></rect></svg></div><div class="step-num">05</div><h4>Следите за прогрессом</h4><p>Повторяйте тест каждые 2 недели и наблюдайте за изменениями</p></div>
-    </div>
-  </div>
+    document.querySelectorAll('.bottom-nav-item').forEach(function(el){ el.classList.remove('active'); });
+    document.querySelectorAll('.bottom-nav-item').forEach(function(link) {
+      var oc = link.getAttribute('onclick') || '';
+      if (oc.indexOf("'" + pageId + "'") !== -1) link.classList.add('active');
+    });
 
-  <div class="section">
-    <h2 class="section-title">Для кого этот проект?</h2>
-    <p class="section-subtitle">Мы помогаем разным людям — каждому свой подход</p>
-    <div class="audience-grid">
-      <div class="audience-card"><div class="audience-img">💼</div><div class="audience-body"><h4>Работающие</h4><p>Сотрудники, специалисты, руководители. Выгорание связано с работой, нагрузкой и коллективом.</p></div></div>
-      <div class="audience-card"><div class="audience-img">🎓</div><div class="audience-body"><h4>Студенты</h4><p>Учёба, сессии, совмещение с работой. Выгорание связано с нагрузкой в вузе и будущим.</p></div></div>
-      <div class="audience-card"><div class="audience-img">🌿</div><div class="audience-body"><h4>Все, кто устал</h4><p>Чувствуете истощение и потерю энергии? Получите персональный маршрут восстановления.</p></div></div>
-    </div>
-  </div>
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-  <div class="cta-banner">
-    <h2>Твой ресурс — в твоих руках</h2>
-    <p>Небольшой тест — первый шаг к пониманию того, что происходит именно с тобой</p>
-    <button class="btn btn-primary" onclick="navigate('quiz')">Пройти тест →</button>
-  </div>
-</section>
+  window.toggleMobileMenu = function() { document.getElementById('navMenu').classList.toggle('open'); };
 
-<!-- тест -->
-<section id="quiz" class="page">
-  <div class="quiz-container" id="rolePicker">
-    <div class="quiz-step-label"><span>Шаг 1 из 3</span><span>О вас</span></div>
-    <div class="quiz-progress"><div class="quiz-progress-fill" style="width: 10%;"></div></div>
-    <h2 class="quiz-question">Сколько вам лет?</h2>
-    <p class="quiz-hint">Возраст нужен, чтобы подобрать вопросы и рекомендации под вашу ситуацию</p>
-    <div class="role-picker" id="agePicker">
-      <div class="role-card-lg" onclick="selectAge('teen')"><div class="role-emoji-lg">🎒</div><div class="role-title-lg">16–18 лет</div><div class="role-desc-lg">Школа, ОГЭ, ЕГЭ</div></div>
-      <div class="role-card-lg" onclick="selectAge('young')"><div class="role-emoji-lg">🎓</div><div class="role-title-lg">19–25 лет</div><div class="role-desc-lg">Вуз, сессии, начало карьеры</div></div>
-      <div class="role-card-lg" onclick="selectAge('adult')"><div class="role-emoji-lg">💼</div><div class="role-title-lg">26–35 лет</div><div class="role-desc-lg">Работа, рост, ответственность</div></div>
-      <div class="role-card-lg" onclick="selectAge('mature')"><div class="role-emoji-lg">👔</div><div class="role-title-lg">36–50 лет</div><div class="role-desc-lg">Работа, семья, стабильность</div></div>
-      <div class="role-card-lg" onclick="selectAge('senior')"><div class="role-emoji-lg">🌿</div><div class="role-title-lg">50+ лет</div><div class="role-desc-lg">Опыт, смена ритма, зрелость</div></div>
-    </div>
-  </div>
+  window.filterCourses = function(cat, btn) {
+    document.querySelectorAll('.courses-tab').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('#coursesGrid .course-card').forEach(function(card) {
+      card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+    });
+  };
 
-  <div class="quiz-container" id="quizCard" style="display:none;">
-    <div class="quiz-step-label"><span id="stepInfo">Шаг 2 из 3</span><span>Вопрос <span id="qNum">1</span> из <span id="qTotal">28</span></span></div>
-    <div class="quiz-progress"><div class="quiz-progress-fill" id="progressFill"></div></div>
-    <h2 class="quiz-question" id="qText">Загрузка...</h2>
-    <p class="quiz-hint">Выберите один вариант ответа</p>
-    <div class="quiz-options" id="qOptions"></div>
-    <div class="quiz-nav">
-      <button class="btn btn-ghost" id="btnPrev" onclick="prevQ()">← К выбору возраста</button>
-      <button class="btn btn-primary" id="btnNext" disabled onclick="nextQ()">Далее →</button>
-    </div>
-    <button class="skip-trigger" onclick="skipToQuestion()" aria-hidden="true" tabindex="-1"></button>
-  </div>
-</section>
+  window.switchMaterial = function(cat, btn) {
+    document.querySelectorAll('.materials-sidebar li').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('#materialsGrid .material-card').forEach(function(card) {
+      card.style.display = (cat === 'all' || card.dataset.cat === cat) ? '' : 'none';
+    });
+  };
 
-<!-- результат теста -->
-<section id="results" class="page">
-  <div class="result-card">
-    <div class="result-label">Ваш профиль выгорания</div>
-    <h2 class="result-title" id="resTitle">—</h2>
-    <div class="result-donut">
-      <svg width="180" height="180" viewBox="0 0 180 180">
-        <circle cx="90" cy="90" r="75" fill="none" stroke="#ebe3d8" stroke-width="14"></circle>
-        <circle id="donutFill" cx="90" cy="90" r="75" fill="none" stroke="#8ba888" stroke-width="14" stroke-dasharray="471" stroke-dashoffset="471" stroke-linecap="round" style="transition: stroke-dashoffset 1s ease;"></circle>
-      </svg>
-      <div class="result-donut-percent" id="resPercent">0%</div>
-      <div class="result-donut-label">Уровень стресса</div>
-    </div>
-    <div class="result-causes"><h4>Основные шкалы</h4><div id="resCauses"></div></div>
-    <p style="color: var(--text-soft); line-height: 1.7; margin-bottom: 1rem;" id="resDesc"></p>
-    <div class="result-note"><span>💡</span><span>Это не диагноз. Это ориентир, который поможет вам выбрать правильные шаги для восстановления.</span></div>
-    <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-      <button class="btn btn-primary" onclick="navigate('route')">Построить маршрут →</button>
-      <button class="btn btn-outline" onclick="navigate('resources')">Материалы</button>
-      <button class="btn btn-ghost" onclick="restartQuiz()">Пройти заново</button>
-    </div>
-  </div>
-</section>
+  window.searchMaterials = function(query) {
+    var q = query.toLowerCase().trim();
+    document.querySelectorAll('#materialsGrid .material-card').forEach(function(card) {
+      var title = (card.dataset.title || '').toLowerCase();
+      card.style.display = (q === '' || title.indexOf(q) !== -1) ? '' : 'none';
+    });
+  };
 
-<!-- маршрут восстановления -->
-<section id="route" class="page">
-  <div class="route-card">
-    <h2 class="route-title">Ваш персональный маршрут</h2>
-    <p class="route-subtitle">Мы подобрали для вас индивидуальный план восстановления на 4 недели</p>
-    <div class="route-timeline"><div class="route-step active">1</div><div class="route-step">2</div><div class="route-step">3</div><div class="route-step">4</div></div>
-    <div class="route-week-label">Неделя 1</div>
-    <h3 class="route-week-title">Снизить перегрузку</h3>
-    <div class="route-tasks">
-      <div class="route-task" onclick="openModal('Медитация при тревоге', 'Бесплатно')"><div class="route-task-icon">🧘</div><div class="route-task-info"><h5>Медитация при тревоге</h5><p>Длительность: 5 минут</p></div></div>
-      <div class="route-task" onclick="openModal('Упражнение «Спокойствие»', 'Бесплатно')"><div class="route-task-icon">🫁</div><div class="route-task-info"><h5>Упражнение «Спокойствие»</h5><p>Дыхательная практика, 10 минут</p></div></div>
-      <div class="route-task" onclick="openModal('Как распознать скрытую перегрузку', 'Бесплатно')"><div class="route-task-icon">📖</div><div class="route-task-info"><h5>Как распознать скрытую перегрузку</h5><p>Статья, 7 минут</p></div></div>
-    </div>
-    <div style="text-align: center;"><button class="btn btn-primary" onclick="navigate('courses')">Перейти к материалам →</button></div>
-  </div>
-</section>
+  // модалка куров
+  var modalOverlay = document.getElementById('modalOverlay');
+  var modalCurrentAction = '';
+  var modalCurrentCourse = null;
 
-<!-- курсы -->
-<section id="courses" class="page">
-  <div style="text-align: center; padding: 2rem 0;">
-    <h1 style="font-size: 2.8rem; margin-bottom: 0.75rem;">Курсы для вашего восстановления</h1>
-    <p style="color: var(--text-soft); max-width: 560px; margin: 0 auto;">7 дней бесплатно на любой курс. Отмена в любой момент.</p>
-  </div>
-  <div class="courses-tabs">
-    <button class="courses-tab active" onclick="filterCourses('all', this)">Все курсы</button>
-    <button class="courses-tab" onclick="filterCourses('yoga', this)">Йога</button>
-    <button class="courses-tab" onclick="filterCourses('art', this)">Рисование</button>
-    <button class="courses-tab" onclick="filterCourses('psych', this)">Психология</button>
-    <button class="courses-tab" onclick="filterCourses('sport', this)">Спорт</button>
-  </div>
-  <div class="courses-grid" id="coursesGrid">
+  window.openModal = function(title, price, type) {
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalPrice').textContent = price;
+    var emoji = '🎓';
+    var text = 'Функционал оплаты находится в разработке. Мы сохранили ваш запрос.';
+    if (price === 'Бесплатно' || price === '0 ₽') { emoji = '✅'; text = 'Регистрация на бесплатный материал.'; }
+    if (price === '7 дней бесплатно') { emoji = '🎁'; text = 'Пробный период 7 дней бесплатно. Отмена в любой момент.'; }
+    document.getElementById('modalEmoji').textContent = emoji;
+    document.getElementById('modalText').textContent = text;
+    modalCurrentAction = title + ' — ' + price;
+    modalCurrentCourse = (type === 'course') ? { title: title, price: price } : null;
+    modalOverlay.classList.add('show');
+  };
 
-    <div class="course-card" data-cat="yoga">
-      <div class="course-img">
-        <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=80" alt="Медитация и осознанность">
-        <span class="course-badge free">Бесплатно</span>
-      </div>
-      <div class="course-body">
-        <h3 class="course-title">Основы медитации и осознанности</h3>
-        <p class="course-desc">Научитесь успокаивать ум и снижать тревожность за 8 коротких занятий.</p>
-        <ul class="course-features">
-          <li>8 аудио-медитаций по 10 минут</li>
-          <li>Дыхательные практики при тревоге</li>
-          <li>Сканирование тела и работа с зажимами</li>
-          <li>Дневник наблюдений за состоянием</li>
-        </ul>
-        <div class="course-meta"><span>📚 8 занятий</span><span>⏱ 3 недели</span></div>
-        <div class="course-footer">
-          <span class="course-trial">Бесплатно<small>навсегда</small></span>
-          <button class="btn btn-soft btn-sm" onclick="openModal('Основы медитации и осознанности', 'Бесплатно', 'course')">Начать</button>
-        </div>
-      </div>
-    </div>
+  window.closeModal = function() { modalOverlay.classList.remove('show'); };
 
-    <div class="course-card" data-cat="art">
-      <div class="course-img">
-        <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&q=80" alt="Арт-терапия">
-        <span class="course-badge free">Бесплатно</span>
-      </div>
-      <div class="course-body">
-        <h3 class="course-title">Арт-терапия: рисуем эмоции</h3>
-        <p class="course-desc">Через творчество выражайте чувства и снижайте напряжение — без художественных навыков.</p>
-        <ul class="course-features">
-          <li>6 практик: от простых линий до мандал</li>
-          <li>Работа с цветом как способ прожить эмоции</li>
-          <li>Дневник настроения в картинках</li>
-          <li>Разбор ваших работ с арт-терапевтом</li>
-        </ul>
-        <div class="course-meta"><span>📚 6 занятий</span><span>⏱ 2 недели</span></div>
-        <div class="course-footer">
-          <span class="course-trial">Бесплатно<small>навсегда</small></span>
-          <button class="btn btn-soft btn-sm" onclick="openModal('Арт-терапия: рисуем эмоции', 'Бесплатно', 'course')">Начать</button>
-        </div>
-      </div>
-    </div>
+  // модалка стаьи
+  var articleOverlay = document.getElementById('articleOverlay');
 
-    <div class="course-card" data-cat="sport">
-      <div class="course-img">
-        <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&q=80" alt="Йога для начинающих">
-        <span class="course-badge">7 дней бесплатно</span>
-      </div>
-      <div class="course-body">
-        <h3 class="course-title">Йога для начинающих</h3>
-        <p class="course-desc">Мягкие практики для тела и ума. Подходят для любого уровня и возраста.</p>
-        <ul class="course-features">
-          <li>10 видео-занятий по 20–30 минут</li>
-          <li>Базовые асаны и безопасная растяжка</li>
-          <li>Дыхательные техники и релаксация</li>
-          <li>Комплексы для снятия напряжения в спине</li>
-        </ul>
-        <div class="course-meta"><span>📚 10 занятий</span><span>⏱ 2 недели</span></div>
-        <div class="course-footer">
-          <span class="course-trial">7 дней бесплатно<small>потом 1 990 ₽</small></span>
-          <button class="btn btn-primary btn-sm" onclick="openModal('Йога для начинающих', '7 дней бесплатно', 'course')">Попробовать</button>
-        </div>
-      </div>
-    </div>
+  window.openArticle = function(title) {
+    if (!articleOverlay) { alert('Статья скоро появится.'); return; }
+    var article = window.ARTICLES && window.ARTICLES[title];
+    if (!article) { alert('Статья скоро появится.'); return; }
+    document.getElementById('articleTitle').textContent = article.title;
+    document.getElementById('articleMeta').textContent = article.meta;
+    document.getElementById('articleContent').innerHTML = article.content;
+    articleOverlay.classList.add('show');
+  };
 
-    <div class="course-card" data-cat="psych">
-      <div class="course-img">
-        <img src="https://images.unsplash.com/photo-1499209974431-9dddcece7f88?w=800&q=80" alt="Управление стрессом">
-        <span class="course-badge">7 дней бесплатно</span>
-      </div>
-      <div class="course-body">
-        <h3 class="course-title">Управление стрессом</h3>
-        <p class="course-desc">Практический курс: понимать свои реакции и управлять ими в моменте.</p>
-        <ul class="course-features">
-          <li>8 видео-лекций от психолога</li>
-          <li>Техники КПТ для снижения тревоги</li>
-          <li>Дневник стресса с разбором ситуаций</li>
-          <li>Поддержка куратора и ответы на вопросы</li>
-        </ul>
-        <div class="course-meta"><span>📚 8 занятий</span><span>⏱ 90 дней доступа</span></div>
-        <div class="course-footer">
-          <span class="course-trial">7 дней бесплатно<small>потом 5 490 ₽</small></span>
-          <button class="btn btn-primary btn-sm" onclick="openModal('Управление стрессом', '7 дней бесплатно', 'course')">Попробовать</button>
-        </div>
-      </div>
-    </div>
+  window.closeArticle = function() {
+    if (articleOverlay) articleOverlay.classList.remove('show');
+  };
 
-    <div class="course-card" data-cat="psych">
-      <div class="course-img">
-        <img src="https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=800&q=80" alt="Полное восстановление">
-        <span class="course-badge">VIP · 7 дней бесплатно</span>
-      </div>
-      <div class="course-body">
-        <h3 class="course-title">Полное восстановление</h3>
-        <p class="course-desc">Комплексная программа на 6 месяцев для тех, кто прошёл точку невозврата.</p>
-        <ul class="course-features">
-          <li>12 модулей: тело, эмоции, смыслы, границы</li>
-          <li>3 личные консультации с психологом</li>
-          <li>Закрытый чат поддержки участников</li>
-          <li>Индивидуальный план восстановления</li>
-          <li>Доступ к остальным курсам включён</li>
-        </ul>
-        <div class="course-meta"><span>📚 12 модулей</span><span>⏱ 6 месяцев</span></div>
-        <div class="course-footer">
-          <span class="course-trial">7 дней бесплатно<small>потом 12 990 ₽</small></span>
-          <button class="btn btn-primary btn-sm" onclick="openModal('Полное восстановление', '7 дней бесплатно', 'course')">Попробовать</button>
-        </div>
-      </div>
-    </div>
+  if (articleOverlay) {
+    articleOverlay.addEventListener('click', function(e) {
+      if (e.target === articleOverlay) closeArticle();
+    });
+  }
 
-    <div class="course-card" data-cat="yoga">
-      <div class="course-img">
-        <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=800&q=80" alt="Email-курс Неделя баланса">
-        <span class="course-badge free">Бесплатно</span>
-      </div>
-      <div class="course-body">
-        <h3 class="course-title">Email-курс «Неделя баланса»</h3>
-        <p class="course-desc">7 дней — 7 коротких писем с практиками. Идеально, если некогда сидеть в приложении.</p>
-        <ul class="course-features">
-          <li>1 письмо в день с одной практикой</li>
-          <li>5–15 минут в день, без сложного</li>
-          <li>Чек-лист недели для отслеживания</li>
-          <li>Финальный разбор результатов</li>
-        </ul>
-        <div class="course-meta"><span>📧 7 дней</span><span>⏱ 15 мин/день</span></div>
-        <div class="course-footer">
-          <span class="course-trial">Бесплатно<small>навсегда</small></span>
-          <button class="btn btn-soft btn-sm" onclick="openModal('Email-курс «Неделя баланса»', 'Бесплатно', 'course')">Подписаться</button>
-        </div>
-      </div>
-    </div>
+  // модалка платного видео
+  window.showVideoModal = function() {
+    if (!modalOverlay) return;
+    document.getElementById('modalEmoji').textContent = '🎥';
+    document.getElementById('modalTitle').textContent = 'Как выбраться из выгорания';
+    document.getElementById('modalPrice').textContent = 'По подписке';
+    document.getElementById('modalText').textContent = 'Видео-разбор от психолога доступен по подписке. Первые 7 дней — бесплатно. Отмена в любой момент.';
+    modalCurrentAction = 'Видео-разбор — по подписке';
+    modalCurrentCourse = null;
+    modalOverlay.classList.add('show');
+  };
 
-  </div>
-</section>
+  window.confirmAction = function() {
+    if (modalCurrentCourse) {
+      if (!currentUser) {
+        alert('Чтобы записаться на курс нужно войти в аккаунт.');
+        closeModal(); openAuth(); return;
+      }
+      saveCourseToUser(modalCurrentCourse.title, modalCurrentCourse.price);
+    }
+    closeModal();
+    alert('Спасибо! Запрос принят: ' + modalCurrentAction);
+  };
 
-<!-- библеотека материалов -->
-<section id="resources" class="page">
-  <div style="text-align: center; padding: 2rem 0;">
-    <h1 style="font-size: 2.8rem; margin-bottom: 0.75rem;">Библиотека материалов</h1>
-    <p style="color: var(--text-soft); max-width: 560px; margin: 0 auto;">Полезные статьи, упражнения, чек-листы и другие материалы.</p>
-  </div>
-  <div class="materials-layout">
-    <aside class="materials-sidebar">
-      <h4>Разделы</h4>
-      <ul>
-        <li class="active" onclick="switchMaterial('all', this)">Все материалы</li>
-        <li onclick="switchMaterial('articles', this)">Статьи</li>
-        <li onclick="switchMaterial('checklists', this)">Чек-листы</li>
-        <li onclick="switchMaterial('exercises', this)">Упражнения</li>
-        <li onclick="switchMaterial('audio', this)">Аудио</li>
-        <li onclick="switchMaterial('books', this)">Книги</li>
-      </ul>
-    </aside>
-    <div>
-      <input type="text" class="materials-search" placeholder="🔍 Поиск по материалам..." oninput="searchMaterials(this.value)">
-      <div class="materials-grid" id="materialsGrid">
-        <div class="material-card" data-cat="articles" data-title="Как распознать выгорание" onclick="openArticle('Как распознать выгорание')">
-          <div class="material-img">📄</div>
-          <div class="material-body">
-            <h5>Как распознать выгорание</h5>
-            <p>Диагностика · Самопомощь · Бесплатно</p>
-          </div>
-        </div>
-        <div class="material-card" data-cat="articles" data-title="Советы чтобы не ухудшить состояние" onclick="openArticle('Советы чтобы не ухудшить состояние')">
-          <div class="material-img">📄</div>
-          <div class="material-body">
-            <h5>Советы чтобы не ухудшить состояние</h5>
-            <p>Практика · Бесплатно · + видео</p>
-          </div>
-        </div>
-        <div class="material-card" data-cat="articles" data-title="Как справиться с тревожностью" onclick="openArticle('Как справиться с тревожностью в учёбе и на работе')">
-          <div class="material-img">📄</div>
-          <div class="material-body">
-            <h5>Как справиться с тревожностью в учёбе и на работе</h5>
-            <p>Тревожность · Работа · Учёба</p>
-          </div>
-        </div>
-        <div class="material-card" data-cat="checklists" data-title="Дневник благодарности"><div class="material-img">📓</div><div class="material-body"><h5>Дневник благодарности</h5><p>Настроение · Эмоции · Самопознание</p></div></div>
-        <div class="material-card" data-cat="exercises" data-title="Дыхание 4-7-8"><div class="material-img">🫁</div><div class="material-body"><h5>Техника дыхания 4-7-8</h5><p>Дыхание · Релаксация · 5 минут</p></div></div>
-        <div class="material-card" data-cat="audio" data-title="Медитация тишины"><div class="material-img">🎧</div><div class="material-body"><h5>Медитация «5 минут тишины»</h5><p>Аудио · Антистресс · 5 минут</p></div></div>
-        <div class="material-card" data-cat="books" data-title="Выгорание Маслач"><div class="material-img">📖</div><div class="material-body"><h5>Кристина Маслач — «Выгорание»</h5><p>Книга · Фундаментальный труд</p></div></div>
-        <div class="material-card" data-cat="articles" data-title="Границы на работе" onclick="openArticle('Границы на работе: как сказать «нет»')">
-          <div class="material-img">📄</div>
-          <div class="material-body">
-            <h5>Границы на работе: как сказать «нет»</h5>
-            <p>Работа · Коммуникация · 8 минут</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+  modalOverlay.addEventListener('click', function(e) { if (e.target === modalOverlay) closeModal(); });
 
-<!-- о проете -->
-<section id="about" class="page">
-  <div style="text-align: center; padding: 2rem 0;">
-    <h1 style="font-size: 2.8rem; margin-bottom: 0.75rem;">О проекте</h1>
-    <p style="color: var(--text-soft); max-width: 560px; margin: 0 auto;">Balance — диагностико-навигационная система для профилактики эмоционального выгорания.</p>
-  </div>
-  <div class="about-grid">
-    <div class="about-card"><h4>💡 Концепция</h4><p>Это не «ещё один сайт с медитациями», а диагностико-навигационная система. Пользователь не блуждает в поисках «что мне поможет», а получает конкретный маршрут под свою ситуацию.</p></div>
-    <div class="about-card"><h4>🎯 Ключевое отличие</h4><p>Нет универсального способа справиться с выгоранием. То, что помогает одному — бесполезно другому. Мы строим маршрут под конкретного человека.</p></div>
-  </div>
-  <div class="about-card" style="margin-top: 1.5rem;">
-    <h4>🗺️ Этапы развития</h4>
-    <div class="phase-timeline">
-      <div class="phase-item"><h5>Этап 1 — MVP</h5><p>Лендинг + тест, 10–15 бесплатных методик, простая логика рекомендаций</p></div>
-      <div class="phase-item"><h5>Этап 2 — Рост</h5><p>Личный кабинет, прогресс, дневник. 50+ методик, 5–10 мини-курсов</p></div>
-      <div class="phase-item"><h5>Этап 3 — Монетизация</h5><p>Premium-подписка, партнёрский магазин, B2B-пилоты с компаниями</p></div>
-      <div class="phase-item"><h5>Этап 4 — Масштабирование</h5><p>ИИ-ассистент, локализация, партнёрства с крупными брендами</p></div>
-    </div>
-  </div>
-  <div class="about-grid" style="margin-top: 1.5rem;">
-    <div class="about-card"><h4>⚠️ Важно</h4><p>Результаты теста носят информационный характер и не являются медицинским диагнозом. При серьёзных проблемах обратитесь к специалисту.</p></div>
-    <div class="about-card"><h4>🔒 Конфиденциальность</h4><p>Данные аккаунта хранятся в защищённом облаке Firebase. Пароли шифруются и не видны администрации.</p></div>
-  </div>
-</section>
+  function saveCourseToUser(title, price) {
+    if (!currentUser) return;
+    var courses = currentUser.courses || [];
+    var exists = courses.some(function(c) { return c.title === title; });
+    if (exists) return;
+    courses.push({ title: title, price: price, date: new Date().toISOString() });
+    var update = { courses: courses };
+    if (price !== '0 ₽' && price !== 'Бесплатно') update.subscription = 'active';
+    db.collection('users').doc(currentUser.uid).update(update).catch(function(err) { console.error(err); });
+  }
 
-</main>
+  // вопросы для теста
+  var OPT4 = ["Никогда", "Иногда", "Часто", "Постоянно"];
+  var OPT4R = ["Почти никогда", "Иногда", "Часто", "Очень часто"];
+  var OPT_QUALITY = ["Отличное", "Хорошее", "Удовлетворительное", "Плохое"];
 
-<!-- модалка для курсов -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal()">×</button>
-    <div id="modalEmoji" style="font-size: 2.5rem; margin-bottom: 1rem;">🎓</div>
-    <h2 id="modalTitle">Оформление</h2>
-    <div class="price-big" id="modalPrice"></div>
-    <p id="modalText">Функционал оплаты находится в разработке.</p>
-    <div style="display: flex; gap: 1rem; justify-content: center;">
-      <button class="btn btn-ghost" onclick="closeModal()">Закрыть</button>
-      <button class="btn btn-primary" onclick="confirmAction()">Подтвердить</button>
-    </div>
-  </div>
-</div>
+  var questions = [
+    // эмоциональное истощение (9 вопросов)
+    { scale: "EI", q: "Как часто вы чувствуете, что у вас «не хватает сил» на обычные дела?", qTeen: "Как часто у тебя не хватает сил даже на простые дела?", opts: OPT4R },
+    { scale: "EI", q: "Как часто вы чувствуете себя эмоционально опустошённым?", qTeen: "Как часто ты чувствуешь себя эмоционально выжатым?", opts: OPT4 },
+    { scale: "EI", q: "Просыпаетесь ли вы уже уставшим, даже после сна?", opts: OPT4R },
+    { scale: "EI", q: "Как вы оцениваете качество своего сна в последнее время?", opts: OPT_QUALITY },
+    { scale: "EI", q: "Как часто вы чувствуете, что работа / учёба вытягивает из вас все силы?", qTeen: "Как часто учёба забирает у тебя все силы?", qSenior: "Как часто рабочие задачи забирают у вас все силы?", opts: OPT4 },
+    { scale: "EI", q: "Как часто вы чувствуете себя «на пределе»?", opts: OPT4 },
+    { scale: "EI", q: "Как часто вы чувствуете, что не успеваете восстановиться за выходные?", qTeen: "Как часто ты не успеваешь отдохнуть за выходные?", opts: OPT4 },
+    { scale: "EI", q: "Как часто вы чувствуете себя измотанным к концу дня?", opts: OPT4 },
+    { scale: "EI", q: "Как часто вы чувствуете, что вам нужна пауза, но вы не можете её взять?", opts: OPT4 },
 
-<!-- модалка входа и регистрации -->
-<div class="modal-overlay" id="authOverlay">
-  <div class="modal">
-    <button class="modal-close" onclick="closeAuth()">×</button>
-    <h2 id="authTitle" style="font-size: 1.8rem; margin-bottom: 1.5rem;">Добро пожаловать</h2>
+    // цинизм и отстранённость (9 вопросов)
+    { scale: "DP", q: "Как часто вы раздражаетесь по мелочам?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы чувствуете, что стали циничнее по отношению к работе?", qTeen: "Как часто ты относишься к учёбе с раздражением?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы замечаете, что стали безразличны к тому, что раньше волновало?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы срываетесь на близких или коллегах?", qTeen: "Как часто ты срываешься на близких?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы чувствуете, что ваши усилия на работе не ценятся?", qTeen: "Как часто ты чувствуешь, что твои старания в учёбе не замечают?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы думаете о том, чтобы всё бросить?", qTeen: "Как часто ты хочешь всё бросить?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы считаете, что «всё бессмысленно»?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы чувствуете, что всё вокруг стало «серым»?", opts: OPT4 },
+    { scale: "DP", q: "Как часто вы хотите, чтобы все оставили вас в покое?", opts: OPT4 },
 
-    <div class="auth-tabs" id="authTabs">
-      <button class="auth-tab active" id="tabRegister" onclick="setAuthMode('register')">Регистрация</button>
-      <button class="auth-tab" id="tabLogin" onclick="setAuthMode('login')">Вход</button>
-    </div>
+    // потеря смысла и достижений (8 вопросов)
+    { scale: "RD", q: "Как часто вы чувствуете, что не справляетесь с обязанностями?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы сомневаетесь в своих профессиональных навыках?", qTeen: "Как часто ты сомневаешься в своих учебных способностях?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы переживаете из-за мелких ошибок?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы чувствуете, что теряете интерес к тому, что раньше нравилось?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы чувствуете, что ваши усилия не приводят к результату?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы сравниваете себя с другими и чувствуете себя хуже?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы испытываете чувство вины, когда отдыхаете?", opts: OPT4 },
+    { scale: "RD", q: "Как часто вы чувствуете, что «застряли» на месте?", opts: OPT4 },
 
-    <div class="auth-form" id="registerForm">
-      <label for="regLogin">Логин</label>
-      <input type="text" id="regLogin" placeholder="Придумайте логин" autocomplete="username">
-      <label for="regEmail">Почта</label>
-      <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email">
-      <label for="regPassword">Пароль</label>
-      <div class="password-wrap">
-        <input type="password" id="regPassword" placeholder="Минимум 8 символов" autocomplete="new-password" oninput="updatePwdStrength()">
-        <button type="button" class="eye-btn" onclick="togglePassword('regPassword', this)" aria-label="Показать пароль">
-          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-        </button>
-      </div>
-      <div class="pwd-strength" id="pwdStrengthBox" style="display:none;">
-        <div class="pwd-strength-bar"><div class="pwd-strength-fill" id="pwdStrengthFill"></div></div>
-        <div class="pwd-strength-text" id="pwdStrengthText"></div>
-        <ul class="pwd-rules" id="pwdRules">
-          <li data-rule="length">Минимум 8 символов</li>
-          <li data-rule="upper">Заглавная буква</li>
-          <li data-rule="lower">Строчная буква</li>
-          <li data-rule="digit">Цифра</li>
-          <li data-rule="special">Спецсимвол (!@#$%^&*/\ и др.)</li>
-        </ul>
-      </div>
-      <label for="regPassword2">Повторите пароль</label>
-      <div class="password-wrap">
-        <input type="password" id="regPassword2" placeholder="Ещё раз" autocomplete="new-password">
-        <button type="button" class="eye-btn" onclick="togglePassword('regPassword2', this)" aria-label="Показать пароль">
-          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-        </button>
-      </div>
-      <div class="auth-error" id="authError"></div>
-      <div class="auth-success" id="authSuccess"></div>
-      <div class="auth-info-box" id="authInfoBox"></div>
-      <button class="btn btn-primary" style="width:100%; margin-top: 0.5rem;" id="authSubmitBtn" onclick="submitRegister()">Создать аккаунт</button>
-      <button class="btn btn-outline" style="width:100%; margin-top: 0.5rem; display:none;" id="resendBtn" onclick="resendVerification()">Отправить письмо повторно</button>
-    </div>
+    // вопрос про формат информации
+    { scale: "READ", q: "Как вам удобнее получать информацию?", opts: [
+      "Читать статьи и книги",
+      "Смотреть видео и лекции",
+      "Слушать аудио и подкасты",
+      "Главное чтобы помогало"
+    ] },
 
-    <div class="auth-form" id="loginForm" style="display:none;">
-      <label for="loginLogin">Логин</label>
-      <input type="text" id="loginLogin" placeholder="Ваш логин" autocomplete="username">
-      <label for="loginPassword">Пароль</label>
-      <div class="password-wrap">
-        <input type="password" id="loginPassword" placeholder="Ваш пароль" autocomplete="current-password">
-        <button type="button" class="eye-btn" onclick="togglePassword('loginPassword', this)" aria-label="Показать пароль">
-          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-        </button>
-      </div>
-      <div class="auth-error" id="loginError"></div>
-      <div class="auth-success" id="loginSuccess"></div>
-      <div class="auth-info-box" id="loginInfoBox"></div>
-      <button class="btn btn-primary" style="width:100%; margin-top: 0.5rem;" id="loginSubmitBtn" onclick="submitLogin()">Войти</button>
-      <button class="btn btn-outline" style="width:100%; margin-top: 0.5rem; display:none;" id="loginResendBtn" onclick="resendFromLogin()">Отправить письмо повторно</button>
-      <div class="auth-forgot" onclick="setAuthMode('forgot')">Забыли пароль?</div>
-    </div>
+    // хобби вопрос чтобы подобрать курс
+    { scale: "HOBBY", q: "Какое хобби помогло бы вам расслабиться и восстановиться?", opts: [
+      "Йога / медитация",
+      "Рисование / арт-терапия",
+      "Вязание / бисер",
+      "Спорт / танцы",
+      "Психология / самопознание",
+      "Другое"
+    ] }
+  ];
 
-    <div class="auth-form" id="forgotForm" style="display:none;">
-      <p style="color: var(--text-soft); font-size: 0.9rem; margin-bottom: 1rem; text-align: left;">Введите логин и почту, к которой привязан аккаунт — мы отправим ссылку для сброса пароля.</p>
-      <label for="forgotLogin">Логин</label>
-      <input type="text" id="forgotLogin" placeholder="Ваш логин" autocomplete="username">
-      <label for="forgotEmail">Почта</label>
-      <input type="email" id="forgotEmail" placeholder="you@example.com" autocomplete="email">
-      <div class="auth-error" id="forgotError"></div>
-      <div class="auth-success" id="forgotSuccess"></div>
-      <button class="btn btn-primary" style="width:100%; margin-top: 0.5rem;" id="forgotSubmitBtn" onclick="submitForgot()">Отправить письмо</button>
-      <div class="auth-forgot" onclick="setAuthMode('login')">← Назад ко входу</div>
-    </div>
-  </div>
-</div>
+  var currentQ = 0;
+  var answers = new Array(questions.length).fill(null);
+  var ageGroup = null;
+  var lastTestResult = null;
 
-<!-- модалка личного кабинета -->
-<div class="modal-overlay" id="profileOverlay">
-  <div class="modal modal-wide">
-    <button class="modal-close" onclick="closeProfile()">×</button>
-    <div class="profile-layout" style="margin-top: 0;">
-      <div class="profile-side">
-        <div class="profile-avatar-lg" id="profileAvatar">?</div>
-        <h3 id="profileName">Логин</h3>
-        <div class="login" id="profileLogin">@email</div>
-        <div class="sub-status" id="profileSubBadge">—</div>
-      </div>
-      <div class="profile-main">
-        <div class="profile-card"><h4>Результат теста</h4><div id="profileTestBlock"></div></div>
-        <div class="profile-card">
-          <h4>Динамика состояния</h4>
-          <div id="profileChartBlock"></div>
-        </div>
-        <div class="profile-card"><h4>Мои курсы</h4><div id="profileCoursesBlock"></div></div>
-        <div class="profile-card">
-          <h4>Способ оплаты</h4>
-          <div id="profileCardBlock"></div>
-        </div>
-      </div>
-    </div>
-    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
-      <button class="btn btn-outline" onclick="logoutUser()">Выйти из аккаунта</button>
-    </div>
-  </div>
-</div>
+  var qNumEl = document.getElementById('qNum');
+  var qTextEl = document.getElementById('qText');
+  var qOptsEl = document.getElementById('qOptions');
+  var progressEl = document.getElementById('progressFill');
+  var btnPrev = document.getElementById('btnPrev');
+  var btnNext = document.getElementById('btnNext');
 
-<!-- модалка привязки карты -->
-<div class="modal-overlay" id="cardOverlay">
-  <div class="modal">
-    <button class="modal-close" onclick="closeCard()">×</button>
-    <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">💳</div>
-    <h2 style="font-size: 1.6rem; margin-bottom: 0.5rem;">Привязать карту</h2>
-    <p style="color: var(--text-soft); font-size: 0.85rem; margin-bottom: 1.5rem;">Это демонстрация. Данные карты никуда не отправляются и не сохраняются.</p>
+  function getQuestionText(item) {
+    var map = { teen: item.qTeen, young: item.qYoung, adult: item.qAdult, mature: item.qMature, senior: item.qSenior };
+    return (ageGroup && map[ageGroup]) ? map[ageGroup] : item.q;
+  }
 
-    <div class="auth-form">
-      <label for="cardNumber">Номер карты</label>
-      <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric" autocomplete="cc-number">
+  window.selectAge = function(age) {
+    ageGroup = age;
+    document.getElementById('rolePicker').style.display = 'none';
+    document.getElementById('quizCard').style.display = 'block';
+    currentQ = 0;
+    answers = new Array(questions.length).fill(null);
+    renderQ();
+  };
 
-      <label for="cardHolder">Имя на карте</label>
-      <input type="text" id="cardHolder" placeholder="IVAN IVANOV" autocomplete="cc-name">
+  function renderQ() {
+    var item = questions[currentQ];
+    qNumEl.textContent = currentQ + 1;
+    qTextEl.textContent = getQuestionText(item);
+    var qTotalEl = document.getElementById('qTotal');
+    if (qTotalEl) qTotalEl.textContent = questions.length;
+    progressEl.style.width = ((currentQ + 1) / questions.length) * 100 + '%';
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-        <div>
-          <label for="cardExpiry">Срок действия</label>
-          <input type="text" id="cardExpiry" placeholder="ММ/ГГ" maxlength="5" inputmode="numeric" autocomplete="cc-exp">
-        </div>
-        <div>
-          <label for="cardCvv">CVV</label>
-          <input type="password" id="cardCvv" placeholder="•••" maxlength="4" inputmode="numeric" autocomplete="cc-csc">
-        </div>
-      </div>
+    var html = '';
+    for (var i = 0; i < item.opts.length; i++) {
+      var cls = (answers[currentQ] === i) ? ' selected' : '';
+      html += '<button class="quiz-option' + cls + '" data-idx="' + i + '">' + item.opts[i] + '</button>';
+    }
+    qOptsEl.innerHTML = html;
+    qOptsEl.querySelectorAll('.quiz-option').forEach(function(el) {
+      el.addEventListener('click', function() { selectAns(parseInt(this.getAttribute('data-idx'), 10)); });
+    });
 
-      <div class="auth-error" id="cardError"></div>
+    btnPrev.disabled = false;
+    btnPrev.textContent = (currentQ === 0) ? '← К выбору возраста' : '← Назад';
+    btnNext.disabled = (answers[currentQ] === null);
+    btnNext.textContent = (currentQ === questions.length - 1) ? 'Получить результат →' : 'Далее →';
+  }
 
-      <button class="btn btn-primary" style="width:100%; margin-top: 0.5rem;" onclick="saveCard()">Сохранить карту</button>
-      <div style="text-align:center; font-size:0.75rem; color: var(--text-dim); margin-top: 1rem; line-height: 1.5;">
-        🔒 В реальном проекте данные карты принимает платёжный сервис. Мы их не видим и не храним.
-      </div>
-    </div>
-  </div>
-</div>
+  function selectAns(idx) {
+    answers[currentQ] = idx;
+    qOptsEl.querySelectorAll('.quiz-option').forEach(function(el, i) { el.classList.toggle('selected', i === idx); });
+    btnNext.disabled = false;
+  }
 
-<!-- модалка настроек -->
-<div class="modal-overlay" id="settingsOverlay">
-  <div class="modal">
-    <button class="modal-close" onclick="closeSettings()">×</button>
-    <h2 style="font-size: 1.6rem; margin-bottom: 1.5rem;">Настройки</h2>
-    <div class="settings-row">
-      <div class="settings-row-label"><h5>Тёмная тема</h5><p>Сменить оформление сайта</p></div>
-      <button class="theme-switch" id="themeSwitch" onclick="toggleTheme()" aria-label="Переключить тему">
-        <span class="theme-switch-icon sun">☀</span>
-        <span class="theme-switch-icon moon">🌙</span>
-      </button>
-    </div>
-    <div class="settings-row">
-      <div class="settings-row-label"><h5>Уведомления</h5><p>Напоминания о практике</p></div>
-      <button class="theme-switch" id="notifySwitch" onclick="toggleNotify()" aria-label="Уведомления">
-        <span class="theme-switch-icon sun">🔕</span>
-        <span class="theme-switch-icon moon">🔔</span>
-      </button>
-    </div>
-    <div style="margin-top: 1.5rem;">
-      <button class="btn btn-ghost" style="width:100%;" onclick="closeSettings()">Закрыть</button>
-    </div>
-  </div>
-</div>
+  window.nextQ = function() {
+    if (answers[currentQ] === null) return;
+    if (currentQ < questions.length - 1) { currentQ++; renderQ(); }
+    else calcResults();
+  };
 
-<!-- нижние меню на телефоне -->
-<nav class="bottom-nav">
-  <a class="bottom-nav-item active" onclick="navigate('dashboard')">
-    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-    <span>Главная</span>
-  </a>
-  <a class="bottom-nav-item" onclick="navigate('quiz')">
-    <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-    <span>Тест</span>
-  </a>
-  <a class="bottom-nav-item" onclick="navigate('courses')">
-    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-    <span>Курсы</span>
-  </a>
-  <a class="bottom-nav-item" onclick="navigate('resources')">
-    <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-    <span>Материалы</span>
-  </a>
-  <a class="bottom-nav-item" onclick="openAuth()">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"></path></svg>
-    <span>Аккаунт</span>
-  </a>
-</nav>
+  window.prevQ = function() {
+    if (currentQ > 0) {
+      currentQ--;
+      renderQ();
+    } else {
+      document.getElementById('quizCard').style.display = 'none';
+      document.getElementById('rolePicker').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
-<!-- модалка со статьей -->
-<div class="modal-overlay" id="articleOverlay">
-  <div class="modal modal-wide" style="text-align: left; max-width: 720px;">
-    <button class="modal-close" onclick="closeArticle()">×</button>
-    <h2 id="articleTitle" style="font-family: 'Cormorant Garamond', serif; font-size: 2rem; margin-bottom: 0.5rem; text-align: left;">Статья</h2>
-    <div id="articleMeta" style="color: var(--text-soft); font-size: 0.85rem; margin-bottom: 1.5rem;"></div>
-    <div id="articleContent" class="article-content"></div>
-  </div>
-</div>
-<script src="js/app.js"></script>
-<script src="js/articles.js"></script>
-</body>
-</html>
+  window.restartQuiz = function() {
+    currentQ = 0;
+    answers = new Array(questions.length).fill(null);
+    ageGroup = null;
+    document.getElementById('rolePicker').style.display = 'block';
+    document.getElementById('quizCard').style.display = 'none';
+    navigate('quiz');
+  };
+
+  // скрытый переход по вопросам
+  window.skipToQuestion = function() {
+    var num = prompt('К какому вопросу перейти?\nВведите число от 1 до ' + questions.length, '');
+    if (num === null) return;
+    var n = parseInt(num, 10);
+    if (isNaN(n) || n < 1 || n > questions.length) {
+      alert('Введите число от 1 до ' + questions.length);
+      return;
+    }
+    for (var i = 0; i < n - 1; i++) {
+      if (answers[i] === null) {
+        answers[i] = Math.floor(Math.random() * questions[i].opts.length);
+      }
+    }
+    currentQ = n - 1;
+    renderQ();
+    setTimeout(function() {
+      var rand = Math.floor(Math.random() * questions[currentQ].opts.length);
+      selectAns(rand);
+    }, 30);
+  };
+
+  function calcResults() {
+    var scaleScores = { EI: 0, DP: 0, RD: 0 };
+    var scaleMaxes = { EI: 0, DP: 0, RD: 0 };
+
+    for (var i = 0; i < questions.length; i++) {
+      if (questions[i].scale === 'HOBBY') continue;
+      if (questions[i].scale === 'READ') continue;
+      var a = answers[i];
+      if (a === null) a = 0;
+      var val = questions[i].reverse ? (3 - a) : a;
+      var s = questions[i].scale;
+      scaleScores[s] += val;
+      scaleMaxes[s] += 3;
+    }
+
+    var totalScore = scaleScores.EI + scaleScores.DP + scaleScores.RD;
+    var totalMax = scaleMaxes.EI + scaleMaxes.DP + scaleMaxes.RD;
+    var pct = Math.round((totalScore / totalMax) * 100);
+
+    var pctEI = Math.round((scaleScores.EI / scaleMaxes.EI) * 100);
+    var pctDP = Math.round((scaleScores.DP / scaleMaxes.DP) * 100);
+    var pctRD = Math.round((scaleScores.RD / scaleMaxes.RD) * 100);
+
+    var maxScale = Math.max(pctEI, pctDP, pctRD);
+    var type = '', typeDesc = '';
+
+    if (maxScale === pctEI && pctEI >= 40) {
+      type = 'Истощение';
+      typeDesc = 'Ваш тип выгорания — истощение. Вы в первую очередь физически и эмоционально вымотаны.';
+    } else if (maxScale === pctDP && pctDP >= 40) {
+      type = 'Цинизм';
+      typeDesc = 'Ваш тип выгорания — цинизм. Вы теряете интерес и вовлечённость, стали раздражительны и отстранены.';
+    } else if (maxScale === pctRD && pctRD >= 40) {
+      type = 'Потеря смысла';
+      typeDesc = 'Ваш тип выгорания — редукция достижений. Вам кажется, что ничего не получается и ничего не имеет смысла.';
+    } else {
+      type = 'Смешанный';
+      typeDesc = 'У вас смешанный тип — признаки всех трёх шкал выражены примерно одинаково.';
+    }
+
+    var level, color;
+    if (pct < 33) { level = 'Низкий'; color = '#7fa97c'; }
+    else if (pct < 66) { level = 'Умеренный'; color = '#d4a373'; }
+    else { level = 'Высокий'; color = '#c97b6a'; }
+
+    document.getElementById('resTitle').textContent = level + ' уровень выгорания';
+    document.getElementById('resDesc').textContent = typeDesc + ' Это не диагноз а ориентир для дальнейших шагов.';
+    document.getElementById('resPercent').textContent = pct + '%';
+
+    var donut = document.getElementById('donutFill');
+    var circumference = 2 * Math.PI * 75;
+    donut.setAttribute('stroke-dasharray', circumference);
+    donut.setAttribute('stroke', color);
+    donut.style.strokeDashoffset = circumference;
+    setTimeout(function() { donut.style.strokeDashoffset = circumference - (pct / 100) * circumference; }, 100);
+
+    var causesHtml = '';
+    causesHtml += '<div class="cause-item"><span class="cause-dot ' + (pctEI >= 60 ? 'danger' : (pctEI >= 33 ? 'warning' : 'success')) + '"></span><span>Эмоциональное истощение — ' + pctEI + '%</span></div>';
+    causesHtml += '<div class="cause-item"><span class="cause-dot ' + (pctDP >= 60 ? 'danger' : (pctDP >= 33 ? 'warning' : 'success')) + '"></span><span>Цинизм и отстранённость — ' + pctDP + '%</span></div>';
+    causesHtml += '<div class="cause-item"><span class="cause-dot ' + (pctRD >= 60 ? 'danger' : (pctRD >= 33 ? 'warning' : 'success')) + '"></span><span>Потеря смысла и достижений — ' + pctRD + '%</span></div>';
+    document.getElementById('resCauses').innerHTML = causesHtml;
+
+    var hobbyIdx = -1;
+    for (var k = 0; k < questions.length; k++) {
+      if (questions[k].scale === 'HOBBY') { hobbyIdx = k; break; }
+    }
+    var hobbyAnswer = (hobbyIdx >= 0 && answers[hobbyIdx] !== null) ? questions[hobbyIdx].opts[answers[hobbyIdx]] : null;
+
+    var readIdx = -1;
+    for (var m = 0; m < questions.length; m++) {
+      if (questions[m].scale === 'READ') { readIdx = m; break; }
+    }
+    var readAnswer = (readIdx >= 0 && answers[readIdx] !== null) ? questions[readIdx].opts[answers[readIdx]] : null;
+
+    lastTestResult = { percent: pct, level: level + ' уровень выгорания', type: type, ageGroup: ageGroup, scales: { EI: pctEI, DP: pctDP, RD: pctRD }, hobby: hobbyAnswer, reading: readAnswer, date: new Date().toISOString() };
+
+    if (currentUser) {
+      var history = currentUser.testHistory || [];
+      history.push(lastTestResult);
+      db.collection('users').doc(currentUser.uid).update({
+        lastTest: lastTestResult,
+        testHistory: history
+      }).catch(function(err) { console.error(err); });
+    }
+
+    showHobbyRecommendation(hobbyAnswer);
+    showReadingRecommendation(readAnswer);
+    showSaveBanner();
+    navigate('results');
+  }
+
+  function showReadingRecommendation(reading) {
+    var old = document.getElementById('readingBlock');
+    if (old) old.remove();
+    if (!reading) return;
+
+    var block = document.createElement('div');
+    block.id = 'readingBlock';
+    block.style.cssText = 'margin-top:1.5rem;padding:1.25rem;background:var(--primary-light);border-radius:16px;text-align:center;';
+
+    if (reading === 'Читать статьи и книги') {
+      block.innerHTML =
+        '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вы любите читать</div>' +
+        '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Как распознать выгорание</div>' +
+        '<p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Статья о стадиях выгорания и первых признаках — для тех кто любит разбираться в теме через чтение</p>' +
+        '<button class="btn btn-primary btn-sm" onclick="openArticle(\'Как распознать выгорание\')">Читать статью →</button>';
+    } else if (reading === 'Смотреть видео и лекции') {
+      block.innerHTML =
+        '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вы любите видео</div>' +
+        '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Как выбраться из выгорания: 5 шагов</div>' +
+        '<p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Видео-разбор от психолога — что делать по шагам если уже на грани</p>' +
+        '<button class="btn btn-primary btn-sm" onclick="showVideoModal()">Смотреть видео →</button>';
+    } else if (reading === 'Слушать аудио и подкасты') {
+      block.innerHTML =
+        '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вы любите слушать</div>' +
+        '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Аудио-практики</div>' +
+        '<p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Скоро добавим подкасты и аудио-медитации. А пока — статьи и видео</p>' +
+        '<button class="btn btn-outline btn-sm" onclick="openArticle(\'Как распознать выгорание\')">Читать статью →</button>';
+    } else if (reading === 'Главное чтобы помогало') {
+      block.innerHTML =
+        '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вам важен результат</div>' +
+        '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Начните с бесплатной статьи</div>' +
+        '<p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Как распознать выгорание на ранней стадии — и что делать дальше</p>' +
+        '<div style="display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;">' +
+          '<button class="btn btn-primary btn-sm" onclick="openArticle(\'Как распознать выгорание\')">Читать статью</button>' +
+          '<button class="btn btn-outline btn-sm" onclick="showVideoModal()">Смотреть видео</button>' +
+        '</div>';
+    } else {
+      return;
+    }
+
+    var target = document.querySelector('#results .result-card');
+    if (target) {
+      var noteEl = target.querySelector('.result-note');
+      if (noteEl) target.insertBefore(block, noteEl);
+      else target.appendChild(block);
+    }
+  }
+
+  function showHobbyRecommendation(hobby) {
+    var old = document.getElementById('hobbyBlock');
+    if (old) old.remove();
+    if (!hobby) return;
+
+    var map = {
+      'Йога / медитация':           { cat: 'yoga',  label: 'Йога и медитация' },
+      'Рисование / арт-терапия':    { cat: 'art',   label: 'Рисование и арт-терапия' },
+      'Вязание / бисер':            { cat: 'art',   label: 'Рукоделие' },
+      'Спорт / танцы':              { cat: 'sport', label: 'Спорт' },
+      'Психология / самопознание':  { cat: 'psych', label: 'Психология' }
+    };
+    var rec = map[hobby];
+
+    var block = document.createElement('div');
+    block.id = 'hobbyBlock';
+    block.style.cssText = 'margin-top:1.5rem;padding:1.25rem;background:var(--primary-light);border-radius:16px;text-align:center;';
+    block.innerHTML =
+      '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Ваше хобби для восстановления</div>' +
+      '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.6rem; font-weight:600; color:var(--primary-dark); margin-bottom:1rem;">' + hobby + '</div>' +
+      (rec ? '<button class="btn btn-primary btn-sm" onclick="goToCoursesFiltered(\'' + rec.cat + '\')">Показать курсы: ' + rec.label + ' →</button>' : '');
+
+    var target = document.querySelector('#results .result-card');
+    if (target) {
+      var noteEl = target.querySelector('.result-note');
+      if (noteEl) target.insertBefore(block, noteEl);
+      else target.appendChild(block);
+    }
+  }
+
+  window.goToCoursesFiltered = function(cat) {
+    navigate('courses');
+    setTimeout(function() {
+      var tabs = document.querySelectorAll('.courses-tab');
+      for (var i = 0; i < tabs.length; i++) {
+        var oc = tabs[i].getAttribute('onclick') || '';
+        if (oc.indexOf("'" + cat + "'") !== -1) {
+          filterCourses(cat, tabs[i]);
+          break;
+        }
+      }
+    }, 100);
+  };
+
+  function showSaveBanner() {
+    var old = document.getElementById('saveBanner');
+    if (old) old.remove();
+    if (currentUser) return;
+
+    var banner = document.createElement('div');
+    banner.id = 'saveBanner';
+    banner.style.cssText = 'margin-top:1.5rem;padding:1.25rem;background:var(--primary-light);border-radius:16px;text-align:center;';
+    banner.innerHTML =
+      '<div style="font-size:0.95rem;color:var(--primary-dark);margin-bottom:0.75rem;font-weight:500;">' +
+        '💾 Хотите сохранить результат и получить персональный маршрут?' +
+      '</div>' +
+      '<button class="btn btn-primary btn-sm" onclick="openAuth()">Войти или зарегистрироваться</button>';
+
+    var target = document.querySelector('#results .result-card');
+    if (target) target.appendChild(banner);
+  }
+
+  // настройки сайта
+  var settingsOverlay = document.getElementById('settingsOverlay');
+  window.openSettings = function() { settingsOverlay.classList.add('show'); syncThemeSwitch(); syncNotifySwitch(); };
+  window.closeSettings = function() { settingsOverlay.classList.remove('show'); };
+  settingsOverlay.addEventListener('click', function(e) { if (e.target === settingsOverlay) closeSettings(); });
+
+  window.toggleTheme = function() {
+    var current = document.documentElement.getAttribute('data-theme') || 'light';
+    var next = current === 'dark' ? 'light' : 'dark';
+    if (next === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    else document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('bc_theme', next);
+    syncThemeSwitch();
+  };
+
+  function syncThemeSwitch() {
+    document.getElementById('themeSwitch').classList.toggle('on', document.documentElement.getAttribute('data-theme') === 'dark');
+  }
+
+  window.toggleNotify = function() {
+    var current = localStorage.getItem('bc_notify') === 'on';
+    localStorage.setItem('bc_notify', current ? 'off' : 'on');
+    syncNotifySwitch();
+  };
+
+  function syncNotifySwitch() {
+    document.getElementById('notifySwitch').classList.toggle('on', localStorage.getItem('bc_notify') === 'on');
+  }
+
+  // автаризация вход и регистрация
+  var authOverlay = document.getElementById('authOverlay');
+  var profileOverlay = document.getElementById('profileOverlay');
+
+  window.openAuth = function() {
+    if (currentUser) { openProfile(); return; }
+    authOverlay.classList.add('show');
+    setAuthMode('register');
+  };
+
+  window.closeAuth = function() {
+    authOverlay.classList.remove('show');
+    ['authError','authSuccess','loginError','loginSuccess','forgotError','forgotSuccess'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = '';
+    });
+    ['authInfoBox','loginInfoBox'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.remove('show');
+    });
+    document.getElementById('regLogin').value = '';
+    document.getElementById('regEmail').value = '';
+    document.getElementById('regPassword').value = '';
+    document.getElementById('regPassword2').value = '';
+    document.getElementById('loginLogin').value = '';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('forgotLogin').value = '';
+    document.getElementById('forgotEmail').value = '';
+    document.getElementById('pwdStrengthBox').style.display = 'none';
+    document.getElementById('pwdStrengthFill').style.width = '0%';
+    document.getElementById('resendBtn').style.display = 'none';
+    document.getElementById('loginResendBtn').style.display = 'none';
+    document.getElementById('authSubmitBtn').style.display = 'block';
+  };
+
+  authOverlay.addEventListener('click', function(e) { if (e.target === authOverlay) closeAuth(); });
+
+  window.closeProfile = function() { profileOverlay.classList.remove('show'); };
+  profileOverlay.addEventListener('click', function(e) { if (e.target === profileOverlay) closeProfile(); });
+
+  // привязка карты
+  var cardOverlay = document.getElementById('cardOverlay');
+
+  window.openCard = function() {
+    if (cardOverlay) cardOverlay.classList.add('show');
+  };
+
+  window.closeCard = function() {
+    if (!cardOverlay) return;
+    cardOverlay.classList.remove('show');
+    document.getElementById('cardNumber').value = '';
+    document.getElementById('cardHolder').value = '';
+    document.getElementById('cardExpiry').value = '';
+    document.getElementById('cardCvv').value = '';
+    document.getElementById('cardError').textContent = '';
+  };
+
+  if (cardOverlay) {
+    cardOverlay.addEventListener('click', function(e) {
+      if (e.target === cardOverlay) closeCard();
+    });
+  }
+
+  var cardNumberEl = document.getElementById('cardNumber');
+  if (cardNumberEl) {
+    cardNumberEl.addEventListener('input', function() {
+      var v = this.value.replace(/\D/g, '').substring(0, 16);
+      this.value = v.replace(/(.{4})/g, '$1 ').trim();
+    });
+  }
+
+  var cardExpiryEl = document.getElementById('cardExpiry');
+  if (cardExpiryEl) {
+    cardExpiryEl.addEventListener('input', function() {
+      var v = this.value.replace(/\D/g, '').substring(0, 4);
+      if (v.length >= 3) v = v.substring(0, 2) + '/' + v.substring(2);
+      this.value = v;
+    });
+  }
+
+  var cardCvvEl = document.getElementById('cardCvv');
+  if (cardCvvEl) {
+    cardCvvEl.addEventListener('input', function() {
+      this.value = this.value.replace(/\D/g, '').substring(0, 4);
+    });
+  }
+
+  window.saveCard = function() {
+    var num = document.getElementById('cardNumber').value.replace(/\s/g, '');
+    var holder = document.getElementById('cardHolder').value.trim();
+    var exp = document.getElementById('cardExpiry').value;
+    var cvv = document.getElementById('cardCvv').value;
+    var errEl = document.getElementById('cardError');
+    errEl.textContent = '';
+
+    if (num.length !== 16) { errEl.textContent = 'Номер карты должен быть 16 цифр.'; return; }
+    if (holder.length < 2) { errEl.textContent = 'Введите имя как на карте.'; return; }
+    if (!/^\d{2}\/\d{2}$/.test(exp)) { errEl.textContent = 'Срок действия в формате ММ/ГГ.'; return; }
+    var mm = parseInt(exp.substring(0,2), 10);
+    if (mm < 1 || mm > 12) { errEl.textContent = 'Месяц от 01 до 12.'; return; }
+    if (cvv.length < 3) { errEl.textContent = 'CVV не короче 3 цифр.'; return; }
+
+    var masked = '•••• •••• •••• ' + num.substring(12);
+    var cardData = { masked: masked, holder: holder, expiry: exp };
+    localStorage.setItem('bc_card_demo', JSON.stringify(cardData));
+
+    closeCard();
+    renderProfileCard();
+  };
+
+  window.removeCard = function() {
+    if (!confirm('Удалить привязанную карту?')) return;
+    localStorage.removeItem('bc_card_demo');
+    renderProfileCard();
+  };
+
+  function renderProfileCard() {
+    var block = document.getElementById('profileCardBlock');
+    if (!block) return;
+    var raw = localStorage.getItem('bc_card_demo');
+    if (!raw) {
+      block.innerHTML =
+        '<div class="empty-state" style="margin-bottom:1rem;">Карта не привязана</div>' +
+        '<button class="btn btn-primary btn-sm" style="width:100%;" onclick="openCard()">💳 Привязать карту</button>';
+      return;
+    }
+    var card;
+    try { card = JSON.parse(raw); } catch(e) { card = null; }
+    if (!card) {
+      block.innerHTML = '<button class="btn btn-primary btn-sm" style="width:100%;" onclick="openCard()">💳 Привязать карту</button>';
+      return;
+    }
+    block.innerHTML =
+      '<div class="card-saved">' +
+        '<div class="card-saved-icon">CARD</div>' +
+        '<div class="card-saved-info">' +
+          '<div class="num">' + card.masked + '</div>' +
+          '<div class="exp">' + card.holder + ' · до ' + card.expiry + '</div>' +
+        '</div>' +
+        '<button class="card-saved-remove" onclick="removeCard()">Удалить</button>' +
+      '</div>' +
+      '<div style="font-size:0.78rem; color:var(--text-dim); text-align:left; margin-top:0.5rem;">Это демо. Реальные данные не сохраняются.</div>';
+  }
+
+  // диаграмма динамики по истории тестов
+  function renderProgressChart() {
+    var block = document.getElementById('profileChartBlock');
+    if (!block) return;
+
+    var history = (currentUser && currentUser.testHistory) ? currentUser.testHistory : [];
+
+    if (history.length < 2) {
+      block.innerHTML = '<div class="empty-state">Пройдите тест 2 раза и мы покажем график динамики</div>';
+      return;
+    }
+
+    var last = history.slice(-6);
+    var width = 100;
+    var height = 40;
+    var stepX = width / (last.length - 1);
+
+    var points = [];
+    for (var i = 0; i < last.length; i++) {
+      var x = i * stepX;
+      var y = height - (last[i].percent / 100) * height;
+      points.push({ x: x, y: y, pct: last[i].percent, date: last[i].date });
+    }
+
+    var pathD = '';
+    for (var j = 0; j < points.length; j++) {
+      pathD += (j === 0 ? 'M' : 'L') + points[j].x.toFixed(2) + ' ' + points[j].y.toFixed(2) + ' ';
+    }
+
+    var firstPct = last[0].percent;
+    var lastPct = last[last.length - 1].percent;
+    var diff = lastPct - firstPct;
+    var trendColor = diff <= -5 ? '#7fa97c' : (diff >= 5 ? '#c97b6a' : '#8b98a8');
+
+    var dotsSvg = '';
+    for (var k = 0; k < points.length; k++) {
+      var r = (k === points.length - 1) ? 2.2 : 1.4;
+      dotsSvg += '<circle cx="' + points[k].x.toFixed(2) + '" cy="' + points[k].y.toFixed(2) + '" r="' + r + '" fill="' + trendColor + '" />';
+    }
+
+    var svg = '<svg viewBox="-3 -3 106 46" preserveAspectRatio="none" style="width:100%; height:120px; display:block;">' +
+      '<line x1="0" y1="' + (height * 0.33) + '" x2="' + width + '" y2="' + (height * 0.33) + '" stroke="#e8e3da" stroke-width="0.3" stroke-dasharray="1,1.5" />' +
+      '<line x1="0" y1="' + (height * 0.66) + '" x2="' + width + '" y2="' + (height * 0.66) + '" stroke="#e8e3da" stroke-width="0.3" stroke-dasharray="1,1.5" />' +
+      '<path d="' + pathD + '" fill="none" stroke="' + trendColor + '" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" />' +
+      dotsSvg +
+    '</svg>';
+
+    var summaryText = '';
+    if (diff <= -5) {
+      summaryText = '<span style="color:var(--success); font-weight:600;">↓ Прогресс: ' + diff + '%</span>';
+    } else if (diff >= 5) {
+      summaryText = '<span style="color:var(--danger); font-weight:600;">↑ Ухудшение: +' + diff + '%</span>';
+    } else {
+      summaryText = '<span style="color:var(--text-soft); font-weight:600;">→ Без изменений: ' + diff + '%</span>';
+    }
+
+    var dateLabels = '';
+    for (var m = 0; m < last.length; m++) {
+      var d = new Date(last[m].date);
+      var day = d.getDate();
+      var month = d.getMonth() + 1;
+      dateLabels += '<span>' + day + '.' + month + '</span>';
+    }
+
+    block.innerHTML =
+      '<div style="text-align:left; margin-bottom:0.75rem; font-size:0.85rem;">' +
+        'Изменение уровня стресса за ' + last.length + ' тестов: ' + summaryText +
+      '</div>' +
+      svg +
+      '<div style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-dim); margin-top:0.25rem;">' +
+        dateLabels +
+      '</div>';
+  }
+
+  window.openProfile = function() {
+    if (!currentUser) return;
+    var initial = currentUser.login ? currentUser.login.charAt(0).toUpperCase() : '?';
+    document.getElementById('profileAvatar').textContent = initial;
+    document.getElementById('profileName').textContent = currentUser.login;
+    document.getElementById('profileLogin').textContent = currentUser.email || '';
+    var subBadge = document.getElementById('profileSubBadge');
+    if (currentUser.subscription === 'active') { subBadge.textContent = 'Premium активна'; subBadge.className = 'sub-status sub-active'; }
+    else { subBadge.textContent = 'Подписка не активна'; subBadge.className = 'sub-status sub-inactive'; }
+
+    var testBlock = document.getElementById('profileTestBlock');
+    if (currentUser.lastTest) {
+      var t = currentUser.lastTest;
+      var d = new Date(t.date);
+      var dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+      testBlock.innerHTML = '<div class="stat-row"><div class="stat-mini"><div class="num">' + t.percent + '%</div><div class="lbl">Уровень</div></div><div class="stat-mini"><div class="num" style="font-size:1rem;">' + (t.type || '—') + '</div><div class="lbl">Тип</div></div><div class="stat-mini"><div class="num" style="font-size:1rem;">' + dateStr + '</div><div class="lbl">Дата</div></div></div>';
+
+      var history = currentUser.testHistory || [];
+      if (history.length >= 2) {
+        var prev = history[history.length - 2];
+        var curr = history[history.length - 1];
+        var diff = curr.percent - prev.percent;
+        var trendLabel, trendColor, trendSign, trendEmoji;
+        if (diff <= -5) {
+          trendLabel = 'Прогресс';
+          trendColor = 'var(--success)';
+          trendSign = diff + '%';
+          trendEmoji = '↓';
+        } else if (diff >= 5) {
+          trendLabel = 'Ухудшение';
+          trendColor = 'var(--danger)';
+          trendSign = '+' + diff + '%';
+          trendEmoji = '↑';
+        } else {
+          trendLabel = 'Без изменений';
+          trendColor = 'var(--text-soft)';
+          trendSign = diff + '%';
+          trendEmoji = '→';
+        }
+        var trendHtml = '<div style="margin-top:1.5rem;padding:1.25rem;background:var(--bg-alt);border-radius:16px;text-align:center;">' +
+          '<div style="font-family:Inter, sans-serif; font-size:0.8rem; color:var(--text-soft); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Динамика с прошлого теста</div>' +
+          '<div style="display:flex; align-items:center; justify-content:center; gap:1rem; flex-wrap:wrap;">' +
+            '<div style="font-family:Cormorant Garamond, serif; font-size:2rem; font-weight:700; color:' + trendColor + ';">' + trendEmoji + ' ' + trendSign + '</div>' +
+            '<div style="font-size:0.95rem; color:' + trendColor + '; font-weight:600;">' + trendLabel + '</div>' +
+          '</div>' +
+          '<div style="margin-top:0.75rem; font-size:0.82rem; color:var(--text-soft);">' +
+            'Прошлый тест: ' + prev.percent + '% → Сейчас: ' + curr.percent + '%' +
+          '</div>' +
+        '</div>';
+        testBlock.innerHTML += trendHtml;
+      } else {
+        testBlock.innerHTML += '<div style="margin-top:1.5rem;padding:1rem;background:var(--bg-alt);border-radius:12px;text-align:center;font-size:0.85rem;color:var(--text-soft);">Пройдите тест ещё раз через 2 недели и мы покажем динамику</div>';
+      }
+
+      var daysSince = Math.floor((Date.now() - new Date(t.date).getTime()) / 86400000);
+      if (daysSince >= 14) {
+        var remindHtml = '<div style="margin-top:1.5rem;padding:1.25rem;background:var(--warning-light);border-radius:16px;text-align:center;">' +
+          '<div style="font-size:0.95rem;color:var(--warning);font-weight:600;margin-bottom:0.75rem;">⏰ Пора пройти тест снова</div>' +
+          '<div style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Прошло ' + daysSince + ' дней с последнего теста</div>' +
+          '<button class="btn btn-primary btn-sm" onclick="closeProfile(); restartQuiz();">Пройти тест</button>' +
+        '</div>';
+        testBlock.innerHTML += remindHtml;
+      }
+    } else {
+      testBlock.innerHTML = '<div class="empty-state">Вы ещё не проходили тест</div>';
+    }
+
+    var coursesBlock = document.getElementById('profileCoursesBlock');
+    if (currentUser.courses && currentUser.courses.length > 0) {
+      var html = '';
+      currentUser.courses.forEach(function(c) { html += '<div class="profile-course-row"><span class="name">' + c.title + '</span><span class="status">' + c.price + '</span></div>'; });
+      coursesBlock.innerHTML = html;
+    } else {
+      coursesBlock.innerHTML = '<div class="empty-state">Вы ещё не записались ни на один курс</div>';
+    }
+
+    renderProfileCard();
+    renderProgressChart();
+    profileOverlay.classList.add('show');
+  };
+
+  window.logoutUser = function() {
+    if (confirm('Выйти из аккаунта?')) auth.signOut().then(function() { closeProfile(); });
+  };
+
+  window.setAuthMode = function(mode) {
+    var regForm = document.getElementById('registerForm');
+    var loginForm = document.getElementById('loginForm');
+    var forgotForm = document.getElementById('forgotForm');
+    var tabs = document.getElementById('authTabs');
+    var title = document.getElementById('authTitle');
+
+    regForm.style.display = 'none';
+    loginForm.style.display = 'none';
+    forgotForm.style.display = 'none';
+
+    if (mode === 'register') {
+      regForm.style.display = 'block';
+      tabs.style.display = 'flex';
+      title.textContent = 'Регистрация';
+      document.getElementById('tabRegister').classList.add('active');
+      document.getElementById('tabLogin').classList.remove('active');
+    } else if (mode === 'login') {
+      loginForm.style.display = 'block';
+      tabs.style.display = 'flex';
+      title.textContent = 'Вход';
+      document.getElementById('tabRegister').classList.remove('active');
+      document.getElementById('tabLogin').classList.add('active');
+    } else if (mode === 'forgot') {
+      forgotForm.style.display = 'block';
+      tabs.style.display = 'none';
+      title.textContent = 'Восстановление пароля';
+    }
+  };
+
+  window.togglePassword = function(inputId, btn) {
+    var input = document.getElementById(inputId);
+    if (input.type === 'password') { input.type = 'text'; btn.classList.add('visible'); }
+    else { input.type = 'password'; btn.classList.remove('visible'); }
+  };
+
+  function checkPasswordRules(pwd) {
+    return { length: pwd.length >= 8, upper: /[A-ZА-Я]/.test(pwd), lower: /[a-zа-я]/.test(pwd), digit: /\d/.test(pwd), special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(pwd) };
+  }
+
+  window.updatePwdStrength = function() {
+    var box = document.getElementById('pwdStrengthBox');
+    var fill = document.getElementById('pwdStrengthFill');
+    var text = document.getElementById('pwdStrengthText');
+    var rulesEl = document.getElementById('pwdRules');
+    var pwd = document.getElementById('regPassword').value;
+    if (pwd.length === 0) { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    var rules = checkPasswordRules(pwd);
+    var passed = 0;
+    Object.keys(rules).forEach(function(key) {
+      var li = rulesEl.querySelector('[data-rule="' + key + '"]');
+      if (li) li.classList.toggle('ok', rules[key]);
+      if (rules[key]) passed++;
+    });
+    fill.style.width = (passed / 5) * 100 + '%';
+    text.classList.remove('weak', 'medium', 'strong');
+    if (passed <= 2) { fill.style.background = 'var(--danger)'; text.classList.add('weak'); text.textContent = 'Слабый пароль'; }
+    else if (passed <= 4) { fill.style.background = 'var(--warning)'; text.classList.add('medium'); text.textContent = 'Средний пароль'; }
+    else { fill.style.background = 'var(--success)'; text.classList.add('strong'); text.textContent = 'Надёжный пароль'; }
+  };
+
+  function updateProfileIcon() {
+    document.getElementById('profileBtn').classList.toggle('logged-in', !!currentUser);
+  }
+
+  function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+
+  function translateAuthError(code) {
+    var map = {
+      'auth/email-already-in-use': 'Эта почта уже зарегистрирована.',
+      'auth/invalid-email': 'Неверный формат почты.',
+      'auth/weak-password': 'Слишком слабый пароль.',
+      'auth/user-not-found': 'Пользователь не найден.',
+      'auth/wrong-password': 'Неверный пароль.',
+      'auth/invalid-credential': 'Неверный логин или пароль.',
+      'auth/too-many-requests': 'Слишком много попыток. Подождите немного.',
+      'auth/network-request-failed': 'Проблема с интернетом.',
+      'auth/email-not-verified': 'Почта не подтверждена. Проверьте письмо.',
+      'custom/login-taken': 'Этот логин уже занят. Придумайте другой.',
+      'custom/user-not-found': 'Логин не найден. Проверьте написание.',
+      'custom/email-mismatch': 'Указанная почта не совпадает с почтой аккаунта.'
+    };
+    return map[code] || 'Ошибка: ' + code;
+  }
+
+  window.submitRegister = function() {
+    var errEl = document.getElementById('authError');
+    var okEl = document.getElementById('authSuccess');
+    var infoEl = document.getElementById('authInfoBox');
+    errEl.textContent = ''; okEl.textContent = ''; infoEl.classList.remove('show');
+
+    var login = document.getElementById('regLogin').value.trim().toLowerCase();
+    var email = document.getElementById('regEmail').value.trim().toLowerCase();
+    var password = document.getElementById('regPassword').value;
+    var password2 = document.getElementById('regPassword2').value;
+    var btn = document.getElementById('authSubmitBtn');
+
+    if (login.length < 2) { errEl.textContent = 'Логин не короче 2 символов.'; return; }
+    if (!/^[a-z0-9._-]+$/.test(login)) { errEl.textContent = 'Логин: только английские буквы цифры точка дефис подчёркивание.'; return; }
+    if (!isValidEmail(email)) { errEl.textContent = 'Введите корректную почту.'; return; }
+    if (password.length < 8) { errEl.textContent = 'Пароль не короче 8 символов.'; return; }
+    var pwdRules = checkPasswordRules(password);
+    var passed = 0;
+    Object.keys(pwdRules).forEach(function(k) { if (pwdRules[k]) passed++; });
+    if (passed < 3) { errEl.textContent = 'Пароль слишком слабый. Нужно минимум 3 условия из 5.'; return; }
+    if (password !== password2) { errEl.textContent = 'Пароли не совпадают.'; return; }
+
+    pendingEmail = email;
+    btn.disabled = true;
+    btn.textContent = 'Подождите...';
+
+    db.collection('users').where('login', '==', login).limit(1).get()
+      .then(function(snapshot) {
+        if (!snapshot.empty) throw { code: 'custom/login-taken' };
+        return auth.createUserWithEmailAndPassword(email, password);
+      })
+      .then(function(cred) {
+        return cred.user.sendEmailVerification({ url: window.location.origin + window.location.pathname }).then(function() { return cred.user; });
+      })
+      .then(function(user) {
+        return db.collection('users').doc(user.uid).set({
+          login: login, email: email, courses: [], subscription: 'inactive', emailVerified: false,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      })
+      .then(function() { return auth.signOut(); })
+      .then(function() {
+        btn.disabled = false;
+        btn.style.display = 'none';
+        document.getElementById('resendBtn').style.display = 'block';
+        infoEl.innerHTML = '<strong>📧 Письмо отправлено!</strong><br>Мы отправили ссылку для подтверждения на <b>' + email + '</b>. Перейдите по ссылке в письме. Проверьте папку Спам.';
+        infoEl.classList.add('show');
+      })
+      .catch(function(err) {
+        console.error(err);
+        errEl.textContent = translateAuthError(err.code);
+        btn.disabled = false;
+        btn.textContent = 'Создать аккаунт';
+      });
+  };
+
+  window.submitLogin = function() {
+    var errEl = document.getElementById('loginError');
+    var okEl = document.getElementById('loginSuccess');
+    var infoEl = document.getElementById('loginInfoBox');
+    errEl.textContent = ''; okEl.textContent = ''; infoEl.classList.remove('show');
+
+    var login = document.getElementById('loginLogin').value.trim().toLowerCase();
+    var password = document.getElementById('loginPassword').value;
+    var btn = document.getElementById('loginSubmitBtn');
+
+    if (!login) { errEl.textContent = 'Введите логин.'; return; }
+    if (!password) { errEl.textContent = 'Введите пароль.'; return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Подождите...';
+
+    db.collection('users').where('login', '==', login).limit(1).get()
+      .then(function(snapshot) {
+        if (snapshot.empty) throw { code: 'custom/user-not-found' };
+        var userData = snapshot.docs[0].data();
+        return auth.signInWithEmailAndPassword(userData.email, password);
+      })
+      .then(function(cred) {
+        if (!cred.user.emailVerified) {
+          pendingEmail = cred.user.email;
+          return auth.signOut().then(function() { throw { code: 'auth/email-not-verified' }; });
+        }
+        okEl.textContent = 'С возвращением!';
+        btn.disabled = false;
+        btn.textContent = 'Войти';
+        setTimeout(closeAuth, 1000);
+      })
+      .catch(function(err) {
+        console.error(err);
+        btn.disabled = false;
+        btn.textContent = 'Войти';
+        if (err.code === 'auth/email-not-verified') {
+          errEl.textContent = 'Почта не подтверждена. Проверьте письмо.';
+          infoEl.innerHTML = '📧 Письмо было отправлено на <b>' + (pendingEmail || '') + '</b>. Не получили? Нажмите кнопку ниже.';
+          infoEl.classList.add('show');
+          document.getElementById('loginResendBtn').style.display = 'block';
+        } else {
+          errEl.textContent = translateAuthError(err.code);
+        }
+      });
+  };
+
+  window.resendVerification = function() {
+    if (!pendingEmail) { alert('Сначала введите email и пароль.'); return; }
+    var password = document.getElementById('regPassword').value;
+    var errEl = document.getElementById('authError');
+    var infoEl = document.getElementById('authInfoBox');
+    if (!password) { errEl.textContent = 'Введите пароль ещё раз.'; return; }
+
+    auth.signInWithEmailAndPassword(pendingEmail, password)
+      .then(function(cred) {
+        return cred.user.sendEmailVerification({ url: window.location.origin + window.location.pathname }).then(function() { return auth.signOut(); });
+      })
+      .then(function() {
+        infoEl.innerHTML = '📧 Письмо отправлено повторно на <b>' + pendingEmail + '</b>. Проверьте Спам.';
+        infoEl.classList.add('show');
+      })
+      .catch(function(err) { errEl.textContent = translateAuthError(err.code); });
+  };
+
+  window.resendFromLogin = function() {
+    if (!pendingEmail) { alert('Сначала введите логин и пароль.'); return; }
+    var password = document.getElementById('loginPassword').value;
+    var errEl = document.getElementById('loginError');
+    var infoEl = document.getElementById('loginInfoBox');
+    if (!password) { errEl.textContent = 'Введите пароль.'; return; }
+
+    auth.signInWithEmailAndPassword(pendingEmail, password)
+      .then(function(cred) {
+        return cred.user.sendEmailVerification({ url: window.location.origin + window.location.pathname }).then(function() { return auth.signOut(); });
+      })
+      .then(function() {
+        infoEl.innerHTML = '📧 Письмо отправлено повторно на <b>' + pendingEmail + '</b>. Проверьте Спам.';
+        infoEl.classList.add('show');
+      })
+      .catch(function(err) { errEl.textContent = translateAuthError(err.code); });
+  };
+
+  window.submitForgot = function() {
+    var errEl = document.getElementById('forgotError');
+    var okEl = document.getElementById('forgotSuccess');
+    errEl.textContent = ''; okEl.textContent = '';
+
+    var login = document.getElementById('forgotLogin').value.trim().toLowerCase();
+    var email = document.getElementById('forgotEmail').value.trim().toLowerCase();
+    var btn = document.getElementById('forgotSubmitBtn');
+
+    if (!login) { errEl.textContent = 'Введите логин.'; return; }
+    if (!isValidEmail(email)) { errEl.textContent = 'Введите корректную почту.'; return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Отправляем...';
+
+    db.collection('users').where('login', '==', login).limit(1).get()
+      .then(function(snapshot) {
+        if (snapshot.empty) throw { code: 'custom/user-not-found' };
+        var userData = snapshot.docs[0].data();
+        if (userData.email !== email) throw { code: 'custom/email-mismatch' };
+        return auth.sendPasswordResetEmail(email);
+      })
+      .then(function() {
+        okEl.textContent = 'Письмо для сброса пароля отправлено на ' + email + '. Проверьте Спам.';
+        btn.disabled = false;
+        btn.textContent = 'Отправить письмо';
+        setTimeout(function() { setAuthMode('login'); }, 3000);
+      })
+      .catch(function(err) {
+        console.error(err);
+        errEl.textContent = translateAuthError(err.code);
+        btn.disabled = false;
+        btn.textContent = 'Отправить письмо';
+      });
+  };
+
+  auth.onAuthStateChanged(function(user) {
+    if (user && user.emailVerified) {
+      db.collection('users').doc(user.uid).onSnapshot(function(doc) {
+        if (doc.exists) {
+          currentUser = doc.data();
+          currentUser.uid = user.uid;
+          updateProfileIcon();
+          if (profileOverlay.classList.contains('show')) openProfile();
+          if (lastTestResult) {
+            db.collection('users').doc(user.uid).update({ lastTest: lastTestResult }).catch(function(err) { console.error(err); });
+            var banner = document.getElementById('saveBanner');
+            if (banner) banner.remove();
+          }
+        }
+      }, function(err) { console.error(err); });
+    } else {
+      currentUser = null;
+      updateProfileIcon();
+    }
+  });
+
+  updateProfileIcon();
+  syncThemeSwitch();
+  syncNotifySwitch();
+});
