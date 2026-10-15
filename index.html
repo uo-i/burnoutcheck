@@ -33,14 +33,14 @@
 
 <main>
 
-{главная}
+<!-- главная -->
 <section id="dashboard" class="page active">
 
   <div class="hero">
     <div class="hero-bg">
       <picture>
         <source media="(max-width: 900px)" srcset="images/hero-mobile.jpg">
-        <img src="images/hero.jpg" alt="Уютная атмосфера: чашка, книга, цветы">
+        <img src="images/hero.jpg" alt="Уютная атмосфера">
       </picture>
     </div>
     <div class="hero-content">
@@ -88,7 +88,7 @@
   </div>
 </section>
 
-{тест}
+<!-- тест -->
 <section id="quiz" class="page">
   <div class="quiz-container" id="rolePicker">
     <div class="quiz-step-label"><span>Шаг 1 из 3</span><span>О вас</span></div>
@@ -117,7 +117,7 @@
   </div>
 </section>
 
-{результат}
+<!-- результат -->
 <section id="results" class="page">
   <div class="result-card">
     <div class="result-label">Ваш профиль выгорания</div>
@@ -141,7 +141,7 @@
   </div>
 </section>
 
-{маршрут}
+<!-- маршрут -->
 <section id="route" class="page">
   <div class="route-card">
     <h2 class="route-title">Ваш персональный маршрут</h2>
@@ -158,7 +158,7 @@
   </div>
 </section>
 
-{курсы}
+<!-- курсы -->
 <section id="courses" class="page">
   <div style="text-align: center; padding: 2rem 0;">
     <h1 style="font-size: 2.8rem; margin-bottom: 0.75rem;">Курсы для вашего восстановления</h1>
@@ -173,10 +173,30 @@
   </div>
   <div class="courses-grid" id="coursesGrid">
 
-    {медитация}
+    <!-- медитация -->
     <div class="course-card" data-cat="yoga">
       <div class="course-img">
-        <img src="images/course-meditation.jpg" alt="Медитация и осознанность" loading="lazy">
+        <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%;display:block;">
+          <defs>
+            <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#e8c9a0"/>
+              <stop offset="1" stop-color="#b8d4b4"/>
+            </linearGradient>
+            <radialGradient id="sun1" cx="0.5" cy="0.45" r="0.35">
+              <stop offset="0" stop-color="#fff4d8"/>
+              <stop offset="1" stop-color="#e8c9a0" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="800" height="400" fill="url(#sky1)"/>
+          <circle cx="400" cy="180" r="160" fill="url(#sun1)"/>
+          <circle cx="400" cy="180" r="70" fill="#fff4d8" opacity="0.85"/>
+          <path d="M0,320 Q200,290 400,310 T800,300 L800,400 L0,400 Z" fill="#6d8c6a" opacity="0.85"/>
+          <path d="M0,350 Q250,320 500,340 T800,330 L800,400 L0,400 Z" fill="#4a6b48" opacity="0.9"/>
+          <ellipse cx="400" cy="330" rx="35" ry="12" fill="#2f4a2e" opacity="0.7"/>
+          <ellipse cx="400" cy="285" rx="22" ry="35" fill="#2f4a2e" opacity="0.7"/>
+          <circle cx="400" cy="255" r="16" fill="#2f4a2e" opacity="0.7"/>
+          <path d="M350,240 Q370,200 400,220 Q430,200 450,240 Q430,225 400,235 Q370,225 350,240 Z" fill="#2f4a2e" opacity="0.5"/>
+        </svg>
         <span class="course-badge free">Бесплатно</span>
       </div>
       <div class="course-body">
@@ -196,10 +216,26 @@
       </div>
     </div>
 
-    {арт терапия}
+    <!-- арт терапия -->
     <div class="course-card" data-cat="art">
       <div class="course-img">
-        <img src="images/course-art.jpg" alt="Арт-терапия" loading="lazy">
+        <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%;display:block;">
+          <defs>
+            <linearGradient id="art1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#f5d4c4"/>
+              <stop offset="1" stop-color="#c97b6a"/>
+            </linearGradient>
+          </defs>
+          <rect width="800" height="400" fill="url(#art1)"/>
+          <path d="M150,300 Q200,180 280,240 T420,200 T560,260 T700,220" stroke="#8b5a4a" stroke-width="8" fill="none" stroke-linecap="round" opacity="0.7"/>
+          <path d="M120,340 Q240,280 360,320 T620,300 T760,340" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.5"/>
+          <circle cx="250" cy="160" r="30" fill="#fff" opacity="0.4"/>
+          <circle cx="500" cy="130" r="22" fill="#fff" opacity="0.35"/>
+          <circle cx="640" cy="180" r="18" fill="#fff" opacity="0.3"/>
+          <circle cx="180" cy="220" r="14" fill="#fff" opacity="0.3"/>
+          <circle cx="380" cy="150" r="12" fill="#fff" opacity="0.35"/>
+          <ellipse cx="400" cy="360" rx="180" ry="14" fill="#8b5a4a" opacity="0.35"/>
+        </svg>
         <span class="course-badge free">Бесплатно</span>
       </div>
       <div class="course-body">
@@ -219,10 +255,26 @@
       </div>
     </div>
 
-    {йога}
+    <!-- йога -->
     <div class="course-card" data-cat="sport">
       <div class="course-img">
-        <img src="images/course-yoga.jpg" alt="Йога для начинающих" loading="lazy">
+        <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%;display:block;">
+          <defs>
+            <linearGradient id="yoga1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f8e4c8"/>
+              <stop offset="1" stop-color="#b8d8dc"/>
+            </linearGradient>
+          </defs>
+          <rect width="800" height="400" fill="url(#yoga1)"/>
+          <circle cx="400" cy="150" r="60" fill="#fff4d8" opacity="0.6"/>
+          <path d="M0,360 L800,360 L800,400 L0,400 Z" fill="#6d8c9a" opacity="0.55"/>
+          <ellipse cx="400" cy="360" rx="120" ry="10" fill="#4a6b78" opacity="0.5"/>
+          <ellipse cx="400" cy="310" rx="35" ry="45" fill="#4a6b78" opacity="0.85"/>
+          <ellipse cx="400" cy="260" rx="18" ry="25" fill="#4a6b78" opacity="0.85"/>
+          <circle cx="400" cy="230" r="14" fill="#4a6b78" opacity="0.85"/>
+          <path d="M350,330 Q380,300 400,320 Q420,300 450,330" stroke="#4a6b78" stroke-width="6" fill="none" opacity="0.7"/>
+          <path d="M360,270 Q380,250 400,265 Q420,250 440,270" stroke="#4a6b78" stroke-width="5" fill="none" opacity="0.7"/>
+        </svg>
         <span class="course-badge">7 дней бесплатно</span>
       </div>
       <div class="course-body">
@@ -242,10 +294,25 @@
       </div>
     </div>
 
-    {управление стрессом}
+    <!-- управление стрессом -->
     <div class="course-card" data-cat="psych">
       <div class="course-img">
-        <img src="images/course-stress.jpg" alt="Управление стрессом" loading="lazy">
+        <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%;display:block;">
+          <defs>
+            <linearGradient id="stress1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#e8c498"/>
+              <stop offset="1" stop-color="#a87a4a"/>
+            </linearGradient>
+          </defs>
+          <rect width="800" height="400" fill="url(#stress1)"/>
+          <circle cx="400" cy="180" r="100" fill="#fff" opacity="0.15"/>
+          <circle cx="400" cy="180" r="60" fill="#fff" opacity="0.2"/>
+          <circle cx="400" cy="180" r="30" fill="#fff" opacity="0.3"/>
+          <path d="M0,320 Q200,300 400,320 T800,310" stroke="#fff" stroke-width="3" fill="none" opacity="0.4"/>
+          <path d="M0,340 Q200,320 400,340 T800,330" stroke="#fff" stroke-width="2" fill="none" opacity="0.3"/>
+          <path d="M640,80 Q680,120 640,160 Q600,120 640,80 Z" fill="#fff" opacity="0.25"/>
+          <path d="M160,290 Q200,330 160,370 Q120,330 160,290 Z" fill="#fff" opacity="0.2"/>
+        </svg>
         <span class="course-badge">7 дней бесплатно</span>
       </div>
       <div class="course-body">
@@ -265,10 +332,26 @@
       </div>
     </div>
 
-    {полное восстановление}
+    <!-- полное восстановление -->
     <div class="course-card" data-cat="psych">
       <div class="course-img">
-        <img src="images/course-recovery.jpg" alt="Полное восстановление" loading="lazy">
+        <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%;display:block;">
+          <defs>
+            <linearGradient id="rec1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f8ecd8"/>
+              <stop offset="1" stop-color="#7fa97c"/>
+            </linearGradient>
+          </defs>
+          <rect width="800" height="400" fill="url(#rec1)"/>
+          <circle cx="620" cy="100" r="55" fill="#fff4d8" opacity="0.85"/>
+          <path d="M0,340 Q200,300 400,330 T800,310 L800,400 L0,400 Z" fill="#4a6b48" opacity="0.75"/>
+          <path d="M0,370 Q300,340 600,365 T800,355 L800,400 L0,400 Z" fill="#2f4a2e" opacity="0.85"/>
+          <path d="M400,340 L400,200" stroke="#2f4a2e" stroke-width="6" opacity="0.9"/>
+          <path d="M400,260 Q330,240 310,180 Q380,200 400,260 Z" fill="#4a6b48" opacity="0.85"/>
+          <path d="M400,300 Q470,280 490,220 Q420,240 400,300 Z" fill="#4a6b48" opacity="0.85"/>
+          <circle cx="400" cy="180" r="22" fill="#6d8c6a" opacity="0.9"/>
+          <circle cx="400" cy="180" r="12" fill="#fff4d8" opacity="0.6"/>
+        </svg>
         <span class="course-badge">VIP · 7 дней бесплатно</span>
       </div>
       <div class="course-body">
@@ -289,10 +372,25 @@
       </div>
     </div>
 
-    {email курс}
+    <!-- email курс -->
     <div class="course-card" data-cat="yoga">
       <div class="course-img">
-        <img src="images/course-email.jpg" alt="Email-курс Неделя баланса" loading="lazy">
+        <svg viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%;display:block;">
+          <defs>
+            <linearGradient id="email1" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#e8dcc8"/>
+              <stop offset="1" stop-color="#8b7355"/>
+            </linearGradient>
+          </defs>
+          <rect width="800" height="400" fill="url(#email1)"/>
+          <rect x="220" y="110" width="360" height="220" rx="14" fill="#fff" opacity="0.95"/>
+          <path d="M220,120 L400,240 L580,120" stroke="#c9b8a0" stroke-width="4" fill="none"/>
+          <circle cx="400" cy="240" r="8" fill="#c9b8a0"/>
+          <path d="M220,320 L370,200" stroke="#e8dcc8" stroke-width="3" fill="none"/>
+          <path d="M580,320 L430,200" stroke="#e8dcc8" stroke-width="3" fill="none"/>
+          <circle cx="140" cy="320" r="30" fill="#fff" opacity="0.15"/>
+          <circle cx="680" cy="90" r="45" fill="#fff" opacity="0.12"/>
+        </svg>
         <span class="course-badge free">Бесплатно</span>
       </div>
       <div class="course-body">
@@ -315,7 +413,7 @@
   </div>
 </section>
 
-{материалы}
+<!-- материалы -->
 <section id="resources" class="page">
   <div style="text-align: center; padding: 2rem 0;">
     <h1 style="font-size: 2.8rem; margin-bottom: 0.75rem;">Библиотека материалов</h1>
@@ -338,24 +436,15 @@
       <div class="materials-grid" id="materialsGrid">
         <div class="material-card" data-cat="articles" data-title="Как распознать выгорание" onclick="openArticle('Как распознать выгорание')">
           <div class="material-img">📄</div>
-          <div class="material-body">
-            <h5>Как распознать выгорание</h5>
-            <p>Диагностика · Самопомощь · Бесплатно</p>
-          </div>
+          <div class="material-body"><h5>Как распознать выгорание</h5><p>Диагностика · Самопомощь · Бесплатно</p></div>
         </div>
         <div class="material-card" data-cat="articles" data-title="Советы чтобы не ухудшить состояние" onclick="openArticle('Советы чтобы не ухудшить состояние')">
           <div class="material-img">📄</div>
-          <div class="material-body">
-            <h5>Советы чтобы не ухудшить состояние</h5>
-            <p>Практика · Бесплатно · + видео</p>
-          </div>
+          <div class="material-body"><h5>Советы чтобы не ухудшить состояние</h5><p>Практика · Бесплатно · + видео</p></div>
         </div>
         <div class="material-card" data-cat="articles" data-title="Как справиться с тревожностью" onclick="openArticle('Как справиться с тревожностью в учёбе и на работе')">
           <div class="material-img">📄</div>
-          <div class="material-body">
-            <h5>Как справиться с тревожностью в учёбе и на работе</h5>
-            <p>Тревожность · Работа · Учёба</p>
-          </div>
+          <div class="material-body"><h5>Как справиться с тревожностью в учёбе и на работе</h5><p>Тревожность · Работа · Учёба</p></div>
         </div>
         <div class="material-card" data-cat="checklists" data-title="Дневник благодарности"><div class="material-img">📓</div><div class="material-body"><h5>Дневник благодарности</h5><p>Настроение · Эмоции · Самопознание</p></div></div>
         <div class="material-card" data-cat="exercises" data-title="Дыхание 4-7-8"><div class="material-img">🫁</div><div class="material-body"><h5>Техника дыхания 4-7-8</h5><p>Дыхание · Релаксация · 5 минут</p></div></div>
@@ -363,17 +452,14 @@
         <div class="material-card" data-cat="books" data-title="Выгорание Маслач"><div class="material-img">📖</div><div class="material-body"><h5>Кристина Маслач — «Выгорание»</h5><p>Книга · Фундаментальный труд</p></div></div>
         <div class="material-card" data-cat="articles" data-title="Границы на работе" onclick="openArticle('Границы на работе: как сказать «нет»')">
           <div class="material-img">📄</div>
-          <div class="material-body">
-            <h5>Границы на работе: как сказать «нет»</h5>
-            <p>Работа · Коммуникация · 8 минут</p>
-          </div>
+          <div class="material-body"><h5>Границы на работе: как сказать «нет»</h5><p>Работа · Коммуникация · 8 минут</p></div>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-{о нас}
+<!-- о нас -->
 <section id="about" class="page">
   <div style="text-align: center; padding: 2rem 0;">
     <h1 style="font-size: 2.8rem; margin-bottom: 0.75rem;">О проекте</h1>
@@ -400,7 +486,7 @@
 
 </main>
 
-{модалка курсов}
+<!-- модалка курсов -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">×</button>
@@ -415,17 +501,15 @@
   </div>
 </div>
 
-{модалка входа}
+<!-- модалка входа -->
 <div class="modal-overlay" id="authOverlay">
   <div class="modal">
     <button class="modal-close" onclick="closeAuth()">×</button>
     <h2 id="authTitle" style="font-size: 1.8rem; margin-bottom: 1.5rem;">Добро пожаловать</h2>
-
     <div class="auth-tabs" id="authTabs">
       <button class="auth-tab active" id="tabRegister" onclick="setAuthMode('register')">Регистрация</button>
       <button class="auth-tab" id="tabLogin" onclick="setAuthMode('login')">Вход</button>
     </div>
-
     <div class="auth-form" id="registerForm">
       <label for="regLogin">Логин</label>
       <input type="text" id="regLogin" placeholder="Придумайте логин" autocomplete="username">
@@ -462,7 +546,6 @@
       <button class="btn btn-primary" style="width:100%; margin-top: 0.5rem;" id="authSubmitBtn" onclick="submitRegister()">Создать аккаунт</button>
       <button class="btn btn-outline" style="width:100%; margin-top: 0.5rem; display:none;" id="resendBtn" onclick="resendVerification()">Отправить письмо повторно</button>
     </div>
-
     <div class="auth-form" id="loginForm" style="display:none;">
       <label for="loginLogin">Логин</label>
       <input type="text" id="loginLogin" placeholder="Ваш логин" autocomplete="username">
@@ -480,7 +563,6 @@
       <button class="btn btn-outline" style="width:100%; margin-top: 0.5rem; display:none;" id="loginResendBtn" onclick="resendFromLogin()">Отправить письмо повторно</button>
       <div class="auth-forgot" onclick="setAuthMode('forgot')">Забыли пароль?</div>
     </div>
-
     <div class="auth-form" id="forgotForm" style="display:none;">
       <p style="color: var(--text-soft); font-size: 0.9rem; margin-bottom: 1rem; text-align: left;">Введите логин и почту, к которой привязан аккаунт — мы отправим ссылку для сброса пароля.</p>
       <label for="forgotLogin">Логин</label>
@@ -495,7 +577,7 @@
   </div>
 </div>
 
-{профиль}
+<!-- профиль -->
 <div class="modal-overlay" id="profileOverlay">
   <div class="modal modal-wide">
     <button class="modal-close" onclick="closeProfile()">×</button>
@@ -508,15 +590,9 @@
       </div>
       <div class="profile-main">
         <div class="profile-card"><h4>Результат теста</h4><div id="profileTestBlock"></div></div>
-        <div class="profile-card">
-          <h4>Динамика состояния</h4>
-          <div id="profileChartBlock"></div>
-        </div>
+        <div class="profile-card"><h4>Динамика состояния</h4><div id="profileChartBlock"></div></div>
         <div class="profile-card"><h4>Мои курсы</h4><div id="profileCoursesBlock"></div></div>
-        <div class="profile-card">
-          <h4>Способ оплаты</h4>
-          <div id="profileCardBlock"></div>
-        </div>
+        <div class="profile-card"><h4>Способ оплаты</h4><div id="profileCardBlock"></div></div>
       </div>
     </div>
     <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;">
@@ -525,21 +601,18 @@
   </div>
 </div>
 
-{карта}
+<!-- карта -->
 <div class="modal-overlay" id="cardOverlay">
   <div class="modal">
     <button class="modal-close" onclick="closeCard()">×</button>
     <div style="font-size: 2.5rem; margin-bottom: 0.75rem;">💳</div>
     <h2 style="font-size: 1.6rem; margin-bottom: 0.5rem;">Привязать карту</h2>
     <p style="color: var(--text-soft); font-size: 0.85rem; margin-bottom: 1.5rem;">Это демонстрация. Данные карты никуда не отправляются и не сохраняются.</p>
-
     <div class="auth-form">
       <label for="cardNumber">Номер карты</label>
       <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric" autocomplete="cc-number">
-
       <label for="cardHolder">Имя на карте</label>
       <input type="text" id="cardHolder" placeholder="IVAN IVANOV" autocomplete="cc-name">
-
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
         <div>
           <label for="cardExpiry">Срок действия</label>
@@ -550,9 +623,7 @@
           <input type="password" id="cardCvv" placeholder="•••" maxlength="4" inputmode="numeric" autocomplete="cc-csc">
         </div>
       </div>
-
       <div class="auth-error" id="cardError"></div>
-
       <button class="btn btn-primary" style="width:100%; margin-top: 0.5rem;" onclick="saveCard()">Сохранить карту</button>
       <div style="text-align:center; font-size:0.75rem; color: var(--text-dim); margin-top: 1rem; line-height: 1.5;">
         🔒 В реальном проекте данные карты принимает платёжный сервис. Мы их не видим и не храним.
@@ -561,7 +632,7 @@
   </div>
 </div>
 
-{настройки}
+<!-- настройки -->
 <div class="modal-overlay" id="settingsOverlay">
   <div class="modal">
     <button class="modal-close" onclick="closeSettings()">×</button>
@@ -586,7 +657,7 @@
   </div>
 </div>
 
-{нижнее меню}
+<!-- нижнее меню -->
 <nav class="bottom-nav">
   <a class="bottom-nav-item active" onclick="navigate('dashboard')">
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -610,7 +681,7 @@
   </a>
 </nav>
 
-{статья}
+<!-- статья -->
 <div class="modal-overlay" id="articleOverlay">
   <div class="modal modal-wide" style="text-align: left; max-width: 720px;">
     <button class="modal-close" onclick="closeArticle()">×</button>
@@ -619,6 +690,7 @@
     <div id="articleContent" class="article-content"></div>
   </div>
 </div>
+
 <script src="js/app.js"></script>
 <script src="js/articles.js"></script>
 </body>
