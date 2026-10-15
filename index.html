@@ -33,7 +33,7 @@
 
 <main>
 
-<!-- главная страница -->
+{главная}
 <section id="dashboard" class="page active">
 
   <div class="hero">
@@ -88,7 +88,7 @@
   </div>
 </section>
 
-<!-- тест -->
+{тест}
 <section id="quiz" class="page">
   <div class="quiz-container" id="rolePicker">
     <div class="quiz-step-label"><span>Шаг 1 из 3</span><span>О вас</span></div>
@@ -114,11 +114,10 @@
       <button class="btn btn-ghost" id="btnPrev" onclick="prevQ()">← К выбору возраста</button>
       <button class="btn btn-primary" id="btnNext" disabled onclick="nextQ()">Далее →</button>
     </div>
-    <button class="skip-trigger" onclick="skipToQuestion()" aria-hidden="true" tabindex="-1"></button>
   </div>
 </section>
 
-<!-- результат теста -->
+{результат}
 <section id="results" class="page">
   <div class="result-card">
     <div class="result-label">Ваш профиль выгорания</div>
@@ -142,7 +141,7 @@
   </div>
 </section>
 
-<!-- маршрут восстановления -->
+{маршрут}
 <section id="route" class="page">
   <div class="route-card">
     <h2 class="route-title">Ваш персональный маршрут</h2>
@@ -159,7 +158,7 @@
   </div>
 </section>
 
-<!-- курсы -->
+{курсы}
 <section id="courses" class="page">
   <div style="text-align: center; padding: 2rem 0;">
     <h1 style="font-size: 2.8rem; margin-bottom: 0.75rem;">Курсы для вашего восстановления</h1>
@@ -174,10 +173,10 @@
   </div>
   <div class="courses-grid" id="coursesGrid">
 
-    <!-- МЕДИТАЦИЯ: зелёный градиент -->
+    {медитация}
     <div class="course-card" data-cat="yoga">
       <div class="course-img">
-        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400'><defs><linearGradient id='g1' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23b8d4b4'/><stop offset='1' stop-color='%236d8c6a'/></linearGradient></defs><rect width='800' height='400' fill='url(%23g1)'/><circle cx='400' cy='200' r='160' fill='%23ffffff' opacity='0.10'/><circle cx='400' cy='200' r='100' fill='%23ffffff' opacity='0.12'/><circle cx='400' cy='200' r='45' fill='%23ffffff' opacity='0.18'/><circle cx='620' cy='90' r='70' fill='%23ffffff' opacity='0.07'/><circle cx='140' cy='330' r='90' fill='%23ffffff' opacity='0.05'/></svg>" alt="Медитация и осознанность">
+        <img src="images/course-meditation.jpg" alt="Медитация и осознанность" loading="lazy">
         <span class="course-badge free">Бесплатно</span>
       </div>
       <div class="course-body">
@@ -197,10 +196,10 @@
       </div>
     </div>
 
-    <!-- АРТ-ТЕРАПИЯ: персиково-терракотовый градиент -->
+    {арт терапия}
     <div class="course-card" data-cat="art">
       <div class="course-img">
-        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400'><defs><linearGradient id='g2' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23f5d4c4'/><stop offset='1' stop-color='%23c97b6a'/></linearGradient></defs><rect width='800' height='400' fill='url(%23g2)'/><circle cx='280' cy='180' r='110' fill='%23ffffff' opacity='0.12'/><circle cx='520' cy='250' r='130' fill='%23ffffff' opacity='0.10'/><circle cx='400' cy='120' r='70' fill='%23ffffff' opacity='0.08'/><path d='M0,350 Q200,280 400,340 T800,320 L800,400 L0,400 Z' fill='%23ffffff' opacity='0.10'/></svg>" alt="Арт-терапия">
+        <img src="images/course-art.jpg" alt="Арт-терапия" loading="lazy">
         <span class="course-badge free">Бесплатно</span>
       </div>
       <div class="course-body">
@@ -220,10 +219,10 @@
       </div>
     </div>
 
-    <!-- ЙОГА: сине-зелёный градиент -->
+    {йога}
     <div class="course-card" data-cat="sport">
       <div class="course-img">
-        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400'><defs><linearGradient id='g3' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23b8d8dc'/><stop offset='1' stop-color='%236d8c9a'/></linearGradient></defs><rect width='800' height='400' fill='url(%23g3)'/><circle cx='400' cy='140' r='60' fill='%23ffffff' opacity='0.20'/><path d='M320,360 Q400,220 480,360 Z' fill='%23ffffff' opacity='0.12'/><path d='M280,380 Q400,260 520,380 Z' fill='%23ffffff' opacity='0.08'/><circle cx='180' cy='100' r='70' fill='%23ffffff' opacity='0.06'/><circle cx='650' cy='320' r='90' fill='%23ffffff' opacity='0.05'/></svg>" alt="Йога для начинающих">
+        <img src="images/course-yoga.jpg" alt="Йога для начинающих" loading="lazy">
         <span class="course-badge">7 дней бесплатно</span>
       </div>
       <div class="course-body">
@@ -243,10 +242,10 @@
       </div>
     </div>
 
-    <!-- УПРАВЛЕНИЕ СТРЕССОМ: тёплый коричневый градиент -->
+    {управление стрессом}
     <div class="course-card" data-cat="psych">
       <div class="course-img">
-        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400'><defs><linearGradient id='g4' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23e8c498'/><stop offset='1' stop-color='%23a87a4a'/></linearGradient></defs><rect width='800' height='400' fill='url(%23g4)'/><path d='M0,200 Q100,150 200,200 T400,200 T600,200 T800,200' stroke='%23ffffff' stroke-width='6' fill='none' opacity='0.25'/><path d='M0,240 Q100,290 200,240 T400,240 T600,240 T800,240' stroke='%23ffffff' stroke-width='4' fill='none' opacity='0.15'/><circle cx='640' cy='110' r='80' fill='%23ffffff' opacity='0.10'/><circle cx='130' cy='320' r='100' fill='%23ffffff' opacity='0.07'/></svg>" alt="Управление стрессом">
+        <img src="images/course-stress.jpg" alt="Управление стрессом" loading="lazy">
         <span class="course-badge">7 дней бесплатно</span>
       </div>
       <div class="course-body">
@@ -266,10 +265,10 @@
       </div>
     </div>
 
-    <!-- ПОЛНОЕ ВОССТАНОВЛЕНИЕ: свежий зелёный градиент -->
+    {полное восстановление}
     <div class="course-card" data-cat="psych">
       <div class="course-img">
-        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400'><defs><linearGradient id='g5' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23d4e4b8'/><stop offset='1' stop-color='%237fa97c'/></linearGradient></defs><rect width='800' height='400' fill='url(%23g5)'/><path d='M400,320 L400,180' stroke='%23ffffff' stroke-width='5' opacity='0.35'/><path d='M400,220 Q340,200 320,160 Q380,170 400,220 Z' fill='%23ffffff' opacity='0.30'/><path d='M400,260 Q460,240 480,200 Q420,210 400,260 Z' fill='%23ffffff' opacity='0.30'/><circle cx='400' cy='150' r='30' fill='%23ffffff' opacity='0.35'/><circle cx='150' cy='90' r='80' fill='%23ffffff' opacity='0.06'/><circle cx='650' cy='330' r='100' fill='%23ffffff' opacity='0.05'/></svg>" alt="Полное восстановление">
+        <img src="images/course-recovery.jpg" alt="Полное восстановление" loading="lazy">
         <span class="course-badge">VIP · 7 дней бесплатно</span>
       </div>
       <div class="course-body">
@@ -290,10 +289,10 @@
       </div>
     </div>
 
-    <!-- EMAIL-КУРС: тёплый бежевый градиент -->
+    {email курс}
     <div class="course-card" data-cat="yoga">
       <div class="course-img">
-        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400'><defs><linearGradient id='g6' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23e8dcc8'/><stop offset='1' stop-color='%238b7355'/></linearGradient></defs><rect width='800' height='400' fill='url(%23g6)'/><rect x='280' y='130' width='240' height='150' rx='12' fill='%23ffffff' opacity='0.20'/><path d='M280,140 L400,220 L520,140' stroke='%23ffffff' stroke-width='6' fill='none' opacity='0.45'/><circle cx='660' cy='90' r='70' fill='%23ffffff' opacity='0.08'/><circle cx='130' cy='330' r='90' fill='%23ffffff' opacity='0.06'/></svg>" alt="Email-курс Неделя баланса">
+        <img src="images/course-email.jpg" alt="Email-курс Неделя баланса" loading="lazy">
         <span class="course-badge free">Бесплатно</span>
       </div>
       <div class="course-body">
@@ -316,7 +315,7 @@
   </div>
 </section>
 
-<!-- библиотека материалов -->
+{материалы}
 <section id="resources" class="page">
   <div style="text-align: center; padding: 2rem 0;">
     <h1 style="font-size: 2.8rem; margin-bottom: 0.75rem;">Библиотека материалов</h1>
@@ -374,7 +373,7 @@
   </div>
 </section>
 
-<!-- о проекте -->
+{о нас}
 <section id="about" class="page">
   <div style="text-align: center; padding: 2rem 0;">
     <h1 style="font-size: 2.8rem; margin-bottom: 0.75rem;">О проекте</h1>
@@ -401,7 +400,7 @@
 
 </main>
 
-<!-- модалка для курсов -->
+{модалка курсов}
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">×</button>
@@ -416,7 +415,7 @@
   </div>
 </div>
 
-<!-- модалка входа и регистрации -->
+{модалка входа}
 <div class="modal-overlay" id="authOverlay">
   <div class="modal">
     <button class="modal-close" onclick="closeAuth()">×</button>
@@ -496,7 +495,7 @@
   </div>
 </div>
 
-<!-- модалка личного кабинета -->
+{профиль}
 <div class="modal-overlay" id="profileOverlay">
   <div class="modal modal-wide">
     <button class="modal-close" onclick="closeProfile()">×</button>
@@ -526,7 +525,7 @@
   </div>
 </div>
 
-<!-- модалка привязки карты -->
+{карта}
 <div class="modal-overlay" id="cardOverlay">
   <div class="modal">
     <button class="modal-close" onclick="closeCard()">×</button>
@@ -562,7 +561,7 @@
   </div>
 </div>
 
-<!-- модалка настроек -->
+{настройки}
 <div class="modal-overlay" id="settingsOverlay">
   <div class="modal">
     <button class="modal-close" onclick="closeSettings()">×</button>
@@ -587,7 +586,7 @@
   </div>
 </div>
 
-<!-- нижнее меню на телефоне -->
+{нижнее меню}
 <nav class="bottom-nav">
   <a class="bottom-nav-item active" onclick="navigate('dashboard')">
     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
@@ -611,7 +610,7 @@
   </a>
 </nav>
 
-<!-- модалка со статьей -->
+{статья}
 <div class="modal-overlay" id="articleOverlay">
   <div class="modal modal-wide" style="text-align: left; max-width: 720px;">
     <button class="modal-close" onclick="closeArticle()">×</button>
