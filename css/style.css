@@ -129,11 +129,19 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
 /* блок как это работает */
 .steps { 
   display: grid; 
-  grid-template-columns: repeat(3, 1fr); /* Теперь 3 колонки вместо 5 */
-  gap: 1.5rem; 
-  margin-bottom: 2rem; 
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 2rem; 
+  max-width: 900px; /* Ограничиваем ширину, чтобы шаги не разлетались по краям экрана */
+  margin: 0 auto 2rem; /* Центрируем сам блок с шагами по центру страницы */
 }
-.step { text-align: center; padding: 1.5rem 1rem; }
+
+.step { 
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Жестко центрируем всё содержимое (иконку, текст) */
+  text-align: center;
+  padding: 1.5rem 1rem; 
+}
 .step-icon { width: 56px; height: 56px; border-radius: 50%; background: #f5e8d8; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
 [data-theme="dark"] .step-icon { background: rgba(212,168,143,0.15); }
 .step-icon svg { width: 26px; height: 26px; }
