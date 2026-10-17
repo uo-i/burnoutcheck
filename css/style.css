@@ -127,7 +127,12 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
 .section-subtitle { text-align: center; color: var(--text-soft); margin-bottom: 3rem; max-width: 600px; margin-left: auto; margin-right: auto; }
 
 /* блок как это работает */
-.steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem; }
+.steps { 
+  display: grid; 
+  grid-template-columns: repeat(3, 1fr); /* Теперь 3 колонки вместо 5 */
+  gap: 1.5rem; 
+  margin-bottom: 2rem; 
+}
 .step { text-align: center; padding: 1.5rem 1rem; }
 .step-icon { width: 56px; height: 56px; border-radius: 50%; background: #f5e8d8; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
 [data-theme="dark"] .step-icon { background: rgba(212,168,143,0.15); }
@@ -463,7 +468,10 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   .hero-features { color: rgba(255,255,255,0.95); font-size: 0.78rem; gap: 1rem; }
 
   /* адпатив остальных блоков */
-  .steps { grid-template-columns: repeat(2, 1fr); }
+  .steps { 
+  grid-template-columns: 1fr; /* На телефоне шаги будут идти друг под другом */
+  gap: 1rem;
+  }
   .audience-grid, .about-grid, .role-picker, .materials-layout, .profile-layout, .stat-row { grid-template-columns: 1fr; }
   #agePicker { grid-template-columns: 1fr; }
   .materials-sidebar { position: static; }
