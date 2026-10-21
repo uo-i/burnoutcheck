@@ -459,12 +459,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var map = {
       'Йога / медитация':           { cat: 'yoga',  label: 'Йога и медитация' },
-      'Рисование / арт-терапия':    { cat: 'art',   label: 'Рисование и арт-терапия' },
+      'Рисование / арт-терапия':    { cat: 'art',   label: 'Рисование и арт-терапия' },// [j,,b
       'Вязание / бисер':            { cat: 'art',   label: 'Рукоделие' },
       'Спорт / танцы':              { cat: 'sport', label: 'Спорт' },
       'Психология / самопознание':  { cat: 'psych', label: 'Психология' }
     };
     var rec = map[hobby];
+    if (!rec) return;
 
     var block = document.createElement('div');
     block.id = 'hobbyBlock';
