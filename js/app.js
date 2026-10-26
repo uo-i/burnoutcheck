@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-  // подключение к фаербейс
   var firebaseConfig = {
     apiKey: "AIzaSyAsGZ661cK8obTVlQvfyzKdqY9ppOC5hlE",
     authDomain: "balance-ap.firebaseapp.com",
@@ -16,7 +15,21 @@ document.addEventListener('DOMContentLoaded', function() {
   var currentUser = null;
   var pendingEmail = null;
 
-  // тёмная и светлая тема
+  // кр увед
+  window.showToast = function(message, type) {
+    var container = document.getElementById('toastContainer');
+    if (!container) return;
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + (type || 'warning');
+    var icon = type === 'success' ? '✅' : '⚠️';
+    toast.innerHTML = '<span style="font-size:1.2rem;">' + icon + '</span> <span>' + message + '</span>';
+    container.appendChild(toast);
+    setTimeout(function() {
+      toast.classList.add('hiding');
+      setTimeout(function() { toast.remove(); }, 300);
+    }, 3500);
+  };
+
   (function initTheme() {
     var saved = localStorage.getItem('bc_theme');
     if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
@@ -24,7 +37,6 @@ document.addEventListener('DOMContentLoaded', function() {
     else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme', 'dark');
   })();
 
-  // навгация между страницами
   window.navigate = function(pageId) {
     document.querySelectorAll('.page').forEach(function(el){ el.classList.remove('active'); });
     document.querySelectorAll('.nav-menu a').forEach(function(el){ el.classList.remove('active'); });
@@ -44,8 +56,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  window.toggleMobileMenu = function() { document.getElementById('navMenu').classList.toggle('open'); };
 
   window.filterCourses = function(cat, btn) {
     document.querySelectorAll('.courses-tab').forEach(function(b) { b.classList.remove('active'); });
@@ -71,7 +81,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   };
 
-  // модалка куров
   var modalOverlay = document.getElementById('modalOverlay');
   var modalCurrentAction = '';
   var modalCurrentCourse = null;
@@ -81,8 +90,18 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('modalPrice').textContent = price;
     var emoji = '🎓';
     var text = 'Функционал оплаты находится в разработке. Мы сохранили ваш запрос.';
-    if (price === 'Бесплатно' || price === '0 ₽') { emoji = '✅'; text = 'Регистрация на бесплатный материал.'; }
-    if (price === '7 дней бесплатно') { emoji = '🎁'; text = 'Пробный период 7 дней бесплатно. Отмена в любой момент.'; }
+    
+    if (price === 'Бесплатно' || price === '0 ₽') { 
+      emoji = '✅'; 
+      text = 'Регистрация на бесплатный материал.'; 
+    } else if (price.includes('499') || price.includes('2 899') || price.includes('5 799')) {
+      emoji = '💳';
+      text = 'Это демонстрация оформления подписки. В реальном проекте здесь откроется платежная форма.';
+    } else if (price === 'Включено в Premium') {
+      emoji = '⭐';
+      text = 'Этот курс доступен по единой подписке Premium. Оформите её на странице курсов.';
+    }
+
     document.getElementById('modalEmoji').textContent = emoji;
     document.getElementById('modalText').textContent = text;
     modalCurrentAction = title + ' — ' + price;
@@ -92,9 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   window.closeModal = function() { modalOverlay.classList.remove('show'); };
 
-  // модалка стаьи
   var articleOverlay = document.getElementById('articleOverlay');
-
   window.openArticle = function(title) {
     if (!articleOverlay) { alert('Статья скоро появится.'); return; }
     var article = window.ARTICLES && window.ARTICLES[title];
@@ -104,41 +121,24 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('articleContent').innerHTML = article.content;
     articleOverlay.classList.add('show');
   };
-
-  window.closeArticle = function() {
-    if (articleOverlay) articleOverlay.classList.remove('show');
-  };
-
-  if (articleOverlay) {
-    articleOverlay.addEventListener('click', function(e) {
-      if (e.target === articleOverlay) closeArticle();
-    });
-  }
-
-  // модалка платного видео
-  window.showVideoModal = function() {
-    if (!modalOverlay) return;
-    document.getElementById('modalEmoji').textContent = '🎥';
-    document.getElementById('modalTitle').textContent = 'Как выбраться из выгорания';
-    document.getElementById('modalPrice').textContent = 'По подписке';
-    document.getElementById('modalText').textContent = 'Видео-разбор от психолога доступен по подписке. Первые 7 дней — бесплатно. Отмена в любой момент.';
-    modalCurrentAction = 'Видео-разбор — по подписке';
-    modalCurrentCourse = null;
-    modalOverlay.classList.add('show');
-  };
+  
+  window.closeArticle = function() { if (articleOverlay) articleOverlay.classList.remove('show'); };
+  if (articleOverlay) { articleOverlay.addEventListener('click', function(e) { if (e.target === articleOverlay) closeArticle(); }); }
 
   window.confirmAction = function() {
     if (modalCurrentCourse) {
       if (!currentUser) {
-        alert('Чтобы записаться на курс нужно войти в аккаунт.');
-        closeModal(); openAuth(); return;
+        showToast('Чтобы записаться на курс, нужно войти в аккаунт', 'warning');
+        closeModal(); 
+        openAuth(); 
+        return;
       }
       saveCourseToUser(modalCurrentCourse.title, modalCurrentCourse.price);
     }
     closeModal();
-    alert('Спасибо! Запрос принят: ' + modalCurrentAction);
+    showToast('Спасибо! Запрос принят: ' + modalCurrentAction, 'success');
   };
-
+  
   modalOverlay.addEventListener('click', function(e) { if (e.target === modalOverlay) closeModal(); });
 
   function saveCourseToUser(title, price) {
@@ -152,13 +152,11 @@ document.addEventListener('DOMContentLoaded', function() {
     db.collection('users').doc(currentUser.uid).update(update).catch(function(err) { console.error(err); });
   }
 
-  // вопросы для теста
   var OPT4 = ["Никогда", "Иногда", "Часто", "Постоянно"];
   var OPT4R = ["Почти никогда", "Иногда", "Часто", "Очень часто"];
   var OPT_QUALITY = ["Отличное", "Хорошее", "Удовлетворительное", "Плохое"];
 
   var questions = [
-    // эмоциональное истощение (9 вопросов)
     { scale: "EI", q: "Как часто вы чувствуете, что у вас «не хватает сил» на обычные дела?", qTeen: "Как часто у тебя не хватает сил даже на простые дела?", opts: OPT4R },
     { scale: "EI", q: "Как часто вы чувствуете себя эмоционально опустошённым?", qTeen: "Как часто ты чувствуешь себя эмоционально выжатым?", opts: OPT4 },
     { scale: "EI", q: "Просыпаетесь ли вы уже уставшим, даже после сна?", opts: OPT4R },
@@ -168,8 +166,6 @@ document.addEventListener('DOMContentLoaded', function() {
     { scale: "EI", q: "Как часто вы чувствуете, что не успеваете восстановиться за выходные?", qTeen: "Как часто ты не успеваешь отдохнуть за выходные?", opts: OPT4 },
     { scale: "EI", q: "Как часто вы чувствуете себя измотанным к концу дня?", opts: OPT4 },
     { scale: "EI", q: "Как часто вы чувствуете, что вам нужна пауза, но вы не можете её взять?", opts: OPT4 },
-
-    // цинизм и отстранённость (9 вопросов)
     { scale: "DP", q: "Как часто вы раздражаетесь по мелочам?", opts: OPT4 },
     { scale: "DP", q: "Как часто вы чувствуете, что стали циничнее по отношению к работе?", qTeen: "Как часто ты относишься к учёбе с раздражением?", opts: OPT4 },
     { scale: "DP", q: "Как часто вы замечаете, что стали безразличны к тому, что раньше волновало?", opts: OPT4 },
@@ -179,8 +175,6 @@ document.addEventListener('DOMContentLoaded', function() {
     { scale: "DP", q: "Как часто вы считаете, что «всё бессмысленно»?", opts: OPT4 },
     { scale: "DP", q: "Как часто вы чувствуете, что всё вокруг стало «серым»?", opts: OPT4 },
     { scale: "DP", q: "Как часто вы хотите, чтобы все оставили вас в покое?", opts: OPT4 },
-
-    // потеря смысла и достижений (8 вопросов)
     { scale: "RD", q: "Как часто вы чувствуете, что не справляетесь с обязанностями?", opts: OPT4 },
     { scale: "RD", q: "Как часто вы сомневаетесь в своих профессиональных навыках?", qTeen: "Как часто ты сомневаешься в своих учебных способностях?", opts: OPT4 },
     { scale: "RD", q: "Как часто вы переживаете из-за мелких ошибок?", opts: OPT4 },
@@ -189,24 +183,8 @@ document.addEventListener('DOMContentLoaded', function() {
     { scale: "RD", q: "Как часто вы сравниваете себя с другими и чувствуете себя хуже?", opts: OPT4 },
     { scale: "RD", q: "Как часто вы испытываете чувство вины, когда отдыхаете?", opts: OPT4 },
     { scale: "RD", q: "Как часто вы чувствуете, что «застряли» на месте?", opts: OPT4 },
-
-    // вопрос про формат информации
-    { scale: "READ", q: "Как вам удобнее получать информацию?", opts: [
-      "Читать статьи и книги",
-      "Смотреть видео и лекции",
-      "Слушать аудио и подкасты",
-      "Главное чтобы помогало"
-    ] },
-
-    // хобби вопрос чтобы подобрать курс
-    { scale: "HOBBY", q: "Какое хобби помогло бы вам расслабиться и восстановиться?", opts: [
-      "Йога / медитация",
-      "Рисование / арт-терапия",
-      "Вязание / бисер",
-      "Спорт / танцы",
-      "Психология / самопознание",
-      "Другое"
-    ] }
+    { scale: "READ", q: "Как вам удобнее получать информацию?", opts: ["Читать статьи и книги","Смотреть видео и лекции","Слушать аудио и подкасты","Главное чтобы помогало"] },
+    { scale: "HOBBY", q: "Какое хобби помогло бы вам расслабиться и восстановиться?", opts: ["Йога / медитация","Рисование / арт-терапия","Вязание / бисер","Спорт / танцы","Психология / самопознание","Другое"] }
   ];
 
   var currentQ = 0;
@@ -289,28 +267,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('rolePicker').style.display = 'block';
     document.getElementById('quizCard').style.display = 'none';
     navigate('quiz');
-  };
-
-  // скрытый переход по вопросам
-  window.skipToQuestion = function() {
-    var num = prompt('К какому вопросу перейти?\nВведите число от 1 до ' + questions.length, '');
-    if (num === null) return;
-    var n = parseInt(num, 10);
-    if (isNaN(n) || n < 1 || n > questions.length) {
-      alert('Введите число от 1 до ' + questions.length);
-      return;
-    }
-    for (var i = 0; i < n - 1; i++) {
-      if (answers[i] === null) {
-        answers[i] = Math.floor(Math.random() * questions[i].opts.length);
-      }
-    }
-    currentQ = n - 1;
-    renderQ();
-    setTimeout(function() {
-      var rand = Math.floor(Math.random() * questions[currentQ].opts.length);
-      selectAns(rand);
-    }, 30);
   };
 
   function calcResults() {
@@ -414,35 +370,14 @@ document.addEventListener('DOMContentLoaded', function() {
     block.style.cssText = 'margin-top:1.5rem;padding:1.25rem;background:var(--primary-light);border-radius:16px;text-align:center;';
 
     if (reading === 'Читать статьи и книги') {
-      block.innerHTML =
-        '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вы любите читать</div>' +
-        '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Как распознать выгорание</div>' +
-        '<p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Статья о стадиях выгорания и первых признаках — для тех кто любит разбираться в теме через чтение</p>' +
-        '<button class="btn btn-primary btn-sm" onclick="openArticle(\'Как распознать выгорание\')">Читать статью →</button>';
+      block.innerHTML = '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вы любите читать</div><div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Как распознать выгорание</div><p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Статья о стадиях выгорания и первых признаках — для тех кто любит разбираться в теме через чтение</p><button class="btn btn-primary btn-sm" onclick="openArticle(\'Как распознать выгорание\')">Читать статью →</button>';
     } else if (reading === 'Смотреть видео и лекции') {
-      block.innerHTML =
-        '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вы любите видео</div>' +
-        '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Как выбраться из выгорания: 5 шагов</div>' +
-        '<p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Видео-разбор от психолога — что делать по шагам если уже на грани</p>' +
-        '<button class="btn btn-primary btn-sm" onclick="showVideoModal()">Смотреть видео →</button>';
+      block.innerHTML = '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вы любите видео</div><div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Как выбраться из выгорания: 5 шагов</div><p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Видео-разбор от психолога — что делать по шагам если уже на грани</p><button class="btn btn-primary btn-sm" onclick="showVideoModal()">Смотреть видео →</button>';
     } else if (reading === 'Слушать аудио и подкасты') {
-      block.innerHTML =
-        '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вы любите слушать</div>' +
-        '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Аудио-практики</div>' +
-        '<p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Скоро добавим подкасты и аудио-медитации. А пока — статьи и видео</p>' +
-        '<button class="btn btn-outline btn-sm" onclick="openArticle(\'Как распознать выгорание\')">Читать статью →</button>';
+      block.innerHTML = '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вы любите слушать</div><div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Аудио-практики</div><p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Скоро добавим подкасты и аудио-медитации. А пока — статьи и видео</p><button class="btn btn-outline btn-sm" onclick="openArticle(\'Как распознать выгорание\')">Читать статью →</button>';
     } else if (reading === 'Главное чтобы помогало') {
-      block.innerHTML =
-        '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вам важен результат</div>' +
-        '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Начните с бесплатной статьи</div>' +
-        '<p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Как распознать выгорание на ранней стадии — и что делать дальше</p>' +
-        '<div style="display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;">' +
-          '<button class="btn btn-primary btn-sm" onclick="openArticle(\'Как распознать выгорание\')">Читать статью</button>' +
-          '<button class="btn btn-outline btn-sm" onclick="showVideoModal()">Смотреть видео</button>' +
-        '</div>';
-    } else {
-      return;
-    }
+      block.innerHTML = '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Раз вам важен результат</div><div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:0.5rem;">Начните с бесплатной статьи</div><p style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Как распознать выгорание на ранней стадии — и что делать дальше</p><div style="display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;"><button class="btn btn-primary btn-sm" onclick="openArticle(\'Как распознать выгорание\')">Читать статью</button><button class="btn btn-outline btn-sm" onclick="showVideoModal()">Смотреть видео</button></div>';
+    } else { return; }
 
     var target = document.querySelector('#results .result-card');
     if (target) {
@@ -459,7 +394,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var map = {
       'Йога / медитация':           { cat: 'yoga',  label: 'Йога и медитация' },
-      'Рисование / арт-терапия':    { cat: 'art',   label: 'Рисование и арт-терапия' },// [j,,b
+      'Рисование / арт-терапия':    { cat: 'art',   label: 'Рисование и арт-терапия' },
       'Вязание / бисер':            { cat: 'art',   label: 'Рукоделие' },
       'Спорт / танцы':              { cat: 'sport', label: 'Спорт' },
       'Психология / самопознание':  { cat: 'psych', label: 'Психология' }
@@ -470,10 +405,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var block = document.createElement('div');
     block.id = 'hobbyBlock';
     block.style.cssText = 'margin-top:1.5rem;padding:1.25rem;background:var(--primary-light);border-radius:16px;text-align:center;';
-    block.innerHTML =
-      '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Ваше хобби для восстановления</div>' +
-      '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.6rem; font-weight:600; color:var(--primary-dark); margin-bottom:1rem;">' + hobby + '</div>' +
-      (rec ? '<button class="btn btn-primary btn-sm" onclick="goToCoursesFiltered(\'' + rec.cat + '\')">Показать курсы: ' + rec.label + ' →</button>' : '');
+    block.innerHTML = '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Ваше хобби для восстановления</div><div style="font-family:\'Cormorant Garamond\', serif; font-size:1.6rem; font-weight:600; color:var(--primary-dark); margin-bottom:1rem;">' + hobby + '</div>' + (rec ? '<button class="btn btn-primary btn-sm" onclick="goToCoursesFiltered(\'' + rec.cat + '\')">Показать курсы: ' + rec.label + ' →</button>' : '');
 
     var target = document.querySelector('#results .result-card');
     if (target) {
@@ -505,17 +437,12 @@ document.addEventListener('DOMContentLoaded', function() {
     var banner = document.createElement('div');
     banner.id = 'saveBanner';
     banner.style.cssText = 'margin-top:1.5rem;padding:1.25rem;background:var(--primary-light);border-radius:16px;text-align:center;';
-    banner.innerHTML =
-      '<div style="font-size:0.95rem;color:var(--primary-dark);margin-bottom:0.75rem;font-weight:500;">' +
-        '💾 Хотите сохранить результат и получить персональный маршрут?' +
-      '</div>' +
-      '<button class="btn btn-primary btn-sm" onclick="openAuth()">Войти или зарегистрироваться</button>';
+    banner.innerHTML = '<div style="font-size:0.95rem;color:var(--primary-dark);margin-bottom:0.75rem;font-weight:500;">💾 Хотите сохранить результат и получить персональный маршрут?</div><button class="btn btn-primary btn-sm" onclick="openAuth()">Войти или зарегистрироваться</button>';
 
     var target = document.querySelector('#results .result-card');
     if (target) target.appendChild(banner);
   }
 
-  // настройки сайта
   var settingsOverlay = document.getElementById('settingsOverlay');
   window.openSettings = function() { settingsOverlay.classList.add('show'); syncThemeSwitch(); syncNotifySwitch(); };
   window.closeSettings = function() { settingsOverlay.classList.remove('show'); };
@@ -544,7 +471,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('notifySwitch').classList.toggle('on', localStorage.getItem('bc_notify') === 'on');
   }
 
-  // автаризация вход и регистрация
   var authOverlay = document.getElementById('authOverlay');
   var profileOverlay = document.getElementById('profileOverlay');
 
@@ -584,13 +510,9 @@ document.addEventListener('DOMContentLoaded', function() {
   window.closeProfile = function() { profileOverlay.classList.remove('show'); };
   profileOverlay.addEventListener('click', function(e) { if (e.target === profileOverlay) closeProfile(); });
 
-  // привязка карты
   var cardOverlay = document.getElementById('cardOverlay');
 
-  window.openCard = function() {
-    if (cardOverlay) cardOverlay.classList.add('show');
-  };
-
+  window.openCard = function() { if (cardOverlay) cardOverlay.classList.add('show'); };
   window.closeCard = function() {
     if (!cardOverlay) return;
     cardOverlay.classList.remove('show');
@@ -601,11 +523,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('cardError').textContent = '';
   };
 
-  if (cardOverlay) {
-    cardOverlay.addEventListener('click', function(e) {
-      if (e.target === cardOverlay) closeCard();
-    });
-  }
+  if (cardOverlay) { cardOverlay.addEventListener('click', function(e) { if (e.target === cardOverlay) closeCard(); }); }
 
   var cardNumberEl = document.getElementById('cardNumber');
   if (cardNumberEl) {
@@ -626,9 +544,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   var cardCvvEl = document.getElementById('cardCvv');
   if (cardCvvEl) {
-    cardCvvEl.addEventListener('input', function() {
-      this.value = this.value.replace(/\D/g, '').substring(0, 4);
-    });
+    cardCvvEl.addEventListener('input', function() { this.value = this.value.replace(/\D/g, '').substring(0, 4); });
   }
 
   window.saveCard = function() {
@@ -665,9 +581,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!block) return;
     var raw = localStorage.getItem('bc_card_demo');
     if (!raw) {
-      block.innerHTML =
-        '<div class="empty-state" style="margin-bottom:1rem;">Карта не привязана</div>' +
-        '<button class="btn btn-primary btn-sm" style="width:100%;" onclick="openCard()">💳 Привязать карту</button>';
+      block.innerHTML = '<div class="empty-state" style="margin-bottom:1rem;">Карта не привязана</div><button class="btn btn-primary btn-sm" style="width:100%;" onclick="openCard()">💳 Привязать карту</button>';
       return;
     }
     var card;
@@ -676,30 +590,17 @@ document.addEventListener('DOMContentLoaded', function() {
       block.innerHTML = '<button class="btn btn-primary btn-sm" style="width:100%;" onclick="openCard()">💳 Привязать карту</button>';
       return;
     }
-    block.innerHTML =
-      '<div class="card-saved">' +
-        '<div class="card-saved-icon">CARD</div>' +
-        '<div class="card-saved-info">' +
-          '<div class="num">' + card.masked + '</div>' +
-          '<div class="exp">' + card.holder + ' · до ' + card.expiry + '</div>' +
-        '</div>' +
-        '<button class="card-saved-remove" onclick="removeCard()">Удалить</button>' +
-      '</div>' +
-      '<div style="font-size:0.78rem; color:var(--text-dim); text-align:left; margin-top:0.5rem;">Это демо. Реальные данные не сохраняются.</div>';
+    block.innerHTML = '<div class="card-saved"><div class="card-saved-icon">CARD</div><div class="card-saved-info"><div class="num">' + card.masked + '</div><div class="exp">' + card.holder + ' · до ' + card.expiry + '</div></div><button class="card-saved-remove" onclick="removeCard()">Удалить</button></div><div style="font-size:0.78rem; color:var(--text-dim); text-align:left; margin-top:0.5rem;">Это демо. Реальные данные не сохраняются.</div>';
   }
 
-  // диаграмма динамики по истории тестов
   function renderProgressChart() {
     var block = document.getElementById('profileChartBlock');
     if (!block) return;
-
     var history = (currentUser && currentUser.testHistory) ? currentUser.testHistory : [];
-
     if (history.length < 2) {
       block.innerHTML = '<div class="empty-state">Пройдите тест 2 раза и мы покажем график динамики</div>';
       return;
     }
-
     var last = history.slice(-6);
     var width = 100;
     var height = 40;
@@ -728,38 +629,20 @@ document.addEventListener('DOMContentLoaded', function() {
       dotsSvg += '<circle cx="' + points[k].x.toFixed(2) + '" cy="' + points[k].y.toFixed(2) + '" r="' + r + '" fill="' + trendColor + '" />';
     }
 
-    var svg = '<svg viewBox="-3 -3 106 46" preserveAspectRatio="none" style="width:100%; height:120px; display:block;">' +
-      '<line x1="0" y1="' + (height * 0.33) + '" x2="' + width + '" y2="' + (height * 0.33) + '" stroke="#e8e3da" stroke-width="0.3" stroke-dasharray="1,1.5" />' +
-      '<line x1="0" y1="' + (height * 0.66) + '" x2="' + width + '" y2="' + (height * 0.66) + '" stroke="#e8e3da" stroke-width="0.3" stroke-dasharray="1,1.5" />' +
-      '<path d="' + pathD + '" fill="none" stroke="' + trendColor + '" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" />' +
-      dotsSvg +
-    '</svg>';
+    var svg = '<svg viewBox="-3 -3 106 46" preserveAspectRatio="none" style="width:100%; height:120px; display:block;"><line x1="0" y1="' + (height * 0.33) + '" x2="' + width + '" y2="' + (height * 0.33) + '" stroke="#e8e3da" stroke-width="0.3" stroke-dasharray="1,1.5" /><line x1="0" y1="' + (height * 0.66) + '" x2="' + width + '" y2="' + (height * 0.66) + '" stroke="#e8e3da" stroke-width="0.3" stroke-dasharray="1,1.5" /><path d="' + pathD + '" fill="none" stroke="' + trendColor + '" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" />' + dotsSvg + '</svg>';
 
     var summaryText = '';
-    if (diff <= -5) {
-      summaryText = '<span style="color:var(--success); font-weight:600;">↓ Прогресс: ' + diff + '%</span>';
-    } else if (diff >= 5) {
-      summaryText = '<span style="color:var(--danger); font-weight:600;">↑ Ухудшение: +' + diff + '%</span>';
-    } else {
-      summaryText = '<span style="color:var(--text-soft); font-weight:600;">→ Без изменений: ' + diff + '%</span>';
-    }
+    if (diff <= -5) { summaryText = '<span style="color:var(--success); font-weight:600;">↓ Прогресс: ' + diff + '%</span>'; }
+    else if (diff >= 5) { summaryText = '<span style="color:var(--danger); font-weight:600;">↑ Ухудшение: +' + diff + '%</span>'; }
+    else { summaryText = '<span style="color:var(--text-soft); font-weight:600;">→ Без изменений: ' + diff + '%</span>'; }
 
     var dateLabels = '';
     for (var m = 0; m < last.length; m++) {
       var d = new Date(last[m].date);
-      var day = d.getDate();
-      var month = d.getMonth() + 1;
-      dateLabels += '<span>' + day + '.' + month + '</span>';
+      dateLabels += '<span>' + d.getDate() + '.' + (d.getMonth() + 1) + '</span>';
     }
 
-    block.innerHTML =
-      '<div style="text-align:left; margin-bottom:0.75rem; font-size:0.85rem;">' +
-        'Изменение уровня стресса за ' + last.length + ' тестов: ' + summaryText +
-      '</div>' +
-      svg +
-      '<div style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-dim); margin-top:0.25rem;">' +
-        dateLabels +
-      '</div>';
+    block.innerHTML = '<div style="text-align:left; margin-bottom:0.75rem; font-size:0.85rem;">Изменение уровня стресса за ' + last.length + ' тестов: ' + summaryText + '</div>' + svg + '<div style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-dim); margin-top:0.25rem;">' + dateLabels + '</div>';
   }
 
   window.openProfile = function() {
@@ -785,32 +668,10 @@ document.addEventListener('DOMContentLoaded', function() {
         var curr = history[history.length - 1];
         var diff = curr.percent - prev.percent;
         var trendLabel, trendColor, trendSign, trendEmoji;
-        if (diff <= -5) {
-          trendLabel = 'Прогресс';
-          trendColor = 'var(--success)';
-          trendSign = diff + '%';
-          trendEmoji = '↓';
-        } else if (diff >= 5) {
-          trendLabel = 'Ухудшение';
-          trendColor = 'var(--danger)';
-          trendSign = '+' + diff + '%';
-          trendEmoji = '↑';
-        } else {
-          trendLabel = 'Без изменений';
-          trendColor = 'var(--text-soft)';
-          trendSign = diff + '%';
-          trendEmoji = '→';
-        }
-        var trendHtml = '<div style="margin-top:1.5rem;padding:1.25rem;background:var(--bg-alt);border-radius:16px;text-align:center;">' +
-          '<div style="font-family:Inter, sans-serif; font-size:0.8rem; color:var(--text-soft); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Динамика с прошлого теста</div>' +
-          '<div style="display:flex; align-items:center; justify-content:center; gap:1rem; flex-wrap:wrap;">' +
-            '<div style="font-family:Cormorant Garamond, serif; font-size:2rem; font-weight:700; color:' + trendColor + ';">' + trendEmoji + ' ' + trendSign + '</div>' +
-            '<div style="font-size:0.95rem; color:' + trendColor + '; font-weight:600;">' + trendLabel + '</div>' +
-          '</div>' +
-          '<div style="margin-top:0.75rem; font-size:0.82rem; color:var(--text-soft);">' +
-            'Прошлый тест: ' + prev.percent + '% → Сейчас: ' + curr.percent + '%' +
-          '</div>' +
-        '</div>';
+        if (diff <= -5) { trendLabel = 'Прогресс'; trendColor = 'var(--success)'; trendSign = diff + '%'; trendEmoji = '↓'; }
+        else if (diff >= 5) { trendLabel = 'Ухудшение'; trendColor = 'var(--danger)'; trendSign = '+' + diff + '%'; trendEmoji = '↑'; }
+        else { trendLabel = 'Без изменений'; trendColor = 'var(--text-soft)'; trendSign = diff + '%'; trendEmoji = '→'; }
+        var trendHtml = '<div style="margin-top:1.5rem;padding:1.25rem;background:var(--bg-alt);border-radius:16px;text-align:center;"><div style="font-family:Inter, sans-serif; font-size:0.8rem; color:var(--text-soft); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Динамика с прошлого теста</div><div style="display:flex; align-items:center; justify-content:center; gap:1rem; flex-wrap:wrap;"><div style="font-family:Cormorant Garamond, serif; font-size:2rem; font-weight:700; color:' + trendColor + ';">' + trendEmoji + ' ' + trendSign + '</div><div style="font-size:0.95rem; color:' + trendColor + '; font-weight:600;">' + trendLabel + '</div></div><div style="margin-top:0.75rem; font-size:0.82rem; color:var(--text-soft);">Прошлый тест: ' + prev.percent + '% → Сейчас: ' + curr.percent + '%</div></div>';
         testBlock.innerHTML += trendHtml;
       } else {
         testBlock.innerHTML += '<div style="margin-top:1.5rem;padding:1rem;background:var(--bg-alt);border-radius:12px;text-align:center;font-size:0.85rem;color:var(--text-soft);">Пройдите тест ещё раз через 2 недели и мы покажем динамику</div>';
@@ -818,11 +679,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       var daysSince = Math.floor((Date.now() - new Date(t.date).getTime()) / 86400000);
       if (daysSince >= 14) {
-        var remindHtml = '<div style="margin-top:1.5rem;padding:1.25rem;background:var(--warning-light);border-radius:16px;text-align:center;">' +
-          '<div style="font-size:0.95rem;color:var(--warning);font-weight:600;margin-bottom:0.75rem;">⏰ Пора пройти тест снова</div>' +
-          '<div style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Прошло ' + daysSince + ' дней с последнего теста</div>' +
-          '<button class="btn btn-primary btn-sm" onclick="closeProfile(); restartQuiz();">Пройти тест</button>' +
-        '</div>';
+        var remindHtml = '<div style="margin-top:1.5rem;padding:1.25rem;background:var(--warning-light);border-radius:16px;text-align:center;"><div style="font-size:0.95rem;color:var(--warning);font-weight:600;margin-bottom:0.75rem;">⏰ Пора пройти тест снова</div><div style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Прошло ' + daysSince + ' дней с последнего теста</div><button class="btn btn-primary btn-sm" onclick="closeProfile(); restartQuiz();">Пройти тест</button></div>';
         testBlock.innerHTML += remindHtml;
       }
     } else {
@@ -1037,7 +894,7 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   window.resendVerification = function() {
-    if (!pendingEmail) { alert('Сначала введите email и пароль.'); return; }
+    if (!pendingEmail) { showToast('Сначала введите email и пароль.', 'warning'); return; }
     var password = document.getElementById('regPassword').value;
     var errEl = document.getElementById('authError');
     var infoEl = document.getElementById('authInfoBox');
@@ -1055,7 +912,7 @@ document.addEventListener('DOMContentLoaded', function() {
   };
 
   window.resendFromLogin = function() {
-    if (!pendingEmail) { alert('Сначала введите логин и пароль.'); return; }
+    if (!pendingEmail) { showToast('Сначала введите логин и пароль.', 'warning'); return; }
     var password = document.getElementById('loginPassword').value;
     var errEl = document.getElementById('loginError');
     var infoEl = document.getElementById('loginInfoBox');
