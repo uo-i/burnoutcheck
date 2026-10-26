@@ -131,14 +131,13 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   display: grid; 
   grid-template-columns: repeat(3, 1fr); 
   gap: 2rem; 
-  max-width: 900px; /* Ограничиваем ширину, чтобы шаги не разлетались по краям экрана */
-  margin: 0 auto 2rem; /* Центрируем сам блок с шагами по центру страницы */
+  max-width: 900px; 
+  margin: 0 auto 2rem; 
 }
-
 .step { 
   display: flex;
   flex-direction: column;
-  align-items: center; /* Жестко центрируем всё содержимое (иконку, текст) */
+  align-items: center;
   text-align: center;
   padding: 1.5rem 1rem; 
 }
@@ -177,25 +176,6 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
 .quiz-option:hover { border-color: var(--primary); background: var(--primary-light); }
 .quiz-option.selected { border-color: var(--primary); background: var(--primary-light); color: var(--primary-dark); font-weight: 600; }
 .quiz-nav { display: flex; justify-content: space-between; margin-top: 2rem; }
-
-/* скрытая кнопка перехода по вопросам */
-#quizCard { position: relative; }
-.skip-trigger {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  width: 50px;
-  height: 50px;
-  background: transparent;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  opacity: 0;
-  padding: 0;
-  z-index: 5;
-  outline: none;
-}
-.skip-trigger:focus { outline: none; box-shadow: none; }
 
 /* выбор возраста перед тестом */
 .role-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.5rem; }
@@ -393,7 +373,42 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
 /* нижнее меню только на телефоне */
 .bottom-nav { display: none; }
 
-/* мобильаня версия */
+/* --- УВЕДОМЛЕНИЯ  --- */
+.toast-container {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--card);
+  color: var(--text);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-soft);
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+  animation: toastIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  min-width: 280px;
+  max-width: 90vw;
+}
+.toast.warning { border-left: 4px solid var(--warning); }
+.toast.success { border-left: 4px solid var(--success); }
+.toast.hiding { animation: toastOut 0.3s ease forwards; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes toastOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(30px) scale(0.95); } }
+
+/* мобильная версия */
 @media (max-width: 900px) {
   .nav-menu { display: none !important; }
   .mobile-menu-btn { display: none !important; }
@@ -430,20 +445,15 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
     align-items: stretch;
     padding: 0;
     overflow: hidden;
-    /* высота экрана так работает и на айфоне и на андроиде */
     height: 100vh;
     height: -webkit-fill-available;
     height: 100dvh;
   }
   .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
   .hero-bg img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
-  /* затемнение сверху вниз крутить прозрачность тут */
   .hero-bg::after {
     display: block !important;
-    background: linear-gradient(180deg,
-      rgba(0, 0, 0, 0.55) 0%,
-      rgba(0, 0, 0, 0.35) 40%,
-      rgba(0, 0, 0, 0.15) 100%) !important;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.35) 40%, rgba(0, 0, 0, 0.15) 100%) !important;
   }
   .hero-content {
     position: relative;
@@ -458,28 +468,15 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
     flex-direction: column;
     background: transparent;
   }
-  .hero-content h1 {
-    font-size: 2rem;
-    margin-bottom: 0.75rem;
-    color: #ffffff;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
-  }
-  .hero-content p {
-    color: #ffffff;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.7);
-    margin-bottom: 1.5rem;
-    font-size: 0.95rem;
-  }
+  .hero-content h1 { font-size: 2rem; margin-bottom: 0.75rem; color: #ffffff; text-shadow: 0 2px 8px rgba(0,0,0,0.7); }
+  .hero-content p { color: #ffffff; text-shadow: 0 1px 4px rgba(0,0,0,0.7); margin-bottom: 1.5rem; font-size: 0.95rem; }
   .hero-bottom { margin-top: auto; }
   .hero-cta { margin-bottom: 1rem; }
   .hero-cta .btn-primary { padding: 0.85rem 1.75rem; font-size: 0.95rem; font-weight: 500; }
   .hero-features { color: rgba(255,255,255,0.95); font-size: 0.78rem; gap: 1rem; }
 
   /* адпатив остальных блоков */
-  .steps { 
-  grid-template-columns: 1fr; /* На телефоне шаги будут идти друг под другом */
-  gap: 1rem;
-  }
+  .steps { grid-template-columns: 1fr; gap: 1rem; }
   .audience-grid, .about-grid, .role-picker, .materials-layout, .profile-layout, .stat-row { grid-template-columns: 1fr; }
   #agePicker { grid-template-columns: 1fr; }
   .materials-sidebar { position: static; }
@@ -489,4 +486,6 @@ main { max-width: 1280px; margin: 0 auto; padding: 0 2rem 4rem; }
   .section-title { font-size: 1.7rem; }
   .cta-banner h2 { font-size: 1.7rem; }
   .course-img { height: 180px; }
+
+  .toast-container { bottom: 90px; width: 100%; padding: 0 1rem; }
 }
