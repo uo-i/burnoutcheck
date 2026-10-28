@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (exists) return;
     courses.push({ title: title, price: price, date: new Date().toISOString() });
     var update = { courses: courses };
-    if (price !== '0 ₽' && price !== 'Бесплатно') update.subscription = 'active';
+    if (price !== '0 ₽' && price !== 'Бесплатно' && price !== 'Включено в Premium') update.subscription = 'active';
     db.collection('users').doc(currentUser.uid).update(update).catch(function(err) { console.error(err); });
   }
 
@@ -205,6 +205,13 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   window.selectAge = function(age) {
+    // Проверка галочки согласия
+    var checkbox = document.getElementById('consentCheckbox');
+    if (checkbox && !checkbox.checked) {
+      showToast('Пожалуйста, подтвердите, что вы понимаете суть проекта.', 'warning');
+      return;
+    }
+
     ageGroup = age;
     document.getElementById('rolePicker').style.display = 'none';
     document.getElementById('quizCard').style.display = 'block';
@@ -264,6 +271,8 @@ document.addEventListener('DOMContentLoaded', function() {
     currentQ = 0;
     answers = new Array(questions.length).fill(null);
     ageGroup = null;
+    var checkbox = document.getElementById('consentCheckbox');
+    if (checkbox) checkbox.checked = false;
     document.getElementById('rolePicker').style.display = 'block';
     document.getElementById('quizCard').style.display = 'none';
     navigate('quiz');
@@ -314,8 +323,9 @@ document.addEventListener('DOMContentLoaded', function() {
     else if (pct < 66) { level = 'Умеренный'; color = '#d4a373'; }
     else { level = 'Высокий'; color = '#c97b6a'; }
 
-    document.getElementById('resTitle').textContent = level + ' уровень выгорания';
-    document.getElementById('resDesc').textContent = typeDesc + ' Это не диагноз а ориентир для дальнейших шагов.';
+    // Новые безопасные формулировки
+    document.getElementById('resTitle').textContent = 'Признаки повышенной усталости (' + level + ' уровень)';
+    document.getElementById('resDesc').textContent = typeDesc + ' Результаты не являются медицинским диагнозом и носят исключительно информационный характер.';
     document.getElementById('resPercent').textContent = pct + '%';
 
     var donut = document.getElementById('donutFill');
@@ -357,7 +367,16 @@ document.addEventListener('DOMContentLoaded', function() {
     showHobbyRecommendation(hobbyAnswer);
     showReadingRecommendation(readAnswer);
     showSaveBanner();
+    
+    // Переход на страницу результатов
     navigate('results');
+
+    // Проверка "Красной зоны" (Критический уровень)
+    if (pct >= 75 || pctEI >= 85 || pctDP >= 85 || pctRD >= 85) {
+      setTimeout(function() {
+        document.getElementById('crisisOverlay').classList.add('show');
+      }, 500); // Показываем через полсекунды после перехода
+    }
   }
 
   function showReadingRecommendation(reading) {
@@ -400,7 +419,7 @@ document.addEventListener('DOMContentLoaded', function() {
       'Психология / самопознание':  { cat: 'psych', label: 'Психология' }
     };
     var rec = map[hobby];
-    if (!rec) return;
+    if (!rec) return; // Если хобби "Другое", ничего не выводим
 
     var block = document.createElement('div');
     block.id = 'hobbyBlock';
@@ -598,7 +617,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!block) return;
     var history = (currentUser && currentUser.testHistory) ? currentUser.testHistory : [];
     if (history.length < 2) {
-      block.innerHTML = '<div class="empty-state">Пройдите тест 2 раза и мы покажем график динамики</div>';
+      block.innerHTML = '<div class="empty-state">Пройдите опрос 2 раза и мы покажем график динамики</div>';
       return;
     }
     var last = history.slice(-6);
@@ -642,7 +661,7 @@ document.addEventListener('DOMContentLoaded', function() {
       dateLabels += '<span>' + d.getDate() + '.' + (d.getMonth() + 1) + '</span>';
     }
 
-    block.innerHTML = '<div style="text-align:left; margin-bottom:0.75rem; font-size:0.85rem;">Изменение уровня стресса за ' + last.length + ' тестов: ' + summaryText + '</div>' + svg + '<div style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-dim); margin-top:0.25rem;">' + dateLabels + '</div>';
+    block.innerHTML = '<div style="text-align:left; margin-bottom:0.75rem; font-size:0.85rem;">Изменение уровня усталости за ' + last.length + ' опросов: ' + summaryText + '</div>' + svg + '<div style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-dim); margin-top:0.25rem;">' + dateLabels + '</div>';
   }
 
   window.openProfile = function() {
@@ -671,19 +690,19 @@ document.addEventListener('DOMContentLoaded', function() {
         if (diff <= -5) { trendLabel = 'Прогресс'; trendColor = 'var(--success)'; trendSign = diff + '%'; trendEmoji = '↓'; }
         else if (diff >= 5) { trendLabel = 'Ухудшение'; trendColor = 'var(--danger)'; trendSign = '+' + diff + '%'; trendEmoji = '↑'; }
         else { trendLabel = 'Без изменений'; trendColor = 'var(--text-soft)'; trendSign = diff + '%'; trendEmoji = '→'; }
-        var trendHtml = '<div style="margin-top:1.5rem;padding:1.25rem;background:var(--bg-alt);border-radius:16px;text-align:center;"><div style="font-family:Inter, sans-serif; font-size:0.8rem; color:var(--text-soft); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Динамика с прошлого теста</div><div style="display:flex; align-items:center; justify-content:center; gap:1rem; flex-wrap:wrap;"><div style="font-family:Cormorant Garamond, serif; font-size:2rem; font-weight:700; color:' + trendColor + ';">' + trendEmoji + ' ' + trendSign + '</div><div style="font-size:0.95rem; color:' + trendColor + '; font-weight:600;">' + trendLabel + '</div></div><div style="margin-top:0.75rem; font-size:0.82rem; color:var(--text-soft);">Прошлый тест: ' + prev.percent + '% → Сейчас: ' + curr.percent + '%</div></div>';
+        var trendHtml = '<div style="margin-top:1.5rem;padding:1.25rem;background:var(--bg-alt);border-radius:16px;text-align:center;"><div style="font-family:Inter, sans-serif; font-size:0.8rem; color:var(--text-soft); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Динамика с прошлого опроса</div><div style="display:flex; align-items:center; justify-content:center; gap:1rem; flex-wrap:wrap;"><div style="font-family:Cormorant Garamond, serif; font-size:2rem; font-weight:700; color:' + trendColor + ';">' + trendEmoji + ' ' + trendSign + '</div><div style="font-size:0.95rem; color:' + trendColor + '; font-weight:600;">' + trendLabel + '</div></div><div style="margin-top:0.75rem; font-size:0.82rem; color:var(--text-soft);">Прошлый опрос: ' + prev.percent + '% → Сейчас: ' + curr.percent + '%</div></div>';
         testBlock.innerHTML += trendHtml;
       } else {
-        testBlock.innerHTML += '<div style="margin-top:1.5rem;padding:1rem;background:var(--bg-alt);border-radius:12px;text-align:center;font-size:0.85rem;color:var(--text-soft);">Пройдите тест ещё раз через 2 недели и мы покажем динамику</div>';
+        testBlock.innerHTML += '<div style="margin-top:1.5rem;padding:1rem;background:var(--bg-alt);border-radius:12px;text-align:center;font-size:0.85rem;color:var(--text-soft);">Пройдите опрос ещё раз через 2 недели и мы покажем динамику</div>';
       }
 
       var daysSince = Math.floor((Date.now() - new Date(t.date).getTime()) / 86400000);
       if (daysSince >= 14) {
-        var remindHtml = '<div style="margin-top:1.5rem;padding:1.25rem;background:var(--warning-light);border-radius:16px;text-align:center;"><div style="font-size:0.95rem;color:var(--warning);font-weight:600;margin-bottom:0.75rem;">⏰ Пора пройти тест снова</div><div style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Прошло ' + daysSince + ' дней с последнего теста</div><button class="btn btn-primary btn-sm" onclick="closeProfile(); restartQuiz();">Пройти тест</button></div>';
+        var remindHtml = '<div style="margin-top:1.5rem;padding:1.25rem;background:var(--warning-light);border-radius:16px;text-align:center;"><div style="font-size:0.95rem;color:var(--warning);font-weight:600;margin-bottom:0.75rem;">⏰ Пора пройти опрос снова</div><div style="font-size:0.85rem;color:var(--text-soft);margin-bottom:1rem;">Прошло ' + daysSince + ' дней с последнего опроса</div><button class="btn btn-primary btn-sm" onclick="closeProfile(); restartQuiz();">Пройти опрос</button></div>';
         testBlock.innerHTML += remindHtml;
       }
     } else {
-      testBlock.innerHTML = '<div class="empty-state">Вы ещё не проходили тест</div>';
+      testBlock.innerHTML = '<div class="empty-state">Вы ещё не проходили опрос</div>';
     }
 
     var coursesBlock = document.getElementById('profileCoursesBlock');
