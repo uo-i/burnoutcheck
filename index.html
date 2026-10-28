@@ -16,7 +16,7 @@
   <div class="nav-logo" onclick="navigate('dashboard')"><span class="nav-logo-icon">Б</span> Баланс</div>
   <div class="nav-menu" id="navMenu">
     <a class="active" onclick="navigate('dashboard')">Главная</a>
-    <a onclick="navigate('quiz')">Тест</a>
+    <a onclick="navigate('quiz')">Самодиагностика</a>
     <a onclick="navigate('courses')">Курсы</a>
     <a onclick="navigate('resources')">Материалы</a>
     <a onclick="navigate('about')">О нас</a>
@@ -48,12 +48,18 @@
       <p>Пройдите бесплатную диагностику, узнайте свой уровень стресса и получите персональный маршрут восстановления от выгорания.</p>
       <div class="hero-bottom">
         <div class="hero-cta">
-          <button class="btn btn-primary" onclick="navigate('quiz')">Пройти тест →</button>
-          
-          <!-- НОВАЯ КНОПКА РЕГИСТРАЦИИ -->
+          <button class="btn btn-primary" onclick="navigate('quiz')">Пройти самодиагностику →</button>
           <button class="btn btn-outline" style="background: rgba(255,255,255,0.15); border: 1.5px solid rgba(255,255,255,0.5); color: #fff; backdrop-filter: blur(4px);" onclick="openAuth()">
             Войти / Регистрация
           </button>
+        </div>
+        <div class="hero-features">
+          <span>
+            <span class="dot"></span> 
+            <a href="https://nafi.ru/projects/professionalnoe-vygoranie-rossiyan-simptomy-prichiny-mery-profilaktiki/" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none; border-bottom: 1px dashed rgba(255,255,255,0.5); cursor: pointer;" title="Исследование НАФИ и Фонда Росконгресс (2023 г.)">
+              45% работающих россиян сталкивались с выгоранием. А вы?
+            </a>
+          </span>
         </div>
       </div>
     </div>
@@ -66,14 +72,14 @@
       <div class="step">
         <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="13" y2="17"></line></svg></div>
         <div class="step-num">01</div>
-        <h4>Пройдите тест</h4>
+        <h4>Пройдите опросник</h4>
         <p>Ответьте на несколько вопросов о своём состоянии и жизни</p>
       </div>
       <div class="step">
         <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4 3 7v13l6-3 6 3 6-3V4l-6 3z"></path><line x1="9" y1="4" x2="9" y2="17"></line><line x1="15" y1="7" x2="15" y2="20"></line></svg></div>
         <div class="step-num">02</div>
         <h4>Получите маршрут</h4>
-        <p>Узнайте уровень стресса и получите персональный план восстановления</p>
+        <p>Узнайте уровень усталости и получите персональный план восстановления</p>
       </div>
       <div class="step">
         <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#b8935f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"></path><path d="M12 12c0-3 2-6 6-6 0 3-2 6-6 6z"></path><path d="M12 14c0-2-2-4-5-4 0 2 2 4 5 4z"></path></svg></div>
@@ -96,18 +102,27 @@
 
   <div class="cta-banner">
     <h2>Твой ресурс — в твоих руках</h2>
-    <p>Небольшой тест — первый шаг к пониманию того, что происходит именно с тобой</p>
-    <button class="btn btn-primary" onclick="navigate('quiz')">Пройти тест →</button>
+    <p>Небольшой опрос — первый шаг к пониманию того, что происходит именно с тобой</p>
+    <button class="btn btn-primary" onclick="navigate('quiz')">Пройти самодиагностику →</button>
   </div>
 </section>
 
-<!-- тест -->
+<!-- самодиагностика -->
 <section id="quiz" class="page">
   <div class="quiz-container" id="rolePicker">
     <div class="quiz-step-label"><span>Шаг 1 из 3</span><span>О вас</span></div>
     <div class="quiz-progress"><div class="quiz-progress-fill" style="width: 10%;"></div></div>
     <h2 class="quiz-question">Сколько вам лет?</h2>
     <p class="quiz-hint">Возраст нужен, чтобы подобрать вопросы и рекомендации под вашу ситуацию</p>
+    
+    <!-- Блок согласия -->
+    <div style="background: var(--bg-alt); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; display: flex; gap: 0.75rem; align-items: flex-start; text-align: left; border: 1px solid var(--border);">
+      <input type="checkbox" id="consentCheckbox" style="margin-top: 0.3rem; width: 18px; height: 18px; accent-color: var(--primary); cursor: pointer;">
+      <label for="consentCheckbox" style="font-size: 0.85rem; color: var(--text-soft); cursor: pointer; line-height: 1.4;">
+        Я понимаю, что это интерактивное методическое пособие, а <b>не медицинская услуга</b>. Результаты не являются диагнозом.
+      </label>
+    </div>
+
     <div class="role-picker" id="agePicker">
       <div class="role-card-lg" onclick="selectAge('teen')"><div class="role-emoji-lg">🎒</div><div class="role-title-lg">16–18 лет</div><div class="role-desc-lg">Школа, ОГЭ, ЕГЭ</div></div>
       <div class="role-card-lg" onclick="selectAge('young')"><div class="role-emoji-lg">🎓</div><div class="role-title-lg">19–25 лет</div><div class="role-desc-lg">Вуз, сессии, начало карьеры</div></div>
@@ -133,7 +148,7 @@
 <!-- результат -->
 <section id="results" class="page">
   <div class="result-card">
-    <div class="result-label">Ваш профиль выгорания</div>
+    <div class="result-label">Результаты самодиагностики</div>
     <h2 class="result-title" id="resTitle">—</h2>
     <div class="result-donut">
       <svg width="180" height="180" viewBox="0 0 180 180">
@@ -141,7 +156,7 @@
         <circle id="donutFill" cx="90" cy="90" r="75" fill="none" stroke="#8ba888" stroke-width="14" stroke-dasharray="471" stroke-dashoffset="471" stroke-linecap="round" style="transition: stroke-dashoffset 1s ease;"></circle>
       </svg>
       <div class="result-donut-percent" id="resPercent">0%</div>
-      <div class="result-donut-label">Уровень стресса</div>
+      <div class="result-donut-label">Индекс усталости</div>
     </div>
     <div class="result-causes"><h4>Основные шкалы</h4><div id="resCauses"></div></div>
     <p style="color: var(--text-soft); line-height: 1.7; margin-bottom: 1rem;" id="resDesc"></p>
@@ -250,7 +265,7 @@
   <!-- БЛОК ПОДПИСКИ -->
   <div style="background: var(--card); border-radius: 24px; padding: 3rem 2rem; border: 1px solid var(--border-soft); box-shadow: var(--shadow-sm); margin-bottom: 4rem; text-align: center;">
     <h2 style="font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; margin-bottom: 0.5rem;">Premium-подписка «Баланс»</h2>
-    <p style="color: var(--text-soft); margin-bottom: 2.5rem;">Один доступ ко всем углубленным курсам, полным тестам и новым материалам</p>
+    <p style="color: var(--text-soft); margin-bottom: 2.5rem;">Один доступ ко всем углубленным курсам, полным опросникам и новым материалам</p>
     
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; max-width: 900px; margin: 0 auto;">
       
@@ -408,14 +423,14 @@
   <div class="about-card" style="margin-top: 1.5rem;">
     <h4>🗺️ Этапы развития</h4>
     <div class="phase-timeline">
-      <div class="phase-item"><h5>Этап 1 — MVP</h5><p>Лендинг + тест, 10–15 бесплатных методик, простая логика рекомендаций</p></div>
+      <div class="phase-item"><h5>Этап 1 — MVP</h5><p>Лендинг + опрос, 10–15 бесплатных методик, простая логика рекомендаций</p></div>
       <div class="phase-item"><h5>Этап 2 — Рост</h5><p>Личный кабинет, прогресс, дневник. 50+ методик, 5–10 мини-курсов</p></div>
       <div class="phase-item"><h5>Этап 3 — Монетизация</h5><p>Premium-подписка, партнёрский магазин, B2B-пилоты с компаниями</p></div>
       <div class="phase-item"><h5>Этап 4 — Масштабирование</h5><p>ИИ-ассистент, локализация, партнёрства с крупными брендами</p></div>
     </div>
   </div>
   <div class="about-grid" style="margin-top: 1.5rem;">
-    <div class="about-card"><h4>⚠️ Важно</h4><p>Результаты теста носят информационный характер и не являются медицинским диагнозом. При серьёзных проблемах обратитесь к специалисту.</p></div>
+    <div class="about-card"><h4>⚠️ Важно</h4><p>Результаты опросника носят информационный характер и не являются медицинским диагнозом. При серьёзных проблемах обратитесь к специалисту.</p></div>
     <div class="about-card"><h4>🔒 Конфиденциальность</h4><p>Данные аккаунта хранятся в защищённом облаке Firebase. Пароли шифруются и не видны администрации.</p></div>
   </div>
 </section>
@@ -525,7 +540,7 @@
         <div class="sub-status" id="profileSubBadge">—</div>
       </div>
       <div class="profile-main">
-        <div class="profile-card"><h4>Результат теста</h4><div id="profileTestBlock"></div></div>
+        <div class="profile-card"><h4>Результат опроса</h4><div id="profileTestBlock"></div></div>
         <div class="profile-card"><h4>Динамика состояния</h4><div id="profileChartBlock"></div></div>
         <div class="profile-card"><h4>Мои курсы</h4><div id="profileCoursesBlock"></div></div>
         <div class="profile-card"><h4>Способ оплаты</h4><div id="profileCardBlock"></div></div>
@@ -601,7 +616,7 @@
   </a>
   <a class="bottom-nav-item" onclick="navigate('quiz')">
     <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-    <span>Тест</span>
+    <span>Самодиагностика</span>
   </a>
   <a class="bottom-nav-item" onclick="navigate('courses')">
     <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
@@ -626,6 +641,41 @@
     <div id="articleContent" class="article-content"></div>
   </div>
 </div>
+
+<!-- Экстренная помощь (Красная зона) -->
+<div class="modal-overlay" id="crisisOverlay">
+  <div class="modal" style="border: 2px solid var(--danger); max-width: 500px; text-align: center;">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">🫂</div>
+    <h2 style="font-size: 1.8rem; color: var(--danger); margin-bottom: 0.75rem;">Ваши результаты указывают на сильное истощение</h2>
+    <p style="color: var(--text); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+      Пожалуйста, не оставайтесь с этим один на один. Обратитесь к специалисту, который сможет помочь.
+    </p>
+    
+    <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem;">
+      <a href="tel:88002000122" class="btn btn-primary" style="background: var(--danger); width: 100%; font-size: 1.1rem; text-decoration: none;">
+        📞 8-800-2000-122 (Детский телефон доверия)
+      </a>
+      <a href="tel:+74959895050" class="btn btn-outline" style="width: 100%; border-color: var(--danger); color: var(--danger); text-decoration: none;">
+        📞 +7 (495) 989-50-50 (Помощь МЧС)
+      </a>
+      <a href="https://psi.mchs.gov.ru/" target="_blank" rel="noopener noreferrer" class="btn btn-ghost" style="width: 100%; text-decoration: none;">
+        🌐 Бесплатная консультация (Помощь рядом)
+      </a>
+    </div>
+
+    <button class="btn btn-outline" style="width: 100%;" onclick="document.getElementById('crisisOverlay').classList.remove('show');">Я понял(а), продолжить просмотр</button>
+  </div>
+</div>
+
+<!-- Подвал с юридической информацией -->
+<footer style="text-align: center; padding: 2rem 1rem; border-top: 1px solid var(--border-soft); margin-top: 3rem; font-size: 0.8rem; color: var(--text-soft); background: var(--bg);">
+  <p style="margin-bottom: 0.5rem;">© Проект «Баланс». Интерактивное методическое пособие.</p>
+  <p style="margin-bottom: 0.5rem;">Проект не является медицинской организацией и не несет ответственности за ухудшение состояния.</p>
+  <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+    <a href="#" onclick="showToast('Документ находится в разработке', 'warning'); return false;" style="color: var(--primary); text-decoration: underline;">Пользовательское соглашение</a>
+    <a href="#" onclick="showToast('Документ находится в разработке', 'warning'); return false;" style="color: var(--primary); text-decoration: underline;">Политика конфиденциальности</a>
+  </div>
+</footer>
 
 <div class="toast-container" id="toastContainer"></div>
 
