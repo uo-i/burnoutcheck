@@ -228,26 +228,67 @@ document.addEventListener('DOMContentLoaded', function() {
     if (qTotalEl) qTotalEl.textContent = questions.length;
     progressEl.style.width = ((currentQ + 1) / questions.length) * 100 + '%';
 
+    var hintEl = document.querySelector('.quiz-hint');
+    if (item.scale === 'READ' || item.scale === 'HOBBY') {
+      if (hintEl) hintEl.textContent = 'Можно выбрать несколько вариантов ответа';
+    } else {
+      if (hintEl) hintEl.textContent = 'Выберите один вариант ответа';
+    }
+
     var html = '';
     for (var i = 0; i < item.opts.length; i++) {
-      var cls = (answers[currentQ] === i) ? ' selected' : '';
+      var isMulti = (item.scale === 'READ' || item.scale === 'HOBBY');
+      var isSelected = false;
+      
+      if (isMulti) {
+        isSelected = Array.isArray(answers[currentQ]) && answers[currentQ].includes(i);
+      } else {
+        isSelected = (answers[currentQ] === i);
+      }
+
+      var cls = isSelected ? ' selected' : '';
       html += '<button class="quiz-option' + cls + '" data-idx="' + i + '">' + item.opts[i] + '</button>';
     }
     qOptsEl.innerHTML = html;
+    
     qOptsEl.querySelectorAll('.quiz-option').forEach(function(el) {
       el.addEventListener('click', function() { selectAns(parseInt(this.getAttribute('data-idx'), 10)); });
     });
 
     btnPrev.disabled = false;
     btnPrev.textContent = (currentQ === 0) ? '← К выбору возраста' : '← Назад';
-    btnNext.disabled = (answers[currentQ] === null);
+    
+    var isNothingSelected = (answers[currentQ] === null || (Array.isArray(answers[currentQ]) && answers[currentQ].length === 0));
+    btnNext.disabled = isNothingSelected;
+    
     btnNext.textContent = (currentQ === questions.length - 1) ? 'Получить результат →' : 'Далее →';
   }
 
   function selectAns(idx) {
-    answers[currentQ] = idx;
-    qOptsEl.querySelectorAll('.quiz-option').forEach(function(el, i) { el.classList.toggle('selected', i === idx); });
-    btnNext.disabled = false;
+    var item = questions[currentQ];
+    var isMulti = (item.scale === 'READ' || item.scale === 'HOBBY');
+
+    if (isMulti) {
+      if (!Array.isArray(answers[currentQ])) {
+        answers[currentQ] = [];
+      }
+      var pos = answers[currentQ].indexOf(idx);
+      if (pos > -1) {
+        answers[currentQ].splice(pos, 1);
+      } else {
+        answers[currentQ].push(idx);
+      }
+      
+      qOptsEl.querySelectorAll('.quiz-option').forEach(function(el, i) { 
+        el.classList.toggle('selected', answers[currentQ].includes(i)); 
+      });
+      btnNext.disabled = (answers[currentQ].length === 0);
+
+    } else {
+      answers[currentQ] = idx;
+      qOptsEl.querySelectorAll('.quiz-option').forEach(function(el, i) { el.classList.toggle('selected', i === idx); });
+      btnNext.disabled = false;
+    }
   }
 
   window.nextQ = function() {
