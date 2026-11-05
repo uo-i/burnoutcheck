@@ -509,10 +509,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  function showReadingRecommendation(reading) {
+  function showReadingRecommendation(readings) {
     var old = document.getElementById('readingBlock');
     if (old) old.remove();
-    if (!reading) return;
+    if (!readings || readings.length === 0) return;
+    
+    var reading = readings[0];
 
     var block = document.createElement('div');
     block.id = 'readingBlock';
@@ -536,10 +538,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  function showHobbyRecommendation(hobby) {
+  function showHobbyRecommendation(hobbies) {
     var old = document.getElementById('hobbyBlock');
     if (old) old.remove();
-    if (!hobby) return;
+    if (!hobbies || hobbies.length === 0) return;
 
     var map = {
       'Йога / медитация':           { cat: 'yoga',  label: 'Йога и медитация' },
@@ -548,13 +550,22 @@ document.addEventListener('DOMContentLoaded', function() {
       'Спорт / танцы':              { cat: 'sport', label: 'Спорт' },
       'Психология / самопознание':  { cat: 'psych', label: 'Психология' }
     };
-    var rec = map[hobby];
-    if (!rec) return; // Если хобби "Другое", ничего не выводим
+    
+    var rec = null;
+    for (var i = 0; i < hobbies.length; i++) {
+      if (map[hobbies[i]]) {
+        rec = map[hobbies[i]];
+        break;
+      }
+    }
 
     var block = document.createElement('div');
     block.id = 'hobbyBlock';
     block.style.cssText = 'margin-top:1.5rem;padding:1.25rem;background:var(--primary-light);border-radius:16px;text-align:center;';
-    block.innerHTML = '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Ваше хобби для восстановления</div><div style="font-family:\'Cormorant Garamond\', serif; font-size:1.6rem; font-weight:600; color:var(--primary-dark); margin-bottom:1rem;">' + hobby + '</div>' + (rec ? '<button class="btn btn-primary btn-sm" onclick="goToCoursesFiltered(\'' + rec.cat + '\')">Показать курсы: ' + rec.label + ' →</button>' : '');
+    
+    block.innerHTML = '<div style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Ваши интересы для восстановления</div>' +
+      '<div style="font-family:\'Cormorant Garamond\', serif; font-size:1.4rem; font-weight:600; color:var(--primary-dark); margin-bottom:1rem;">' + hobbies.join(', ') + '</div>' + 
+      (rec ? '<button class="btn btn-primary btn-sm" onclick="goToCoursesFiltered(\'' + rec.cat + '\')">Показать курсы: ' + rec.label + ' →</button>' : '');
 
     var target = document.querySelector('#results .result-card');
     if (target) {
