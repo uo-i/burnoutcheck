@@ -364,6 +364,95 @@ document.addEventListener('DOMContentLoaded', function() {
     else if (pct < 66) { level = 'Умеренный'; color = '#d4a373'; }
     else { level = 'Высокий'; color = '#c97b6a'; }
 
+    document.getElementById('resTitle').textContent = 'Признаки повышенной усталости (' + level + ' уровень)';
+    document.getElementById('resDesc').textContent = typeDesc + ' Результаты не являются медицинским диагнозом и носят исключительно информационный характер.';
+    document.getElementById('resPercent').textContent = pct + '%';
+
+    var donut = document.getElementById('donutFill');
+    var circumference = 2 * Math.PI * 75;
+    donut.setAttribute('stroke-dasharray', circumference);
+    donut.setAttribute('stroke', color);
+    donut.style.strokeDashoffset = circumference;
+    setTimeout(function() { donut.style.strokeDashoffset = circumference - (pct / 100) * circumference; }, 100);
+
+    var causesHtml = '';
+    causesHtml += '<div class="cause-item"><span class="cause-dot ' + (pctEI >= 60 ? 'danger' : (pctEI >= 33 ? 'warning' : 'success')) + '"></span><span>Эмоциональное истощение — ' + pctEI + '%</span></div>';
+    causesHtml += '<div class="cause-item"><span class="cause-dot ' + (pctDP >= 60 ? 'danger' : (pctDP >= 33 ? 'warning' : 'success')) + '"></span><span>Цинизм и отстранённость — ' + pctDP + '%</span></div>';
+    causesHtml += '<div class="cause-item"><span class="cause-dot ' + (pctRD >= 60 ? 'danger' : (pctRD >= 33 ? 'warning' : 'success')) + '"></span><span>Потеря смысла и достижений — ' + pctRD + '%</span></div>';
+    document.getElementById('resCauses').innerHTML = causesHtml;
+
+    var hobbyIdx = -1;
+    for (var k = 0; k < questions.length; k++) {
+      if (questions[k].scale === 'HOBBY') { hobbyIdx = k; break; }
+    }
+    var hobbyAnswer = [];
+    if (hobbyIdx >= 0 && Array.isArray(answers[hobbyIdx])) {
+      hobbyAnswer = answers[hobbyIdx].map(function(i) { return questions[hobbyIdx].opts[i]; });
+    }
+
+    var readIdx = -1;
+    for (var m = 0; m < questions.length; m++) {
+      if (questions[m].scale === 'READ') { readIdx = m; break; }
+    }
+    var readAnswer = [];
+    if (readIdx >= 0 && Array.isArray(answers[readIdx])) {
+      readAnswer = answers[readIdx].map(function(i) { return questions[readIdx].opts[i]; });
+    }
+
+    lastTestResult = { percent: pct, level: level + ' уровень выгорания', type: type, ageGroup: ageGroup, scales: { EI: pctEI, DP: pctDP, RD: pctRD }, hobby: hobbyAnswer, reading: readAnswer, date: new Date().toISOString() };
+
+    if (currentUser) {
+      var history = currentUser.testHistory || [];
+      history.push(lastTestResult);
+      db.collection('users').doc(currentUser.uid).update({
+        lastTest: lastTestResult,
+        testHistory: history
+      }).catch(function(err) { console.error(err); });
+    }
+
+    showHobbyRecommendation(hobbyAnswer);
+    showReadingRecommendation(readAnswer);
+    showSaveBanner();
+    
+    navigate('results');
+
+    if (pct >= 75 || pctEI >= 85 || pctDP >= 85 || pctRD >= 85) {
+      setTimeout(function() {
+        document.getElementById('crisisOverlay').classList.add('show');
+      }, 500);
+    }
+  }
+
+    var totalScore = scaleScores.EI + scaleScores.DP + scaleScores.RD;
+    var totalMax = scaleMaxes.EI + scaleMaxes.DP + scaleMaxes.RD;
+    var pct = Math.round((totalScore / totalMax) * 100);
+
+    var pctEI = Math.round((scaleScores.EI / scaleMaxes.EI) * 100);
+    var pctDP = Math.round((scaleScores.DP / scaleMaxes.DP) * 100);
+    var pctRD = Math.round((scaleScores.RD / scaleMaxes.RD) * 100);
+
+    var maxScale = Math.max(pctEI, pctDP, pctRD);
+    var type = '', typeDesc = '';
+
+    if (maxScale === pctEI && pctEI >= 40) {
+      type = 'Истощение';
+      typeDesc = 'Ваш тип выгорания — истощение. Вы в первую очередь физически и эмоционально вымотаны.';
+    } else if (maxScale === pctDP && pctDP >= 40) {
+      type = 'Цинизм';
+      typeDesc = 'Ваш тип выгорания — цинизм. Вы теряете интерес и вовлечённость, стали раздражительны и отстранены.';
+    } else if (maxScale === pctRD && pctRD >= 40) {
+      type = 'Потеря смысла';
+      typeDesc = 'Ваш тип выгорания — редукция достижений. Вам кажется, что ничего не получается и ничего не имеет смысла.';
+    } else {
+      type = 'Смешанный';
+      typeDesc = 'У вас смешанный тип — признаки всех трёх шкал выражены примерно одинаково.';
+    }
+
+    var level, color;
+    if (pct < 33) { level = 'Низкий'; color = '#7fa97c'; }
+    else if (pct < 66) { level = 'Умеренный'; color = '#d4a373'; }
+    else { level = 'Высокий'; color = '#c97b6a'; }
+
     // Новые безопасные формулировки
     document.getElementById('resTitle').textContent = 'Признаки повышенной усталости (' + level + ' уровень)';
     document.getElementById('resDesc').textContent = typeDesc + ' Результаты не являются медицинским диагнозом и носят исключительно информационный характер.';
